@@ -17,11 +17,13 @@
 
     <section class="form-card" style="width:100%;">
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <button id="startBtn" class="btn btn-primary" type="button">Start Camera</button>
-        <button id="stopBtn" class="btn btn-secondary" type="button" style="display:none;">Stop</button>
-        <button id="torchBtn" class="btn btn-dark" type="button" style="display:none;">Toggle Torch</button>
-        <input id="manualToken" class="input" placeholder="Or enter token manually…" style="flex:1; min-width:220px;">
-        <button id="lookupBtn" class="btn btn-secondary" type="button">Lookup</button>
+        <input id="manualToken" class="input" placeholder="Search by Token No (3-digits) or Phone (10-digits)" style="flex:1; min-width:260px;"
+               inputmode="numeric" pattern="\d*" autocomplete="off" autocapitalize="off" spellcheck="false" name="searchNumeric">
+        <button id="lookupBtn" class="btn btn-secondary" type="button">Search</button>
+        <button id="startBtn" class="btn btn-dark" type="button" title="Optional – use camera to scan QR"
+                style="padding:6px 10px; font-size:12px;">Start Camera</button>
+        <button id="stopBtn" class="btn btn-secondary" type="button" style="display:none; padding:6px 10px; font-size:12px;">Stop</button>
+        <button id="torchBtn" class="btn btn-secondary" type="button" style="display:none; padding:6px 10px; font-size:12px;">Torch</button>
       </div>
 
       <div id="camWrap" style="margin-top:16px; display:none;">
@@ -75,7 +77,24 @@
     startBtn.addEventListener('click', startCamera);
     stopBtn.addEventListener('click', stopCamera);
     torchBtn.addEventListener('click', toggleTorch);
-    lookupBtn.addEventListener('click', () => lookupByToken(manualToken.value.trim()));
+    // Normalize to digits only as user types; Enter triggers search
+    manualToken.addEventListener('input', () => {
+      manualToken.value = manualToken.value.replace(/[^\d]/g, '').slice(0, 15);
+    });
+    manualToken.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); unifiedSearch(manualToken.value.trim()); }
+    });
+    lookupBtn.addEventListener('click', () => unifiedSearch(manualToken.value.trim()));
+
+    // Event titles map for display
+    const EVENT_TITLES = {
+      'coding':'Coding (C)', 'debugging':'Debugging', 'solo-dance':'Solo Dance', 'group-dance':'Group Dance',
+      'solo-singing':'Solo Singing', 'solo-instrumental':'Solo Instrumental', 'photography':'Photography',
+      'face-painting':'Face Painting', 'reels-creation':'Reels Creation', 'general-quiz':'General Quiz',
+      'hindi-essay':'Hindi Essay', 'kannada-essay':'Kannada Essay', 'fireless-cooking':'Fireless Cooking',
+      'product-launch':'Product Launch', 'best-manager':'Best Manager', 'red-carpet':'Red Carpet',
+      'elocution':'Elocution'
+    };
 
     async function startCamera(){
       try {
@@ -148,13 +167,13 @@
         resultStatus.textContent = 'QR parsed';
         const token = payload.token || '';
         if (token) {
-          lookupByToken(token);
+          unifiedSearch(String(token));
         }
       } catch {
         rawPayload.textContent = text;
         resultStatus.textContent = 'Raw text';
         // try treat as token directly
-        if (/^\d{3}$/.test(text)) lookupByToken(text);
+        if (/^\d{3}$/.test(text)) unifiedSearch(text);
       }
     }
 
@@ -170,22 +189,101 @@
           return;
         }
         const d = snap.docs[0].data();
+        if (d.deleted === true) {
+          userCard.style.display = '';
+          userDetails.innerHTML = '<div class="helper" style="color:var(--error);">This ticket has been deleted/invalidated by admin.</div>';
+          resultStatus.textContent = 'Invalid (deleted)';
+          return;
+        }
         const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : '—';
+        const phone = d.phone || '—';
+        const events = await fetchEventsForToken(token);
         userCard.style.display = '';
         userDetails.innerHTML = `
           <div style="display:grid; gap:10px;">
             <div style="display:flex; justify-content:space-between;"><strong>Token</strong><span class="stat-badge">${token}</span></div>
             <div style="display:flex; justify-content:space-between;"><strong>Name</strong><span>${d.username||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Phone</strong><span>${phone}</span></div>
             <div style="display:flex; justify-content:space-between;"><strong>Course / Year</strong><span>${d.course||'—'} / ${d.year||'—'}</span></div>
             <div style="display:flex; justify-content:space-between;"><strong>College</strong><span>${d.college||'—'}</span></div>
-            <div style="display:flex; justify-content:space-between;"><strong>Payment</strong><span>${d.paymentMode==='onspot'?'Pay on Spot':(d.paymentMode==='online'?'Online':'—')}</span></div>
             <div style="display:flex; justify-content:space-between;"><strong>Created</strong><span>${created}</span></div>
-            <div style="display:flex; justify-content:space-between;"><strong>IP</strong><span style="font-family:monospace;">${d.ip||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;"><strong>Events</strong><span>${events.length? events.map(e=>`<span class=\"stat-badge\" style=\"margin:2px;\">${e}</span>`).join(' ') : '—'}</span></div>
           </div>
         `;
       } catch (e) {
         userCard.style.display = '';
         userDetails.innerHTML = '<div class="helper">Lookup failed. Try again.</div>';
+      }
+    }
+
+    async function lookupByPhone(phone){
+      if (!phone) return;
+      manualToken.value = phone;
+      try {
+        const q = query(collection(db, 'registrations'), where('phone', '==', phone), limit(1));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          userCard.style.display = '';
+          userDetails.innerHTML = '<div class="helper">No record found for phone ' + phone + '</div>';
+          return;
+        }
+        const d = snap.docs[0].data();
+        const token = d.shortId || '';
+        if (d.deleted === true) {
+          userCard.style.display = '';
+          userDetails.innerHTML = '<div class="helper" style="color:var(--error);">This ticket has been deleted/invalidated by admin.</div>';
+          resultStatus.textContent = 'Invalid (deleted)';
+          return;
+        }
+        const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : '—';
+        const events = token ? await fetchEventsForToken(String(token)) : [];
+        userCard.style.display = '';
+        userDetails.innerHTML = `
+          <div style="display:grid; gap:10px;">
+            <div style="display:flex; justify-content:space-between;"><strong>Token</strong><span class="stat-badge">${token || '—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Name</strong><span>${d.username||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Phone</strong><span>${d.phone||phone}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Course / Year</strong><span>${d.course||'—'} / ${d.year||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>College</strong><span>${d.college||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Created</strong><span>${created}</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;"><strong>Events</strong><span>${events.length? events.map(e=>`<span class=\"stat-badge\" style=\"margin:2px;\">${e}</span>`).join(' ') : '—'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        userCard.style.display = '';
+        userDetails.innerHTML = '<div class="helper">Lookup failed. Try again.</div>';
+      }
+    }
+
+    async function fetchEventsForToken(token){
+      try{
+        // Try multiple possible field names used across the app
+        const fields = ['userToken','tokenNo','shortId','token'];
+        for (const f of fields){
+          try {
+            const q = query(collection(db, 'eventSelections'), where(f, '==', token), limit(1));
+            const snap = await getDocs(q);
+            if (!snap.empty){
+              const data = snap.docs[0].data();
+              const selections = Array.isArray(data.selections) ? data.selections : [];
+              return selections.map(s => EVENT_TITLES[s.eventId] || s.eventId || 'Event');
+            }
+          } catch(_) { /* try next */ }
+        }
+        return [];
+      }catch{ return []; }
+    }
+
+    function unifiedSearch(raw){
+      const v = (raw || '').replace(/[^\d]/g, '');
+      if (!v) return;
+      if (/^\d{10}$/.test(v)) {
+        lookupByPhone(v);
+      } else if (/^\d{3}$/.test(v)) {
+        lookupByToken(v);
+      } else {
+        userCard.style.display = '';
+        userDetails.innerHTML = '<div class="helper">Enter 3-digit token or 10-digit phone number.</div>';
       }
     }
   </script>

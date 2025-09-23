@@ -186,10 +186,10 @@
   border-bottom: none;
 }
 
-/* Hide Payment column (6th column: header and cells) across all event admin tables */
-.participants-table th:nth-child(6),
-.participants-table td:nth-child(6) {
-  display: none;
+/* Hide Payment column using data attribute applied by JS */
+.participants-table th[data-col-payment],
+.participants-table td[data-col-payment] {
+  display: none !important;
 }
 
 /* Support modal */

@@ -19,18 +19,63 @@ service cloud.firestore {
         request.resource.data.ip is string &&
         request.resource.data.keys().hasOnly(['username','course','college','phone','ip','shortId','createdAt','hasSelectedEvents','eventSelectionId']);
 
-      /* allow updating payment, RSVP, and event selection fields */
+      /* allow updating payment, RSVP, event selection and soft-delete fields (validate only changed keys) */
       allow update: if
-        request.resource.data.diff(resource.data).changedKeys().hasOnly(['paymentMode','paymentAt','rsvpDownloaded','rsvpDownloadedAt','adminGenerated','paymentUpdatedAt','paymentUpdatedBy','hasSelectedEvents','eventSelectionId','eventSelections','totalAmount','eventSelectionTimestamp','paymentApproved','paymentApprovedAt','paymentApprovedBy','paymentType','transactionId','receiptNo']) &&
-        (request.resource.data.paymentMode == null || request.resource.data.paymentMode in ['onspot','online']) &&
-        (request.resource.data.paymentApproved == null || request.resource.data.paymentApproved is bool) &&
-        (request.resource.data.paymentApprovedBy == null || request.resource.data.paymentApprovedBy is string) &&
-        (request.resource.data.paymentType == null || request.resource.data.paymentType in ['cash','upi']) &&
-        (request.resource.data.transactionId == null || request.resource.data.transactionId is string) &&
-        (request.resource.data.receiptNo == null || request.resource.data.receiptNo is string);
+        // Only allow changing these whitelisted fields
+        request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'paymentMode','paymentAt','rsvpDownloaded','rsvpDownloadedAt','adminGenerated','paymentUpdatedAt','paymentUpdatedBy',
+          'hasSelectedEvents','eventSelectionId','eventSelections','totalAmount','eventSelectionTimestamp',
+          'paymentApproved','paymentApprovedAt','paymentApprovedBy','paymentType','transactionId','receiptNo',
+          'deleted','deletedAt','deletedReason','restoredAt'
+        ]) &&
+        // Validate only if the field is being changed
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['paymentMode'])) ||
+          (request.resource.data.paymentMode in ['onspot','online'])
+        ) &&
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['paymentApproved'])) ||
+          (request.resource.data.paymentApproved is bool)
+        ) &&
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['paymentApprovedBy'])) ||
+          (request.resource.data.paymentApprovedBy is string)
+        ) &&
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['paymentType'])) ||
+          (request.resource.data.paymentType in ['cash','upi'])
+        ) &&
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['transactionId'])) ||
+          (request.resource.data.transactionId is string)
+        ) &&
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['receiptNo'])) ||
+          (request.resource.data.receiptNo is string)
+        ) &&
+        // Soft-delete field validations (only when provided)
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['deleted'])) ||
+          (request.resource.data.deleted is bool)
+        ) &&
+        (
+          (!request.resource.data.diff(resource.data).changedKeys().hasAny(['deletedReason'])) ||
+          (request.resource.data.deletedReason is string)
+        );
+
+      /* additionally, allow minimal soft-delete/restore updates without other validations */
+      allow update: if request.resource.data.diff(resource.data).changedKeys().hasOnly(['deleted','deletedAt','deletedReason','restoredAt']);
 
       /* prevent deletes from the public */
       allow delete: if false;
+    }
+
+    /* Deleted Users: soft-deleted copies managed by admin UI */
+    match /deletedUsers/{docId} {
+      // Read allowed for admin UI
+      allow read: if true;
+      // Relaxed for admin-managed writes (client-side admin page)
+      allow create, update, delete: if true;
     }
 
     /* Error logs: allow create from clients, reads for admin UI usage */

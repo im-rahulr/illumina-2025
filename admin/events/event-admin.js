@@ -101,6 +101,12 @@ const EVENTS_DATA = [
     title: 'Red Carpet',
     description: 'Fashion show and modeling competition.',
     maxParticipants: 1
+  },
+  {
+    id: 'elocution',
+    title: 'Elocution',
+    description: 'One member per college. Max 3 minutes. Topic: The Impact of Social Media on Indian Youth Mental Health. Judges\' decision will be final.',
+    maxParticipants: 1
   }
 ];
 
@@ -135,6 +141,9 @@ class EventAdminPage {
       // Set page title and header
       this.updatePageHeader();
       
+      // Ensure Support UI & footer are present
+      this.ensureSupportUI();
+
       // Load participants
       await this.loadParticipants();
       
@@ -144,6 +153,160 @@ class EventAdminPage {
     } catch (error) {
       console.error('Error initializing event admin page:', error);
       this.showError('Failed to initialize page');
+    }
+  }
+
+  // Create Support button, modal and footer if missing
+  ensureSupportUI() {
+    try {
+      // Insert Support button in toolbar
+      const toolbarRight = document.querySelector('.event-toolbar .toolbar-right');
+      if (toolbarRight && !document.getElementById('supportBtn')) {
+        const btn = document.createElement('button');
+        btn.id = 'supportBtn';
+        btn.className = 'btn btn-secondary';
+        btn.textContent = '🆘 Support';
+        toolbarRight.appendChild(btn);
+      }
+
+      // Ensure Score Board button/link exists
+      const hasScoreBoard = toolbarRight && Array.from(toolbarRight.querySelectorAll('a,button')).some(el => /score\s*board/i.test(el.textContent || ''));
+      if (toolbarRight && !hasScoreBoard) {
+        const a = document.createElement('a');
+        a.href = '../events/redirect.html';
+        a.className = 'btn btn-primary';
+        a.textContent = '🏆 Score Board';
+        toolbarRight.appendChild(a);
+      }
+
+      // Insert footer at end of main
+      const main = document.querySelector('main.container.event-admin-container');
+      if (main && !document.querySelector('.admin-footer')) {
+        const footer = document.createElement('footer');
+        footer.className = 'admin-footer';
+        footer.textContent = 'Anny Sarah Owner';
+        main.appendChild(footer);
+      }
+
+      // Insert modal once per page
+      if (!document.getElementById('supportModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'supportModal';
+        modal.className = 'support-modal';
+        modal.setAttribute('aria-hidden', 'true');
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-labelledby', 'supportModalTitle');
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 id="supportModalTitle" class="modal-title">Support – Illumina Coordination</h3>
+              <button class="btn btn-secondary" id="closeSupportModal" aria-label="Close support modal">✖</button>
+            </div>
+            <div class="modal-body">
+              <p>Choose who to contact for <strong id="supportEventName">this event</strong>.</p>
+              <div class="contact-options">
+                <div class="contact-card">
+                  <h4 class="contact-title">Rahul</h4>
+                  <div class="contact-role">Site Admin & Developer</div>
+                  <button class="btn btn-whatsapp contact-btn" data-support-name="Rahul" data-support-role="Site Admin & Developer" data-phone="919739904620">💬 WhatsApp</button>
+                </div>
+                <div class="contact-card">
+                  <h4 class="contact-title">Vishal</h4>
+                  <div class="contact-role">Registration & Site Designer</div>
+                  <button class="btn btn-whatsapp contact-btn" data-support-name="Vishal" data-support-role="Registration & Site Designer" data-phone="917349321463">💬 WhatsApp</button>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button class="btn btn-secondary" id="closeSupportModal2">Close</button>
+              </div>
+            </div>
+          </div>`;
+        document.body.appendChild(modal);
+      }
+
+      // Wire handlers
+      this.wireSupportHandlers();
+    } catch (e) {
+      console.warn('Failed to ensure Support UI:', e);
+    }
+  }
+
+  wireSupportHandlers() {
+    const supportBtn = document.getElementById('supportBtn');
+    const modal = document.getElementById('supportModal');
+    const close1 = document.getElementById('closeSupportModal');
+    const close2 = document.getElementById('closeSupportModal2');
+
+    const eventTitleEl = document.getElementById('eventTitle');
+    const eventName = eventTitleEl ? eventTitleEl.textContent.trim() : (this.eventData?.title || 'Event');
+    const supportEventNameEl = document.getElementById('supportEventName');
+    if (supportEventNameEl) supportEventNameEl.textContent = eventName;
+
+    function buildMessage(name, role) {
+      return `Hello Illumina Coordination, I need support for ${eventName}. Contacting: ${name} (${role}).`;
+    }
+    function openWhatsAppWith(phone, name, role) {
+      const text = encodeURIComponent(buildMessage(name, role));
+      const url = `https://wa.me/${phone}?text=${text}`;
+      window.open(url, '_blank');
+    }
+
+    if (supportBtn && modal) {
+      supportBtn.onclick = () => {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      };
+    }
+    [close1, close2].forEach(btn => {
+      if (btn) btn.onclick = () => {
+        modal?.classList.remove('show');
+        modal?.setAttribute('aria-hidden', 'true');
+      };
+    });
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+          modal.setAttribute('aria-hidden', 'true');
+        }
+      });
+    }
+    document.querySelectorAll('.contact-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const phone = btn.getAttribute('data-phone');
+        const name = btn.getAttribute('data-support-name');
+        const role = btn.getAttribute('data-support-role');
+        if (phone) openWhatsAppWith(phone, name, role);
+      });
+    });
+  }
+
+  // Hide the Payment column regardless of its position
+  hidePaymentColumn() {
+    try {
+      const table = this.participantsTable || document.getElementById('participantsTable');
+      if (!table) return;
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      if (!thead) return;
+
+      const ths = Array.from(thead.querySelectorAll('th'));
+      const payIndex = ths.findIndex(th => (th.textContent || '').toLowerCase().includes('payment'));
+      if (payIndex === -1) return;
+
+      // mark header
+      ths[payIndex].setAttribute('data-col-payment', 'true');
+      // mark cells in each row
+      if (tbody) {
+        Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+          const tds = tr.children;
+          if (tds && tds[payIndex]) {
+            tds[payIndex].setAttribute('data-col-payment', 'true');
+          }
+        });
+      }
+    } catch (e) {
+      // non-fatal
     }
   }
 
@@ -215,6 +378,8 @@ class EventAdminPage {
         this.filteredParticipants = [...this.participants];
         this.renderParticipants();
         this.updateParticipantCount();
+        // Ensure Payment column is hidden after rendering rows
+        this.hidePaymentColumn();
         this.showLoading(false);
       });
       
@@ -252,6 +417,9 @@ class EventAdminPage {
         <td>${this.formatDate(participant.createdAt)}</td>
       </tr>
     `).join('');
+
+    // After populating rows, hide Payment column if present
+    this.hidePaymentColumn();
   }
 
   updateParticipantCount() {

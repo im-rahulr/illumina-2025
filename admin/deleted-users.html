@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deleted Users – illumina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=20240916">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20240916">
+  <meta name="description" content="Soft-deleted user records.">
+</head>
+<body>
+  <main class="container admin-container is-logged-in" role="main">
+    <h1 class="title">Deleted Users</h1>
+    <div class="toolbar">
+      <div class="meta">Soft-deleted registrations</div>
+      <div class="actions">
+        <a class="btn btn-secondary" href="index.html" style="text-decoration:none;">← Back to Admin</a>
+        <button id="refreshBtn" class="btn btn-primary">Refresh</button>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="filters">
+        <input id="searchBox" class="input" placeholder="Search name, token, phone, IP..." />
+        <span id="totalBadge" class="stat-badge">Total: 0</span>
+      </div>
+      <div class="table-wrap">
+        <div id="tableLoading" class="loading-overlay"><div class="spinner-standalone"></div></div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Phone</th>
+              <th>Course</th>
+              <th>College</th>
+              <th>IP</th>
+              <th>Token No</th>
+              <th>Deleted At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">No deleted users.</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { db } from '../assets/js/firebase-config.js';
+    import { collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+    const rowsEl = document.getElementById('rows');
+    const totalBadge = document.getElementById('totalBadge');
+    const searchBox = document.getElementById('searchBox');
+
+    let last = [];
+
+    async function load() {
+      document.getElementById('tableLoading').classList.add('show');
+      try {
+        const qRef = query(collection(db, 'deletedUsers'), orderBy('deletedAt', 'desc'));
+        const snap = await getDocs(qRef);
+        const arr = [];
+        snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+        last = arr;
+        render();
+      } catch (e) {
+        alert('Failed to load deleted users');
+        console.error(e);
+      } finally {
+        document.getElementById('tableLoading').classList.remove('show');
+      }
+    }
+
+    function render(){
+      rowsEl.innerHTML = '';
+      const q = (searchBox.value || '').trim().toLowerCase();
+      const filtered = last.filter(d => {
+        const s = `${d.username||''} ${d.shortId||''} ${d.phone||''} ${d.ip||''}`.toLowerCase();
+        return q ? s.includes(q) : true;
+      });
+      totalBadge.textContent = `Total: ${filtered.length}`;
+      if (filtered.length === 0) {
+        document.getElementById('emptyState').style.display = '';
+        return;
+      }
+      document.getElementById('emptyState').style.display = 'none';
+      let i = 1;
+      filtered.forEach(d => {
+        const tr = document.createElement('tr');
+        const delAt = d.deletedAt?.toDate ? d.deletedAt.toDate().toLocaleString() : (d.deletedAt || '—');
+        tr.innerHTML = `
+          <td>${i++}</td>
+          <td>${escapeHtml(d.username||'')}</td>
+          <td>${escapeHtml(d.phone||'—')}</td>
+          <td>${escapeHtml(d.course||'')}</td>
+          <td>${escapeHtml(d.college||'')}</td>
+          <td>${escapeHtml(d.ip||'')}</td>
+          <td>${escapeHtml(d.shortId||'N/A')}</td>
+          <td>${delAt}</td>
+          <td>
+            <button class="btn btn-secondary btn-sm" data-action="restore" data-id="${d.originalId||d.id}">Restore</button>
+            <button class="btn btn-dark btn-sm" data-action="purge" data-id="${d.originalId||d.id}">Purge</button>
+          </td>
+        `;
+        rowsEl.appendChild(tr);
+      });
+
+      // Wire buttons
+      rowsEl.querySelectorAll('button[data-action="restore"]').forEach(btn => btn.addEventListener('click', onRestore));
+      rowsEl.querySelectorAll('button[data-action="purge"]').forEach(btn => btn.addEventListener('click', onPurge));
+    }
+
+    async function onRestore(e){
+      const id = e.currentTarget.getAttribute('data-id');
+      const pass = prompt('Enter admin restore password');
+      if ((pass||'').trim().replace(/'+$/,'') !== '7760') { alert('Incorrect password'); return; }
+      try {
+        // 1) Mark registration as not deleted
+        const regRef = doc(db, 'registrations', id);
+        const snap = await getDoc(regRef);
+        if (snap.exists()) {
+          await updateDoc(regRef, { deleted: false, restoredAt: serverTimestamp() });
+        }
+        // 2) Remove from deletedUsers
+        await deleteDoc(doc(db, 'deletedUsers', id));
+        alert('User restored');
+        await load();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to restore user');
+      }
+    }
+
+    async function onPurge(e){
+      const id = e.currentTarget.getAttribute('data-id');
+      const pass = prompt('Enter admin purge password (permanent)');
+      if ((pass||'').trim().replace(/'+$/,'') !== '7760') { alert('Incorrect password'); return; }
+      if (!confirm('This will permanently remove the deleted copy from the Deleted Users page. The original registration remains marked deleted. Continue?')) return;
+      try {
+        await deleteDoc(doc(db, 'deletedUsers', id));
+        alert('Deleted copy removed');
+        await load();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to purge');
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', load);
+    searchBox.addEventListener('input', render);
+
+    load();
+  </script>
+</body>
+</html>
