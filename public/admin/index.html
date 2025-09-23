@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin – illumina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=20240916">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20240916">
+  <style>
+    /* Critical admin styles - inline fallback */
+    /* Hide admin panel initially */
+    .admin-panel {
+      display: none !important;
+    }
+
+    /* Show admin panel only when logged in */
+    .admin-container.is-logged-in .admin-panel {
+      display: block !important;
+      width: 100% !important;
+    }
+
+    .admin-container.is-logged-in {
+      max-width: 1400px !important;
+      align-items: stretch !important;
+      text-align: left !important;
+      width: 100% !important;
+    }
+
+    /* Hide login form when logged in */
+    .admin-container.is-logged-in #admin-login {
+      display: none !important;
+    }
+
+    .toolbar {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+      margin: 20px 0 16px !important;
+      padding: 16px !important;
+      background: var(--surface) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 12px !important;
+    }
+
+    .toolbar .meta {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      margin: 0 !important;
+    }
+
+    .toolbar .actions {
+      display: flex !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+    }
+
+    .toolbar .actions .btn {
+      width: auto !important;
+      padding: 8px 16px !important;
+      white-space: nowrap !important;
+      font-size: 14px !important;
+    }
+
+    .admin-note {
+      background: rgba(123, 191, 68, 0.1) !important;
+      border: 1px solid var(--primary) !important;
+      border-radius: 8px !important;
+      padding: 16px !important;
+      margin: 16px 0 !important;
+      font-size: 14px !important;
+      color: var(--text) !important;
+    }
+
+    .filters {
+      display: flex !important;
+      gap: 12px !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      margin: 16px 0 !important;
+      padding: 16px !important;
+      background: var(--surface) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 8px !important;
+    }
+
+    .filters .input {
+      width: auto !important;
+      min-width: 120px !important;
+    }
+
+    .filters .stat-badge {
+      margin-right: 16px !important;
+    }
+
+    .charts {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 16px !important;
+      margin: 16px 0 24px !important;
+    }
+
+    .table-wrap {
+      margin-top: 16px !important;
+    }
+
+    @media (max-width: 1200px) {
+      .charts {
+        grid-template-columns: 1fr 1fr !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .charts {
+        grid-template-columns: 1fr !important;
+      }
+
+      .toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+      }
+
+      .toolbar .meta,
+      .toolbar .actions {
+        justify-content: center !important;
+      }
+
+      .filters {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+    }
+
+    /* QR Code Modal Styles */
+    #qrModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    #qrModal.show {
+      display: flex;
+    }
+
+    #qrModal .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      animation: popIn 0.3s ease-out;
+    }
+
+    /* QR Code table cell styles */
+    .admin-panel table td canvas {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .admin-panel table td canvas:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(123, 191, 68, 0.4);
+    }
+  </style>
+  <meta name="description" content="Admin panel for illumina registrations.">
+  <!-- Open Graph / WhatsApp / Facebook -->
+  <meta property="og:site_name" content="illumina">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Admin • illumina">
+  <meta property="og:description" content="Admin panel for illumina registrations.">
+  <meta property="og:url" content="https://lac-chess.netlify.app/admin.html">
+  <meta property="og:image" content="https://lac-chess.netlify.app/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Admin • illumina">
+  <meta name="twitter:description" content="Admin panel for illumina registrations.">
+  <meta name="twitter:image" content="https://lac-chess.netlify.app/images/og-image.jpg">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y0TXQST3MG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-Y0TXQST3MG');
+  </script>
+  <!-- PostHog Analytics -->
+  <script>
+    !function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.crossOrigin = "anonymous", p.async = !0, p.src = s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "init Re Ms Fs Pe Rs Cs capture Ve calculateEventProperties Ds register register_once register_for_session unregister unregister_for_session zs getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Ls As createPersonProfile Ns Is Us opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing is_capturing clear_opt_in_out_capturing Os debug I js getPageViewId captureTraceFeedback captureTraceMetric".split(" "), n = 0; n < o.length; n++)g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
+    posthog.init('phc_UOdKm95N8QaKxaZvW1WBPdb3AqIHOTFBgf696oExyDa', {
+      api_host: 'https://us.i.posthog.com',
+      defaults: '2025-05-24',
+      person_profiles: 'identified_only',
+    })
+  </script>
+</head>
+
+<body>
+  <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="true">
+    <div class="spinner-standalone" aria-hidden="true"></div>
+    <div id="pageLoaderText" class="loader-text">Loading…</div>
+  </div>
+  <!-- <div id="siteBanner" class="site-banner" role="region" aria-label="Announcement" style="display:none">
+    <span><strong>New trial is out</strong> — follow updates at</span>
+    <a href="https://www.instagram.com/lac_cultural_department/" target="_blank" rel="noopener">@lac_cultural_department</a>
+    <button id="closeBanner" class="banner-close" aria-label="Close announcement">×</button>
+  </div> -->
+  <main class="container admin-container" role="main">
+    <h1 class="title">Admin</h1>
+
+    <form id="admin-login" class="form-card" style="max-width:480px;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="adminUser">Username</label>
+          <input id="adminUser" class="input" type="text" placeholder="admin" required>
+        </div>
+        <div class="form-group">
+          <label for="adminPass">Password</label>
+          <div class="input-row">
+            <input id="adminPass" class="input" type="password" placeholder="Password" required>
+            <button id="togglePass" class="btn-icon" type="button" aria-label="Show password">👁️</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Login</button>
+      </div>
+    </form>
+
+    <section id="admin-panel" class="admin-panel" style="display:none; width:100%;">
+      <div class="toolbar">
+        <div class="meta">
+          Registrations
+          <span class="live"><span id="liveDot" class="live-dot"></span>Live</span>
+          <span id="statusIndicator" class="status-indicator">Connecting...</span>
+        </div>
+        <div class="actions">
+          <input id="searchBox" class="input search" placeholder="Search name, Token No, IP..." />
+          <button id="exportCsv" class="btn btn-dark">Export CSV</button>
+          <button id="debugIds" class="btn btn-secondary">Debug IDs</button>
+          <button id="showErrors" class="btn btn-secondary">Error Log <span id="errorCount" class="badge"
+              aria-label="unread errors">0</span></button>
+          <button id="runTests" class="btn btn-secondary">Run Tests</button>
+          <button id="refreshData" class="btn btn-primary">Refresh</button>
+          <button id="refreshRsvpStatus" class="btn btn-secondary">Refresh RSVP</button>
+          <button id="testRsvpBtn" class="btn btn-secondary">Test RSVP</button>
+          <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+        </div>
+      </div>
+      <div class="admin-note">
+        <strong>Note:</strong> New registrations will show a Token No (3-digit number). Older registrations may show
+        empty Token No fields. The Token No is generated uniquely for each registration and should match what was shown
+        to the user during registration.
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+        <button id="showVerificationToggle" class="btn btn-secondary">
+          Show Ticket Verification
+        </button>
+        <a href="rsvp-management.html" class="btn btn-primary" style="text-decoration: none;">
+          🎫 RSVP Management
+        </a>
+      </div>
+
+      <!-- Hidden by default, can be toggled -->
+      <div class="form-card" id="ticketVerificationSection" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h2 style="margin:0;">Ticket Verification</h2>
+          <button id="toggleVerificationSection" class="btn-icon" style="font-size:1.2em;"
+            aria-label="Hide verification section">
+            <span>−</span>
+          </button>
+        </div>
+        <div id="verificationContent">
+          <p>Use the QR scanner to verify attendee tickets.</p>
+          <a href="scan.html" class="btn btn-primary" style="margin-top: 12px; display:inline-block;">
+            Open QR Scanner
+          </a>
+          <!-- User Details Display -->
+          <div id="userDetailsCard"
+            style="display: none; margin-top: 16px; padding: 20px; background: var(--bg); border: 2px solid var(--primary); border-radius: 12px;">
+            <h4 style="margin: 0 0 16px; color: var(--primary);">👤 User Details</h4>
+            <div id="userDetailsContent"></div>
+            <button id="closeUserDetails" class="btn btn-secondary" style="margin-top: 16px;">Close</button>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Error Log Section -->
+      <div id="errorLogSection" class="error-log-section" style="display:none;">
+        <h3>Error Log</h3>
+        <div class="error-tabs">
+          <button id="localErrorsTab" class="error-tab active">Local Errors</button>
+          <button id="dbErrorsTab" class="error-tab">Database Errors</button>
+        </div>
+        <div class="actions" style="margin-bottom: 10px;">
+          <button id="clearErrors" class="btn btn-secondary">Clear Local Errors</button>
+          <button id="exportErrors" class="btn btn-dark">Export Error Log</button>
+          <button id="loadDbErrors" class="btn btn-primary">Load DB Errors</button>
+        </div>
+        <div id="localErrorContent" class="error-log-content"></div>
+        <div id="dbErrorContent" class="error-log-content" style="display:none;"></div>
+      </div>
+      <div class="filters">
+        <span id="totalBadge" class="stat-badge">Total: 0</span>
+        <label class="helper">Course</label>
+        <select id="filterCourse" class="input">
+          <option value="">All</option>
+          <option>PUC / 12th / ISC / CBSE</option>
+          <option>Degree / UG</option>
+          <option>PG</option>
+        </select>
+
+      </div>
+      <div class="charts">
+        <div class="chart-card"><canvas id="byDay"></canvas></div>
+        <div class="chart-card"><canvas id="byCourse"></canvas></div>
+        <div class="chart-card"><canvas id="byCollege"></canvas></div>
+        <div class="chart-card"><canvas id="byCoursePct"></canvas></div>
+      </div>
+      <div class="table-wrap">
+        <div id="tableLoading" class="loading-overlay">
+          <div class="spinner-standalone"></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Phone</th>
+              <th>Course</th>
+              <th>Events</th>
+              <th>Payment</th>
+              <th>College</th>
+              <th>IP</th>
+              <th>Token No</th>
+              <th>RSVP Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">No results match your filter.</div>
+      </div>
+
+      <!-- Diagnostics Modal -->
+      <div id="testModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="testTitle">
+        <div class="modal-card success">
+          <div id="testTitle" class="modal-title">Diagnostics</div>
+          <div id="testSummary" class="modal-text"></div>
+          <div id="testResults" class="error-log-content" style="text-align:left; max-height: 360px;"></div>
+          <button id="testClose" class="btn btn-primary" type="button">Close</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <br>
+
+  <!-- <footer class="footer" role="contentinfo">
+    <small>Designed by CodeCraft • <a class="login-link" href="https://www.instagram.com/lac_cultural_department/" target="_blank" rel="noopener">Instagram</a></small>
+  </footer> -->
+
+  <script src="assets/js/admin-fix.js"></script>
+  <script type="module">
+    import { db } from '../assets/js/firebase-config.js';
+    import { collection, getDocs, query, orderBy, onSnapshot, limit, where } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    // db is imported from firebase-config.js
+
+    // Cache for event selections by user token (shortId)
+    let __eventSelectionsByToken = new Map();
+
+    function startEventSelectionsListener() {
+      try {
+        const esRef = collection(db, 'eventSelections');
+        onSnapshot(esRef, (snap) => {
+          const map = new Map();
+          snap.forEach(doc => {
+            const d = doc.data();
+            if (d && d.userToken) {
+              map.set(String(d.userToken), { id: doc.id, ...d });
+            }
+          });
+          __eventSelectionsByToken = map;
+          // Re-render table if we already have rows
+          if (window.__lastAllRows) {
+            try { renderWithFilters(window.__lastAllRows); } catch {}
+          }
+        }, (err) => {
+          errorLog.addError('EVENT_SEL_LISTEN_ERROR', 'Failed to listen to eventSelections', err);
+        });
+      } catch (e) {
+        errorLog.addError('EVENT_SEL_INIT_ERROR', 'Could not initialize eventSelections listener', e);
+      }
+    }
+
+    // Announcement banner logic
+    try {
+      const banner = document.getElementById('siteBanner');
+      if (banner) {
+        banner.style.display = 'flex';
+        document.body.classList.add('with-banner');
+        const h = banner.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--banner-h', h + 'px');
+        const btn = document.getElementById('closeBanner');
+        if (btn) btn.addEventListener('click', () => {
+          banner.style.display = 'none';
+          document.body.classList.remove('with-banner');
+        });
+      }
+    } catch { }
+
+    const loginForm = document.getElementById('admin-login');
+    const panel = document.getElementById('admin-panel');
+    const toggleBtn = document.getElementById('togglePass');
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('adminPass');
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      toggleBtn.setAttribute('aria-label', isPwd ? 'Hide password' : 'Show password');
+    });
+    // Auto-fill if remembered and auto-login if persistent login is enabled
+    const remembered = localStorage.getItem('adminRemember') === '1';
+    const persistentLogin = localStorage.getItem('adminPersistentLogin') === '1';
+
+    if (remembered) {
+      document.getElementById('adminUser').value = 'admin';
+      document.getElementById('adminPass').value = 'lowry@123';
+    }
+
+    // Auto-login if persistent login is enabled
+    if (persistentLogin) {
+      setTimeout(async () => {
+        showPageLoader('Auto-signing you in…');
+        loginForm.style.display = 'none';
+        panel.style.display = '';
+        const mainEl = document.querySelector('main.container.admin-container');
+        if (mainEl) mainEl.classList.add('is-logged-in');
+        try {
+          await initDataFeed();
+          // Listen to event selections in real-time so Events column stays updated
+          startEventSelectionsListener();
+
+          // Start a light real-time feed for errorLogs so admins see user issues immediately
+          try {
+            const errRef = query(collection(db, 'errorLogs'), orderBy('timestamp', 'desc'));
+            onSnapshot(errRef, (snap) => {
+              const list = [];
+              snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+              errorLog.dbErrors = list;
+              errorLog.updateDisplay();
+              const badge = document.getElementById('errorCount');
+              if (badge) badge.textContent = String(errorLog.errors.length + (errorLog.dbErrors?.length || 0));
+            }, (err) => {
+              errorLog.addError('DB_ERROR_LISTEN', 'Failed to listen to error logs', err);
+            });
+          } catch (err) {
+            errorLog.addError('DB_ERROR_LISTEN', 'Error setting up error log listener', err);
+          }
+        } catch (eInit) {
+          // Initialization failed; show message and keep panel visible so user can retry refresh
+          errorLog.addError('INIT_LOGIN_FAIL', 'Failed during initialization after auto-login', eInit);
+          const statusIndicator = document.getElementById('statusIndicator');
+          if (statusIndicator) {
+            statusIndicator.textContent = 'Init Error';
+            statusIndicator.className = 'status-indicator error';
+          }
+          alert('Could not load data. You can click Refresh to retry. See Error Log for details.');
+        } finally {
+          hidePageLoader();
+        }
+      }, 500);
+    }
+
+    // Add remember me toggle
+    const rememberToggle = document.createElement('label');
+    rememberToggle.className = 'helper';
+    rememberToggle.style.display = 'inline-flex';
+    rememberToggle.style.alignItems = 'center';
+    rememberToggle.style.gap = '6px';
+    rememberToggle.innerHTML = `<input id="rememberMe" type="checkbox" ${remembered ? 'checked' : ''}> Remember me`;
+    loginForm.querySelector('.form-grid').appendChild(rememberToggle);
+
+    // Add persistent login toggle
+    const persistentToggle = document.createElement('label');
+    persistentToggle.className = 'helper';
+    persistentToggle.style.display = 'inline-flex';
+    persistentToggle.style.alignItems = 'center';
+    persistentToggle.style.gap = '6px';
+    persistentToggle.innerHTML = `<input id="persistentLogin" type="checkbox" ${persistentLogin ? 'checked' : ''}> Stay logged in`;
+    loginForm.querySelector('.form-grid').appendChild(persistentToggle);
+
+    // Page loader helpers
+    const pageLoader = document.getElementById('pageLoader');
+    const pageLoaderText = document.getElementById('pageLoaderText');
+    const showPageLoader = (text = 'Loading…') => {
+      if (pageLoader) {
+        if (pageLoaderText) pageLoaderText.textContent = text;
+        pageLoader.classList.add('show');
+      }
+    };
+    const hidePageLoader = () => { if (pageLoader) pageLoader.classList.remove('show'); };
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = document.getElementById('adminUser').value.trim();
+      const p = document.getElementById('adminPass').value;
+      // Allow quick login even if form auto-capitalizes
+      if (u.toLowerCase() === 'admin' && p === 'lowry@123') {
+        showPageLoader('Signing you in…');
+        localStorage.setItem('adminRemember', document.getElementById('rememberMe').checked ? '1' : '0');
+        localStorage.setItem('adminPersistentLogin', document.getElementById('persistentLogin').checked ? '1' : '0');
+        loginForm.style.display = 'none';
+        panel.style.display = '';
+        const mainEl = document.querySelector('main.container.admin-container');
+        if (mainEl) mainEl.classList.add('is-logged-in');
+        try {
+          await initDataFeed();
+          // Start a light real-time feed for errorLogs so admins see user issues immediately
+          try {
+            const errRef = query(collection(db, 'errorLogs'), orderBy('timestamp', 'desc'));
+            onSnapshot(errRef, (snap) => {
+              const list = [];
+              snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+              errorLog.dbErrors = list;
+              errorLog.updateDisplay();
+              const badge = document.getElementById('errorCount');
+              if (badge) badge.textContent = String(errorLog.errors.length + (errorLog.dbErrors?.length || 0));
+            }, (err) => {
+              errorLog.addError('DB_ERROR_LISTEN', 'Failed to listen to error logs', err);
+            });
+          } catch (err) {
+            errorLog.addError('DB_ERROR_LISTEN', 'Error setting up error log listener', err);
+          }
+        } catch (eInit) {
+          // Initialization failed; show message and keep panel visible so user can retry refresh
+          errorLog.addError('INIT_LOGIN_FAIL', 'Failed during initialization after login', eInit);
+          const statusIndicator = document.getElementById('statusIndicator');
+          if (statusIndicator) {
+            statusIndicator.textContent = 'Init Error';
+            statusIndicator.className = 'status-indicator error';
+          }
+          alert('Could not load data. You can click Refresh to retry. See Error Log for details.');
+        } finally {
+          hidePageLoader();
+        }
+      } else {
+        alert('Invalid credentials');
+      }
+    });
+
+    // Toggle ticket verification section
+    const verificationSection = document.getElementById('ticketVerificationSection');
+    const showVerificationToggle = document.getElementById('showVerificationToggle');
+    const toggleVerificationBtn = document.getElementById('toggleVerificationSection');
+
+    if (showVerificationToggle && verificationSection) {
+      showVerificationToggle.addEventListener('click', () => {
+        verificationSection.style.display = '';
+        showVerificationToggle.style.display = 'none';
+      });
+    }
+
+    if (toggleVerificationBtn && verificationSection) {
+      toggleVerificationBtn.addEventListener('click', () => {
+        verificationSection.style.display = 'none';
+        if (showVerificationToggle) {
+          showVerificationToggle.style.display = 'inline-block';
+        }
+      });
+    }
+
+    // Close user details card (for ticket verification)
+    document.getElementById('closeUserDetails')?.addEventListener('click', () => {
+      const card = document.getElementById('userDetailsCard');
+      if (card) card.style.display = 'none';
+    });
+
+    // Manual lookup and QR scanning moved out; related functions removed to prevent runtime errors
+
+    // Error logging system
+    const errorLog = {
+      errors: [],
+      dbErrors: [],
+      addError: function (type, message, details = null) {
+        const error = {
+          timestamp: new Date().toISOString(),
+          type: type,
+          message: message,
+          details: details
+        };
+        this.errors.push(error);
+        console.error(`[${type}] ${message}`, details);
+        this.updateDisplay();
+        this.saveToStorage();
+      },
+      updateDisplay: function () {
+        const localContent = document.getElementById('localErrorContent');
+        const dbContent = document.getElementById('dbErrorContent');
+
+        if (localContent) {
+          localContent.innerHTML = this.errors.map(error => `
+            <div class="error-entry">
+              <div class="error-header">
+                <span class="error-time">${new Date(error.timestamp).toLocaleString()}</span>
+                <span class="error-type">${error.type}</span>
+              </div>
+              <div class="error-message">${error.message}</div>
+              ${error.details ? `<div class="error-details">${JSON.stringify(error.details, null, 2)}</div>` : ''}
+            </div>
+          `).join('');
+        }
+
+        if (dbContent) {
+          dbContent.innerHTML = this.dbErrors.map(error => `
+            <div class="error-entry">
+              <div class="error-header">
+                <span class="error-time">${error.timestamp?.toDate ? error.timestamp.toDate().toLocaleString() : 'Unknown'}</span>
+                <span class="error-type">${error.type || 'DB_ERROR'}</span>
+              </div>
+              <div class="error-message">${error.message || 'Unknown error'}</div>
+              ${error.details ? `<div class="error-details">${JSON.stringify(error.details, null, 2)}</div>` : ''}
+            </div>
+          `).join('');
+        }
+      },
+      saveToStorage: function () {
+        try {
+          localStorage.setItem('adminErrorLog', JSON.stringify(this.errors.slice(-50))); // Keep last 50 errors
+        } catch (e) {
+          console.warn('Failed to save error log to localStorage');
+        }
+      },
+      loadFromStorage: function () {
+        try {
+          const stored = localStorage.getItem('adminErrorLog');
+          if (stored) {
+            this.errors = JSON.parse(stored);
+            this.updateDisplay();
+          }
+        } catch (e) {
+          console.warn('Failed to load error log from localStorage');
+        }
+      },
+      clear: function () {
+        this.errors = [];
+        this.updateDisplay();
+        this.saveToStorage();
+      },
+      export: function () {
+        const data = JSON.stringify(this.errors, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `error-log-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      },
+      loadDbErrors: async function () {
+        try {
+          const q = query(collection(db, 'errorLogs'), orderBy('timestamp', 'desc'), limit(100));
+          const snap = await getDocs(q);
+          this.dbErrors = [];
+          snap.forEach(doc => {
+            this.dbErrors.push({ id: doc.id, ...doc.data() });
+          });
+          this.updateDisplay();
+          console.log(`Loaded ${this.dbErrors.length} database errors`);
+        } catch (error) {
+          this.addError('DB_ERROR_LOAD', 'Failed to load database errors', error);
+        }
+      }
+    };
+
+    // Load error log on page load and keep unread count
+    errorLog.loadFromStorage();
+    function updateErrorBadge() {
+      const badge = document.getElementById('errorCount');
+      if (badge) badge.textContent = String(errorLog.errors.length + (errorLog.dbErrors?.length || 0));
+    }
+    const _addErrorRef = errorLog.addError.bind(errorLog);
+    errorLog.addError = function (type, message, details) {
+      _addErrorRef(type, message, details);
+      updateErrorBadge();
+    };
+    updateErrorBadge();
+
+    let unsubscribe = null;
+    let connectionRetries = 0;
+    const maxRetries = 3;
+
+    async function initDataFeed() {
+      const tbody = document.getElementById('rows');
+      const statusIndicator = document.getElementById('statusIndicator');
+
+      tbody.innerHTML = '';
+      document.getElementById('tableLoading').classList.add('show');
+      document.getElementById('liveDot').classList.remove('on');
+
+      // Update status
+      if (statusIndicator) {
+        statusIndicator.textContent = 'Connecting...';
+        statusIndicator.className = 'status-indicator loading';
+      }
+
+      try {
+        // Test database connection first
+        const testQuery = query(collection(db, 'registrations'), limit(1));
+        await getDocs(testQuery);
+
+        let qRef;
+        try {
+          qRef = query(collection(db, 'registrations'), orderBy('createdAt', 'desc'));
+        } catch (e) {
+          errorLog.addError('QUERY_ERROR', 'Failed to create ordered query, using basic query', e);
+          qRef = collection(db, 'registrations');
+        }
+
+        if (unsubscribe) unsubscribe();
+
+        unsubscribe = onSnapshot(qRef, (snap) => {
+          try {
+            const rows = [];
+            snap.forEach(doc => {
+              try {
+                const data = doc.data();
+                rows.push({ id: doc.id, ...data });
+              } catch (docError) {
+                errorLog.addError('DOC_PARSE_ERROR', `Failed to parse document ${doc.id}`, docError);
+              }
+            });
+
+            renderWithFilters(rows);
+            document.getElementById('tableLoading').classList.remove('show');
+            document.getElementById('liveDot').classList.add('on');
+            connectionRetries = 0; // Reset retry counter on success
+
+            // Update status
+            if (statusIndicator) {
+              statusIndicator.textContent = `Connected (${rows.length} records)`;
+              statusIndicator.className = 'status-indicator connected';
+            }
+
+            // Log successful data load
+            console.log(`Successfully loaded ${rows.length} registrations`);
+
+          } catch (renderError) {
+            errorLog.addError('RENDER_ERROR', 'Failed to render data', renderError);
+            document.getElementById('tableLoading').classList.remove('show');
+
+            if (statusIndicator) {
+              statusIndicator.textContent = 'Render Error';
+              statusIndicator.className = 'status-indicator error';
+            }
+          }
+        }, (err) => {
+          connectionRetries++;
+          errorLog.addError('CONNECTION_ERROR', `Database connection failed (attempt ${connectionRetries}/${maxRetries})`, err);
+
+          document.getElementById('tableLoading').classList.remove('show');
+          document.getElementById('liveDot').classList.remove('on');
+
+          // Update status
+          if (statusIndicator) {
+            statusIndicator.textContent = `Connection Error (${connectionRetries}/${maxRetries})`;
+            statusIndicator.className = 'status-indicator error';
+          }
+
+          if (connectionRetries < maxRetries) {
+            // Retry after delay
+            setTimeout(() => {
+              errorLog.addError('RETRY', `Retrying connection... (${connectionRetries}/${maxRetries})`);
+              initDataFeed();
+            }, 2000 * connectionRetries); // Exponential backoff
+          } else {
+            errorLog.addError('FATAL_ERROR', 'Max retries reached. Please check your connection and refresh the page.');
+            alert('Failed to connect to database after multiple attempts. Check the error log for details.');
+          }
+        });
+
+      } catch (initialError) {
+        errorLog.addError('INIT_ERROR', 'Failed to initialize data feed', initialError);
+        document.getElementById('tableLoading').classList.remove('show');
+
+        if (statusIndicator) {
+          statusIndicator.textContent = 'Init Error';
+          statusIndicator.className = 'status-indicator error';
+        }
+
+        alert('Failed to initialize database connection. Check the error log for details.');
+      }
+    }
+
+    function renderWithFilters(all) {
+      try {
+        const tbody = document.getElementById('rows');
+        if (!tbody) {
+          errorLog.addError('RENDER_ERROR', 'Table body element not found');
+          return;
+        }
+
+        // Ensure consistent recent-first ordering even if backend ordering fails
+        const ordered = [...all].sort((a, b) => {
+          try {
+            const aT = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const bT = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return bT - aT; // recent first
+          } catch (sortError) {
+            errorLog.addError('SORT_ERROR', 'Failed to sort data by timestamp', sortError);
+            return 0;
+          }
+        });
+
+        const fc = document.getElementById('filterCourse')?.value || '';
+        const q = document.getElementById('searchBox')?.value?.trim().toLowerCase() || '';
+
+        const filtered = ordered.filter(r => {
+          try {
+            return (fc ? r.course === fc : true) &&
+              (fy ? String(r.year) === fy : true) &&
+              (q ? (
+                String(r.username || '').toLowerCase().includes(q) ||
+                String(r.shortId || 'N/A').toLowerCase().includes(q) ||
+                String(r.ip || '').toLowerCase().includes(q)
+              ) : true);
+          } catch (filterError) {
+            errorLog.addError('FILTER_ERROR', `Failed to filter record: ${r.id || 'unknown'}`, filterError);
+            return true; // Include problematic records
+          }
+        });
+
+        const totalBadge = document.getElementById('totalBadge');
+        if (totalBadge) totalBadge.textContent = `Total: ${filtered.length}`;
+
+        tbody.innerHTML = '';
+        let idx = 1;
+        const byCourse = { 'PUC / 12th / ISC / CBSE': 0, 'Degree / UG': 0, 'PG': 0 };
+        const byCollege = {};
+
+        filtered.forEach(d => {
+          try {
+            const tr = document.createElement('tr');
+            const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : '';
+            const shortIdDisplay = d.shortId || 'N/A';
+            // Create RSVP status cell
+            const rsvpCell = document.createElement('td');
+            rsvpCell.style.textAlign = 'center';
+            rsvpCell.style.padding = '8px';
+
+            if (d.shortId && d.shortId !== 'N/A') {
+              // Check RSVP download status
+              rsvpCell.innerHTML = '<span style="color: var(--muted); font-size: 12px;">⏳ Checking...</span>';
+              
+              checkRsvpDownloadStatus(d.shortId).then(status => {
+                console.log('RSVP status result for token', d.shortId, ':', status);
+                if (status.downloaded) {
+                  rsvpCell.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                      <span style="color: #28a745; font-weight: 600; font-size: 12px;">✅ Downloaded</span>
+                      <span style="color: var(--muted); font-size: 10px;">${status.downloadType}</span>
+                      <span style="color: var(--muted); font-size: 9px;">${status.downloadTime}</span>
+                    </div>
+                  `;
+                } else {
+                  rsvpCell.innerHTML = `
+                    <span style="color: #ffc107; font-weight: 600; font-size: 12px;">⏳ Not Downloaded</span>
+                  `;
+                }
+              }).catch((error) => {
+                console.error('Error displaying RSVP status for token', d.shortId, ':', error);
+                rsvpCell.innerHTML = `
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <span style="color: #dc3545; font-size: 12px;">❌ Error</span>
+                    <span style="color: var(--muted); font-size: 9px;" title="${error.message}">${error.message.substring(0, 20)}...</span>
+                  </div>
+                `;
+              });
+            } else {
+              rsvpCell.innerHTML = '<span style="color: var(--muted); font-size: 12px;">No Token</span>';
+            }
+
+            // Format event selections for display
+            let eventsDisplay = '—';
+            let eventsArray = [];
+            if (d.eventSelections && Array.isArray(d.eventSelections) && d.eventSelections.length > 0) {
+              eventsArray = d.eventSelections;
+            } else if (d.shortId && __eventSelectionsByToken && __eventSelectionsByToken.has(String(d.shortId))) {
+              const es = __eventSelectionsByToken.get(String(d.shortId));
+              if (es && Array.isArray(es.selections)) {
+                eventsArray = es.selections;
+              }
+            }
+
+            if (eventsArray.length > 0) {
+              const eventsList = eventsArray.map(ev => `${ev.eventTitle || ev.eventId} ${ev.quantity ? '('+ev.quantity+')' : ''}`.trim()).join(', ');
+              eventsDisplay = `<div title="${eventsList}">${eventsList}</div>`;
+            }
+
+            tr.innerHTML = `<td>${idx++}</td><td>${escapeHtml(d.username || '')}</td><td>${escapeHtml(d.phone || '—')}</td><td>${escapeHtml(d.course || '')}</td><td>${eventsDisplay}</td><td>${escapeHtml(d.paymentMode || '—')}</td><td>${escapeHtml(d.college || '')}</td><td>${escapeHtml(d.ip || '')}</td><td>${escapeHtml(shortIdDisplay)}</td><td></td><td>${created}</td>`;
+
+            // Replace the empty RSVP cell with our generated one
+            const cells = tr.querySelectorAll('td');
+            tr.replaceChild(rsvpCell, cells[9]); // Replace the 10th cell (RSVP Status column)
+
+            tbody.appendChild(tr);
+
+            const cKey = d.course || 'Other';
+            if (byCourse.hasOwnProperty(cKey)) {
+              byCourse[cKey]++;
+            } else {
+              byCourse['Other'] = (byCourse['Other'] || 0) + 1;
+            }
+            // Track colleges for chart
+            const college = d.college || 'Unknown';
+            byCollege[college] = (byCollege[college] || 0) + 1;
+          } catch (rowError) {
+            errorLog.addError('ROW_ERROR', `Failed to render row for record: ${d.id || 'unknown'}`, rowError);
+          }
+        });
+
+        try {
+          renderCharts(byCourse, byCollege);
+        } catch (chartError) {
+          errorLog.addError('CHART_ERROR', 'Failed to render charts', chartError);
+        }
+
+        // Save last dataset for re-render on filter change
+        window.__lastAllRows = all;
+
+        const emptyState = document.getElementById('emptyState');
+        if (emptyState) emptyState.style.display = filtered.length ? 'none' : '';
+
+      } catch (renderError) {
+        errorLog.addError('RENDER_ERROR', 'Failed to render data table', renderError);
+      }
+    }
+
+    document.getElementById('filterCourse').addEventListener('change', () => {
+      if (window.__lastAllRows) renderWithFilters(window.__lastAllRows);
+    });
+
+    document.getElementById('searchBox').addEventListener('input', () => {
+      if (window.__lastAllRows) renderWithFilters(window.__lastAllRows);
+    });
+
+    let __courseChart = null, __yearChart = null, __coursePctChart = null;
+    let __byDayChart = null;
+    async function renderCharts(byCourse, byCollege) {
+      const { Chart } = await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.3/auto/+esm');
+      const bd = document.getElementById('byDay');
+      const cc = document.getElementById('byCourse');
+      const cy = document.getElementById('byCollege');
+      const cp = document.getElementById('byCoursePct');
+      // Color palettes
+      const courseColorMap = {
+        'PUC / 12th / ISC / CBSE': '#4dabf7',
+        'Degree / UG': '#845ef7',
+        'PG': '#ffa94d',
+        'Other': '#adb5bd'
+      };
+      const courseLabels = Object.keys(byCourse);
+      const courseColors = courseLabels.map(l => courseColorMap[l] || '#74c0fc');
+      const courseConfig = {
+        type: 'bar',
+        data: {
+          labels: courseLabels,
+          datasets: [{
+            label: 'By Course',
+            data: Object.values(byCourse),
+            backgroundColor: courseColors,
+            borderColor: courseColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { color: '#fff' } },
+            tooltip: { intersect: false, mode: 'index' }
+          },
+          scales: {
+            x: { ticks: { color: '#B3B3B3' }, grid: { color: '#31302F', drawBorder: false } },
+            y: { ticks: { color: '#B3B3B3', precision: 0 }, grid: { color: '#31302F', drawBorder: false }, beginAtZero: true }
+          }
+        }
+      };
+      // Recent activity by day (last 14 days) from window.__lastAllRows
+      try {
+        if (bd) {
+          const all = window.__lastAllRows || [];
+          const map = new Map();
+          const now = new Date();
+          for (let i = 13; i >= 0; i--) {
+            const d = new Date(now);
+            d.setDate(now.getDate() - i);
+            const key = d.toISOString().slice(0, 10);
+            map.set(key, 0);
+          }
+          all.forEach(r => {
+            const t = r.createdAt?.toDate ? r.createdAt.toDate() : null;
+            if (!t) return;
+            const key = t.toISOString().slice(0, 10);
+            if (map.has(key)) map.set(key, map.get(key) + 1);
+          });
+          const labels = Array.from(map.keys());
+          const values = Array.from(map.values());
+          const byDayConfig = {
+            type: 'line',
+            data: { labels, datasets: [{ label: 'Registrations (14d)', data: values, borderColor: '#7bbf44', backgroundColor: 'rgba(123,191,68,0.2)', tension: 0.3, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#fff' } } }, scales: { x: { ticks: { color: '#B3B3B3' }, grid: { color: '#31302F', drawBorder: false } }, y: { ticks: { color: '#B3B3B3', precision: 0 }, grid: { color: '#31302F', drawBorder: false }, beginAtZero: true } } }
+          };
+          if (__byDayChart) __byDayChart.destroy();
+          bd.parentElement.style.height = '320px';
+          __byDayChart = new Chart(bd, byDayConfig);
+        }
+      } catch (e) {
+        errorLog.addError('CHART_ERROR', 'Failed to render recent activity chart', e);
+      }
+
+      if (__courseChart) __courseChart.destroy();
+      // Ensure container height for maintainAspectRatio: false
+      cc.parentElement.style.height = '320px';
+      __courseChart = new Chart(cc, courseConfig);
+
+      const collegeLabels = Object.keys(byCollege).slice(0, 10); // Show top 10 colleges
+      const collegeColors = ['#4dabf7', '#ffa94d', '#e64980', '#495057', '#74c0fc', '#69db7c', '#ffd43b', '#ff8cc8', '#91a7ff', '#ffc9c9'];
+
+      const yearConfig = {
+        type: 'doughnut',
+        data: {
+          labels: collegeLabels,
+          datasets: [{
+            label: 'By College',
+            data: collegeLabels.map(label => byCollege[label]),
+            backgroundColor: collegeColors.slice(0, collegeLabels.length),
+            borderColor: '#1f1f1f',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '58%',
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { color: '#fff', usePointStyle: true, padding: 14 } }
+          }
+        }
+      };
+      if (__yearChart) __yearChart.destroy();
+      cy.parentElement.style.height = '320px';
+      __yearChart = new Chart(cy, yearConfig);
+
+      // Percentage by course
+      const totalCount = (byCourse['PUC / 12th / ISC / CBSE'] || 0) + (byCourse['Degree / UG'] || 0) + (byCourse['PG'] || 0);
+      const pctData = totalCount > 0 ? [byCourse['PUC / 12th / ISC / CBSE'] || 0, byCourse['Degree / UG'] || 0, byCourse['PG'] || 0] : [0, 0, 0];
+      const pctColors = ['#4dabf7', '#845ef7', '#ffa94d'];
+      const pctConfig = {
+        type: 'pie',
+        data: {
+          labels: ['PUC / 12th / ISC / CBSE', 'Degree / UG', 'PG'],
+          datasets: [{ data: pctData, backgroundColor: pctColors, borderColor: '#1f1f1f', borderWidth: 2 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { color: '#fff', usePointStyle: true } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const value = ctx.parsed || 0;
+                  const pct = totalCount ? ((value / totalCount) * 100).toFixed(1) : '0.0';
+                  return `${ctx.label}: ${value} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      };
+      if (__coursePctChart) __coursePctChart.destroy();
+      cp.parentElement.style.height = '320px';
+      __coursePctChart = new Chart(cp, pctConfig);
+    }
+
+    document.getElementById('exportCsv').addEventListener('click', async () => {
+      const q = query(collection(db, 'registrations'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      const rows = [['#', 'username', 'phone', 'course', 'payment', 'college', 'ip', 'Token No', 'RSVP Downloaded', 'createdAt']];
+      let i = 1;
+      // Create an array to store promises for RSVP status checks
+      const rsvpPromises = [];
+      const docData = [];
+      
+      snap.forEach(doc => {
+        const d = doc.data();
+        docData.push(d);
+        
+        if (d.shortId && d.shortId !== 'N/A') {
+          rsvpPromises.push(checkRsvpDownloadStatus(d.shortId));
+        } else {
+          rsvpPromises.push(Promise.resolve({ downloaded: false }));
+        }
+      });
+
+      // Wait for all RSVP status checks to complete
+      const rsvpStatuses = await Promise.all(rsvpPromises);
+      
+      // Build CSV rows with RSVP status
+      docData.forEach((d, index) => {
+        const created = d.createdAt?.toDate ? d.createdAt.toDate().toISOString() : '';
+        const rsvpStatus = rsvpStatuses[index].downloaded ? 'Yes' : 'No';
+        rows.push([i++, d.username || '', d.phone || '', d.course || '', d.paymentMode || '', d.college || '', d.ip || '', d.shortId || 'N/A', rsvpStatus, created]);
+      });
+
+      const csv = rows.map(r => r.map(v => '"' + String(v).replaceAll('"', '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'registrations.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('debugIds').addEventListener('click', async () => {
+      try {
+        const q = query(collection(db, 'registrations'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        const issues = [];
+        const shortIdCounts = {};
+
+        snap.forEach(doc => {
+          const d = doc.data();
+          const shortId = d.shortId || 'N/A';
+
+          // Count shortId occurrences
+          shortIdCounts[shortId] = (shortIdCounts[shortId] || 0) + 1;
+
+          // Check for potential issues
+          if (shortId === 'N/A') {
+            issues.push(`Missing token for ${d.username} (${d.studentId})`);
+          }
+        });
+
+        // Find duplicates
+        Object.entries(shortIdCounts).forEach(([id, count]) => {
+          if (count > 1 && id !== 'N/A') {
+            issues.push(`Duplicate token ${id} found ${count} times`);
+          }
+        });
+
+        if (issues.length === 0) {
+          alert('No token issues found! All registrations have unique tokens.');
+        } else {
+          alert('Token Issues Found:\n\n' + issues.join('\n'));
+        }
+
+        console.log('Token distribution:', shortIdCounts);
+      } catch (error) {
+        errorLog.addError('DEBUG_ERROR', 'Failed to debug IDs', error);
+        alert('Failed to debug IDs. Check the error log for details.');
+      }
+    });
+
+    // Error log button handlers
+    document.getElementById('showErrors').addEventListener('click', () => {
+      const errorSection = document.getElementById('errorLogSection');
+      if (errorSection) {
+        errorSection.style.display = errorSection.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+
+    document.getElementById('clearErrors').addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all local errors?')) {
+        errorLog.clear();
+      }
+    });
+
+    document.getElementById('exportErrors').addEventListener('click', () => {
+      errorLog.export();
+    });
+
+    document.getElementById('loadDbErrors').addEventListener('click', async () => {
+      await errorLog.loadDbErrors();
+      const badge = document.getElementById('errorCount');
+      if (badge) badge.textContent = String(errorLog.errors.length + (errorLog.dbErrors?.length || 0));
+    });
+
+    // Error tab switching
+    document.getElementById('localErrorsTab').addEventListener('click', () => {
+      document.getElementById('localErrorsTab').classList.add('active');
+      document.getElementById('dbErrorsTab').classList.remove('active');
+      document.getElementById('localErrorContent').style.display = 'block';
+      document.getElementById('dbErrorContent').style.display = 'none';
+    });
+
+    document.getElementById('dbErrorsTab').addEventListener('click', () => {
+      document.getElementById('dbErrorsTab').classList.add('active');
+      document.getElementById('localErrorsTab').classList.remove('active');
+      document.getElementById('dbErrorContent').style.display = 'block';
+      document.getElementById('localErrorContent').style.display = 'none';
+    });
+
+    // Refresh data button
+    document.getElementById('refreshData').addEventListener('click', async () => {
+      try {
+        errorLog.addError('REFRESH', 'Manual refresh initiated');
+        connectionRetries = 0; // Reset retry counter
+        await initDataFeed();
+      } catch (error) {
+        errorLog.addError('REFRESH_ERROR', 'Failed to refresh data', error);
+        alert('Failed to refresh data. Check the error log for details.');
+      }
+    });
+
+    // Refresh RSVP Status button
+    document.getElementById('refreshRsvpStatus').addEventListener('click', async () => {
+      try {
+        const refreshBtn = document.getElementById('refreshRsvpStatus');
+        const originalText = refreshBtn.textContent;
+        refreshBtn.textContent = 'Refreshing...';
+        refreshBtn.disabled = true;
+
+        console.log('Manual RSVP status refresh initiated');
+        
+        // Get all RSVP cells and refresh their status
+        const rsvpCells = document.querySelectorAll('td:nth-child(9)'); // 9th column is RSVP Status
+        let refreshCount = 0;
+        
+        for (const cell of rsvpCells) {
+          const row = cell.parentElement;
+          const tokenCell = row.querySelector('td:nth-child(8)'); // 8th column is Token No
+          
+          if (tokenCell && tokenCell.textContent && tokenCell.textContent !== 'N/A' && tokenCell.textContent.trim() !== '') {
+            const tokenNo = tokenCell.textContent.trim();
+            
+            try {
+              cell.innerHTML = '<span style="color: var(--muted); font-size: 12px;">⏳ Checking...</span>';
+              
+              const status = await checkRsvpDownloadStatus(tokenNo);
+              
+              if (status.downloaded) {
+                cell.innerHTML = `
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <span style="color: #28a745; font-weight: 600; font-size: 12px;">✅ Downloaded</span>
+                    <span style="color: var(--muted); font-size: 10px;">${status.downloadType}</span>
+                    <span style="color: var(--muted); font-size: 9px;">${status.downloadTime}</span>
+                  </div>
+                `;
+              } else {
+                cell.innerHTML = `
+                  <span style="color: #ffc107; font-weight: 600; font-size: 12px;">⏳ Not Downloaded</span>
+                `;
+              }
+              refreshCount++;
+            } catch (error) {
+              console.error('Error refreshing RSVP status for token', tokenNo, ':', error);
+              cell.innerHTML = `
+                <span style="color: #dc3545; font-size: 12px;">❌ Error</span>
+              `;
+            }
+          }
+        }
+        
+        console.log(`RSVP status refresh completed for ${refreshCount} tokens`);
+        refreshBtn.textContent = `✅ Refreshed (${refreshCount})`;
+        refreshBtn.style.background = '#28a745';
+        
+        setTimeout(() => {
+          refreshBtn.textContent = originalText;
+          refreshBtn.style.background = '';
+          refreshBtn.disabled = false;
+        }, 3000);
+        
+      } catch (error) {
+        console.error('RSVP refresh error:', error);
+        const refreshBtn = document.getElementById('refreshRsvpStatus');
+        refreshBtn.textContent = '❌ Error';
+        refreshBtn.style.background = '#dc3545';
+        
+        setTimeout(() => {
+          refreshBtn.textContent = 'Refresh RSVP';
+          refreshBtn.style.background = '';
+          refreshBtn.disabled = false;
+        }, 3000);
+      }
+    });
+
+    // Test RSVP Status button
+    document.getElementById('testRsvpBtn').addEventListener('click', async () => {
+      const tokenNo = prompt('Enter token number to test RSVP status:');
+      if (tokenNo) {
+        console.log('Testing RSVP status for token:', tokenNo);
+        try {
+          const result = await window.testRsvpStatus(tokenNo);
+          alert(`RSVP Status for token ${tokenNo}:\n${JSON.stringify(result, null, 2)}`);
+        } catch (error) {
+          alert(`Error testing token ${tokenNo}: ${error.message}`);
+        }
+      }
+    });
+
+    // Logout button
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to logout?')) {
+        // Clear persistent login
+        localStorage.setItem('adminPersistentLogin', '0');
+        // Optionally clear remember me as well
+        localStorage.setItem('adminRemember', '0');
+
+        // Hide admin panel and show login form
+        panel.style.display = 'none';
+        loginForm.style.display = '';
+        const mainEl = document.querySelector('main.container.admin-container');
+        if (mainEl) mainEl.classList.remove('is-logged-in');
+
+        // Clear form
+        document.getElementById('adminUser').value = '';
+        document.getElementById('adminPass').value = '';
+        document.getElementById('rememberMe').checked = false;
+        document.getElementById('persistentLogin').checked = false;
+
+        // Stop any active listeners
+        if (unsubscribe) {
+          unsubscribe();
+          unsubscribe = null;
+        }
+      }
+    });
+
+
+
+    // Diagnostics runner
+    const testModal = document.getElementById('testModal');
+    const testSummary = document.getElementById('testSummary');
+    const testResults = document.getElementById('testResults');
+    document.getElementById('testClose').addEventListener('click', () => testModal.classList.remove('show'));
+    testModal.addEventListener('click', (e) => { if (e.target === testModal) testModal.classList.remove('show'); });
+    document.getElementById('runTests').addEventListener('click', async () => {
+      const tasks = [];
+      const add = (name, fn) => tasks.push({ name, fn });
+      const log = [];
+      const pass = (name, detail = 'OK') => log.push({ name, status: 'PASS', detail });
+      const fail = (name, error) => log.push({ name, status: 'FAIL', detail: (error && (error.message || String(error))) || 'Unknown error' });
+
+      // Prepare tests (read-only and lightweight writes)
+      add('Network online', async () => {
+        if (navigator.onLine) pass('Network online'); else throw new Error('Offline');
+      });
+      add('Firestore read (registrations, 1 doc)', async () => {
+        const q1 = query(collection(db, 'registrations'), limit(1));
+        const s1 = await getDocs(q1);
+        pass('Firestore read (registrations, 1 doc)', `Docs: ${s1.size}`);
+      });
+      add('Firestore listener (registrations)', async () => {
+        await new Promise((resolve, reject) => {
+          const unsub = onSnapshot(query(collection(db, 'registrations'), limit(1)), () => {
+            try { unsub(); pass('Firestore listener (registrations)'); resolve(); } catch (e) { reject(e); }
+          }, (err) => reject(err));
+          setTimeout(() => { try { unsub(); } catch (_) { }; resolve(); }, 1200); // soft-timeout ok
+        });
+      });
+      add('Error logs read (latest)', async () => {
+        const q2 = query(collection(db, 'errorLogs'), orderBy('timestamp', 'desc'), limit(1));
+        const s2 = await getDocs(q2);
+        pass('Error logs read (latest)', `Docs: ${s2.size}`);
+      });
+      add('Charts render', async () => {
+        try {
+          await renderCharts({ BBA: 0, BCA: 0, BCOM: 0, Other: 0 }, { '1': 0, '2': 0, '3': 0, Other: 0 });
+          pass('Charts render');
+        } catch (e) { throw e; }
+      });
+
+      // Execute tests
+      for (const t of tasks) {
+        try { await t.fn(); } catch (e) { fail(t.name, e); }
+      }
+      const failed = log.filter(x => x.status === 'FAIL').length;
+      const summary = `${log.length - failed}/${log.length} checks passed`;
+      testSummary.textContent = summary;
+      testResults.innerHTML = log.map(e => `
+        <div class="error-entry">
+          <div class="error-header"><span class="error-type" style="background:${e.status === 'PASS' ? '#2f9e44' : '#d0021b'}">${e.status}</span> <span class="error-time">${e.name}</span></div>
+          <div class="error-message">${e.detail}</div>
+        </div>
+      `).join('');
+      testModal.classList.add('show');
+    });
+
+    // QR Code generation functions
+    async function generateAdminQRCode(tokenNo, userName, canvas) {
+      try {
+        // Import QRCode library dynamically
+        const QRCode = await import('https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm');
+
+        // Create verification payload
+        const payload = JSON.stringify({
+          type: 'ILLUMINA_ticket',
+          token: tokenNo,
+          name: userName,
+          event: 'ILLUMINA 2K25',
+          date: 'September 25, 2025',
+          venue: 'Lowry Adventist College, Bangalore',
+          ts: Date.now()
+        });
+
+        // Generate QR code on the provided canvas
+        await QRCode.default.toCanvas(canvas, payload, {
+          width: 60,
+          margin: 1,
+          errorCorrectionLevel: 'M',
+          color: {
+            dark: '#7bbf44',  // Green color for QR code
+            light: '#ffffff'  // White background
+          }
+        });
+      } catch (error) {
+        console.error('Failed to generate QR code:', error);
+        // Fallback: draw a simple placeholder
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#666';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR', canvas.width / 2, canvas.height / 2 + 3);
+      }
+    }
+
+    // Show enlarged QR code in modal
+    function showEnlargedQR(tokenNo, userName) {
+      // Create modal if it doesn't exist
+      let qrModal = document.getElementById('qrModal');
+      if (!qrModal) {
+        qrModal = document.createElement('div');
+        qrModal.id = 'qrModal';
+        qrModal.className = 'modal';
+        qrModal.innerHTML = `
+          <div class="modal-card" style="max-width: 400px; text-align: center;">
+            <h3 style="color: var(--primary); margin-bottom: 16px;">🎫 User QR Code</h3>
+            <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+              <canvas id="enlargedQRCanvas" style="border: 2px solid var(--primary); border-radius: 8px;"></canvas>
+            </div>
+            <div style="margin-bottom: 16px;">
+              <div style="font-weight: 600; color: var(--text);">Token: ${tokenNo}</div>
+              <div style="color: var(--muted); font-size: 14px;">${userName}</div>
+            </div>
+            <button id="closeQRModal" class="btn btn-secondary">Close</button>
+          </div>
+        `;
+        document.body.appendChild(qrModal);
+
+        // Add close functionality
+        qrModal.addEventListener('click', (e) => {
+          if (e.target === qrModal) qrModal.classList.remove('show');
+        });
+        document.getElementById('closeQRModal').addEventListener('click', () => {
+          qrModal.classList.remove('show');
+        });
+      }
+
+      // Update modal content
+      const tokenDiv = qrModal.querySelector('div[style*="font-weight: 600"]');
+      const nameDiv = qrModal.querySelector('div[style*="color: var(--muted)"]');
+      if (tokenDiv) tokenDiv.textContent = `Token: ${tokenNo}`;
+      if (nameDiv) nameDiv.textContent = userName;
+
+      // Generate enlarged QR code
+      const enlargedCanvas = document.getElementById('enlargedQRCanvas');
+      if (enlargedCanvas) {
+        enlargedCanvas.width = 200;
+        enlargedCanvas.height = 200;
+        generateEnlargedQRCode(tokenNo, userName, enlargedCanvas);
+      }
+
+      // Show modal
+      qrModal.classList.add('show');
+    }
+
+    async function generateEnlargedQRCode(tokenNo, userName, canvas) {
+      try {
+        const QRCode = await import('https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm');
+
+        const payload = JSON.stringify({
+          type: 'ILLUMINA_ticket',
+          token: tokenNo,
+          name: userName,
+          event: 'ILLUMINA 2K25',
+          date: 'September 25, 2025',
+          venue: 'Lowry Adventist College, Bangalore',
+          ts: Date.now()
+        });
+
+        await QRCode.default.toCanvas(canvas, payload, {
+          width: 200,
+          margin: 2,
+          errorCorrectionLevel: 'M',
+          color: {
+            dark: '#7bbf44',
+            light: '#ffffff'
+          }
+        });
+      } catch (error) {
+        console.error('Failed to generate enlarged QR code:', error);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#666';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR Code', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('Error', canvas.width / 2, canvas.height / 2 + 20);
+      }
+    }
+
+    // Check RSVP download status
+    async function checkRsvpDownloadStatus(tokenNo) {
+      try {
+        // Ensure tokenNo is a string and trim any whitespace
+        const cleanToken = String(tokenNo).trim();
+        console.log('Checking RSVP status for token:', cleanToken, '(type:', typeof cleanToken, ')');
+        
+        // Check if db is available
+        if (!db) {
+          console.error('Database not initialized');
+          throw new Error('Database not available');
+        }
+        
+        const q = query(collection(db, 'rsvpDownloads'), where('tokenNo', '==', cleanToken));
+        const snapshot = await getDocs(q);
+        
+        console.log('RSVP query result for token', cleanToken, ':', snapshot.size, 'documents found');
+        
+        if (snapshot.empty) {
+          console.log('No RSVP downloads found for token:', cleanToken);
+          return { downloaded: false };
+        }
+
+        // Get the most recent download
+        let latestDownload = null;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          console.log('RSVP download data:', data);
+          if (!latestDownload || (data.downloadedAt && data.downloadedAt.toDate() > latestDownload.downloadedAt.toDate())) {
+            latestDownload = data;
+          }
+        });
+
+        if (latestDownload) {
+          const downloadType = latestDownload.downloadType === 'user_download' ? 'User' : 'Admin';
+          const downloadTime = latestDownload.downloadedAt?.toDate?.()?.toLocaleDateString() || 'Unknown';
+          
+          console.log('Latest RSVP download found:', {
+            downloaded: true,
+            downloadType: downloadType,
+            downloadTime: downloadTime
+          });
+          
+          return {
+            downloaded: true,
+            downloadType: downloadType,
+            downloadTime: downloadTime,
+            downloadData: latestDownload
+          };
+        }
+
+        return { downloaded: false };
+      } catch (error) {
+        console.error('Error checking RSVP status for token', tokenNo, ':', error);
+        console.error('Error details:', error.message, error.stack);
+        throw error;
+      }
+    }
+
+    // Test function for debugging specific token
+    window.testRsvpStatus = async function(tokenNo) {
+      console.log('=== Testing RSVP Status for Token:', tokenNo, '===');
+      try {
+        const result = await checkRsvpDownloadStatus(tokenNo);
+        console.log('Test result:', result);
+        return result;
+      } catch (error) {
+        console.error('Test error:', error);
+        return { error: error.message };
+      }
+    };
+
+    // Test function specifically for token 286
+    window.testToken286 = async function() {
+      console.log('=== Testing Token 286 Specifically ===');
+      try {
+        // First, let's check if we can query the collection at all
+        console.log('Testing basic collection access...');
+        const allDownloads = await getDocs(collection(db, 'rsvpDownloads'));
+        console.log('Total RSVP downloads in collection:', allDownloads.size);
+        
+        allDownloads.forEach(doc => {
+          const data = doc.data();
+          console.log('Download record:', data);
+          if (data.tokenNo === '286') {
+            console.log('Found token 286 record:', data);
+          }
+        });
+        
+        // Now test the specific query
+        const result = await checkRsvpDownloadStatus('286');
+        console.log('Token 286 result:', result);
+        return result;
+      } catch (error) {
+        console.error('Token 286 test error:', error);
+        return { error: error.message };
+      }
+    };
+
+    function escapeHtml(s) {
+      return String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+  </script>
+</body>
+
+</html>

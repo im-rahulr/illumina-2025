@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scan Ticket – illumina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=4">
+  <meta name="description" content="Scan attendee RSVP/QR to verify registration.">
+</head>
+<body>
+  <main class="container" role="main" style="max-width:900px;">
+    <h1 class="title">Scan Ticket</h1>
+    <p class="subtitle">Use your device camera to scan the attendee's QR and view details.</p>
+
+    <section class="form-card" style="width:100%;">
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button id="startBtn" class="btn btn-primary" type="button">Start Camera</button>
+        <button id="stopBtn" class="btn btn-secondary" type="button" style="display:none;">Stop</button>
+        <button id="torchBtn" class="btn btn-dark" type="button" style="display:none;">Toggle Torch</button>
+        <input id="manualToken" class="input" placeholder="Or enter token manually…" style="flex:1; min-width:220px;">
+        <button id="lookupBtn" class="btn btn-secondary" type="button">Lookup</button>
+      </div>
+
+      <div id="camWrap" style="margin-top:16px; display:none;">
+        <video id="video" playsinline style="width:100%; max-width:560px; border-radius:12px; background:#000"></video>
+        <canvas id="frame" width="640" height="480" style="display:none;"></canvas>
+        <div id="scanMsg" class="helper" style="margin-top:8px;">Point the camera at the QR code</div>
+      </div>
+
+      <div id="resultCard" style="display:none; margin-top:16px; padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--surface);">
+        <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+          <h3 style="margin:0; color:var(--primary);">Scan Result</h3>
+          <span id="resultStatus" class="stat-badge">—</span>
+        </div>
+        <pre id="rawPayload" style="white-space:pre-wrap; word-break:break-word; background:var(--bg); padding:12px; border-radius:8px; margin-top:12px; max-height:200px; overflow:auto;"></pre>
+      </div>
+
+      <div id="userCard" style="display:none; margin-top:16px; padding:20px; border:2px solid var(--primary); border-radius:12px;">
+        <h3 style="margin:0 0 12px; color:var(--primary);">User Details</h3>
+        <div id="userDetails"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- QR decoding library -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, getDocs, query, where, limit } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const torchBtn = document.getElementById('torchBtn');
+    const lookupBtn = document.getElementById('lookupBtn');
+    const manualToken = document.getElementById('manualToken');
+    const camWrap = document.getElementById('camWrap');
+    const video = document.getElementById('video');
+    const frame = document.getElementById('frame');
+    const scanMsg = document.getElementById('scanMsg');
+    const resultCard = document.getElementById('resultCard');
+    const resultStatus = document.getElementById('resultStatus');
+    const rawPayload = document.getElementById('rawPayload');
+    const userCard = document.getElementById('userCard');
+    const userDetails = document.getElementById('userDetails');
+
+    let stream = null;
+    let rafId = null;
+    let track = null;
+    let torchOn = false;
+
+    startBtn.addEventListener('click', startCamera);
+    stopBtn.addEventListener('click', stopCamera);
+    torchBtn.addEventListener('click', toggleTorch);
+    lookupBtn.addEventListener('click', () => lookupByToken(manualToken.value.trim()));
+
+    async function startCamera(){
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false
+        });
+        video.srcObject = stream;
+        await video.play();
+        camWrap.style.display = '';
+        startBtn.style.display = 'none';
+        stopBtn.style.display = '';
+
+        track = stream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities?.() || {};
+        if (capabilities.torch) {
+          torchBtn.style.display = '';
+        }
+
+        scanMsg.textContent = 'Scanning…';
+        tick();
+      } catch (e) {
+        scanMsg.textContent = 'Camera unavailable. Please allow camera access or use manual lookup.';
+      }
+    }
+
+    function stopCamera(){
+      if (rafId) cancelAnimationFrame(rafId);
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+      stream = null; track = null; torchOn = false;
+      startBtn.style.display = '';
+      stopBtn.style.display = 'none';
+      torchBtn.style.display = 'none';
+      camWrap.style.display = 'none';
+    }
+
+    async function toggleTorch(){
+      if (!track) return;
+      try {
+        torchOn = !torchOn;
+        await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+      } catch {}
+    }
+
+    function tick(){
+      rafId = requestAnimationFrame(tick);
+      if (!video.videoWidth) return;
+
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      frame.width = w; frame.height = h;
+      const ctx = frame.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const code = window.jsQR ? window.jsQR(imageData.data, w, h) : null;
+
+      if (code && code.data) {
+        handleScan(code.data);
+      }
+    }
+
+    function handleScan(text){
+      stopCamera();
+      resultCard.style.display = '';
+      try {
+        const payload = JSON.parse(text);
+        rawPayload.textContent = JSON.stringify(payload, null, 2);
+        resultStatus.textContent = 'QR parsed';
+        const token = payload.token || '';
+        if (token) {
+          lookupByToken(token);
+        }
+      } catch {
+        rawPayload.textContent = text;
+        resultStatus.textContent = 'Raw text';
+        // try treat as token directly
+        if (/^\d{3}$/.test(text)) lookupByToken(text);
+      }
+    }
+
+    async function lookupByToken(token){
+      if (!token) return;
+      manualToken.value = token;
+      try {
+        const q = query(collection(db, 'registrations'), where('shortId', '==', token), limit(1));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          userCard.style.display = '';
+          userDetails.innerHTML = '<div class="helper">No record found for token ' + token + '</div>';
+          return;
+        }
+        const d = snap.docs[0].data();
+        const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : '—';
+        userCard.style.display = '';
+        userDetails.innerHTML = `
+          <div style="display:grid; gap:10px;">
+            <div style="display:flex; justify-content:space-between;"><strong>Token</strong><span class="stat-badge">${token}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Name</strong><span>${d.username||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Course / Year</strong><span>${d.course||'—'} / ${d.year||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>College</strong><span>${d.college||'—'}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Payment</strong><span>${d.paymentMode==='onspot'?'Pay on Spot':(d.paymentMode==='online'?'Online':'—')}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>Created</strong><span>${created}</span></div>
+            <div style="display:flex; justify-content:space-between;"><strong>IP</strong><span style="font-family:monospace;">${d.ip||'—'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        userCard.style.display = '';
+        userDetails.innerHTML = '<div class="helper">Lookup failed. Try again.</div>';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>General Quiz – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=4">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9D6EQ7H1EN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-9D6EQ7H1EN');
+  </script>
+</head>
+<body class="event-page event-general-quiz">
+  <div id="siteBanner" class="site-banner" role="region" aria-label="Announcement" style="display:none">
+    <span><strong>Check ILLUMINA brochure</strong> — download now</span>
+    <a href="https://app.getfiledrop.com/share/ea5b9aeb-c638-4dc2-a17a-25f5480206f5/download" target="_blank" rel="noopener" download>Download PDF</a>
+    <button id="closeBanner" class="banner-close" aria-label="Close announcement">×</button>
+  </div>
+  
+  <main class="container" role="main">
+    <div class="chess-logo">
+      <img src="../images/lowrylogo.png" alt="ILLUMINA Logo">
+    </div>
+    <h1 class="title">General Quiz</h1>
+    <p class="subtitle">Aptitude • Current Affairs • Sports • Mathematics • Science • Inventions • Geography</p>
+
+    <div class="form-card" role="region" aria-labelledby="details-title">
+      <h2 id="details-title" style="margin-top:0">Event Details</h2>
+      <div class="event-timing" style="background: rgba(123, 191, 68, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid var(--primary);">
+        <h3 style="margin-top: 0; color: var(--primary);">Timing</h3>
+        <p style="margin: 8px 0;"><strong>Prelims:</strong> 9:30 AM</p>
+        <p style="margin: 8px 0;"><strong>Finals:</strong> 11:00 AM</p>
+      </div>
+      
+      <h3>Rules</h3>
+      <ul>
+        <li>Team size: 2 members</li>
+        <li>Maximum 2 teams per college</li>
+        <li>Topics: Aptitude, current affairs, sports, mathematics, science, inventions, and geography</li>
+        <li>Prelims: Written test</li>
+      </ul>
+      
+      <h3>Staff Coordinators</h3>
+      <ul>
+        <li>Mrs. Shravani R — 9738632424</li>
+        <li>Mr. Ashish H — 9886484217</li>
+        <li>Ms. Ankitha — 8919053540</li>
+      </ul>
+      
+      <h3>Student Coordinators</h3>
+      <ul>
+        <li>Afreen — 9113824258</li>
+        <li>Delight — 9548473361</li>
+      </ul>
+    </div>
+
+    <div class="social-cta" style="margin-top:14px">
+      <a class="login-link" href="../index.html">← Back to Events</a>
+    </div>
+  </main>
+
+  <script>
+    // Banner functionality
+    try {
+      const banner = document.getElementById('siteBanner');
+      if (banner) {
+        banner.style.display = 'flex';
+        document.body.classList.add('with-banner');
+        const h = banner.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--banner-h', h + 'px');
+        const btn = document.getElementById('closeBanner');
+        if (btn) btn.addEventListener('click', () => {
+          banner.style.display = 'none';
+          document.body.classList.remove('with-banner');
+        });
+      }
+    } catch {}
+  </script>
+</body>
+</html>

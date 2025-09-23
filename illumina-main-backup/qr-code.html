@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Code – ILLUMINA 2K25</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=9">
+  <style>
+    .qr-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .qr-header {
+      margin-bottom: 40px;
+    }
+
+    .qr-title {
+      font-family: 'Poppins', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(24px, 4vw + 12px, 36px);
+      margin: 0 0 12px;
+      color: #fff;
+    }
+
+    .qr-subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      margin: 0 0 8px;
+    }
+
+    .token-display {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .token-label {
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .token-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      font-family: monospace;
+    }
+
+    .qr-display {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 30px;
+      margin: 30px 0;
+    }
+
+    .qr-label {
+      font-size: 16px;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .qr-canvas-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 250px;
+      background: #fff;
+      border-radius: 0;
+      padding: 20px;
+    }
+
+    #qrCanvas {
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .user-info {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .user-info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .user-info-item:last-child {
+      border-bottom: none;
+    }
+
+    .user-info-label {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .user-info-value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .instructions {
+      background: rgba(123, 191, 68, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .instructions h4 {
+      color: var(--primary);
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .instructions ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--text);
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: #90d15b;
+    }
+
+    @media (max-width: 768px) {
+      .qr-container {
+        padding: 16px;
+      }
+
+      .qr-display {
+        padding: 20px;
+      }
+
+      .qr-canvas-container {
+        min-height: 200px;
+        padding: 15px;
+      }
+
+      .token-number {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="qr-container">
+    <a href="javascript:history.back()" class="back-link">
+      ← Back
+    </a>
+
+    <header class="qr-header">
+      <h1 class="qr-title">Your QR Code</h1>
+      <p class="qr-subtitle">ILLUMINA 2K25 Registration</p>
+    </header>
+
+    <div class="token-display">
+      <div class="token-label">Token Number</div>
+      <div id="tokenNumber" class="token-number">---</div>
+    </div>
+
+    <div class="qr-display">
+      <div class="qr-label">📱 Scan this QR code at the venue</div>
+      <div class="qr-canvas-container">
+        <canvas id="qrCanvas"></canvas>
+      </div>
+    </div>
+
+    <div id="userInfo" class="user-info">
+      <!-- User info will be populated here -->
+    </div>
+
+    <div class="instructions">
+      <h4>📋 Instructions</h4>
+      <ul>
+        <li>Present this QR code at the venue entrance</li>
+        <li>Keep your token number ready as backup</li>
+        <li>Arrive 30 minutes before the event starts</li>
+        <li>Bring a valid ID for verification</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <small>Designed by <a class="login-link" href="https://codecraft-team.netlify.app/" target="_blank" rel="noopener">CodeCraft</a></small>
+  </footer>
+
+  <script type="module">
+    import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm';
+
+    // Get data from URL parameters or sessionStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token') || sessionStorage.getItem('lastToken');
+    const name = urlParams.get('name') || sessionStorage.getItem('lastName') || '';
+
+    if (!token) {
+      document.querySelector('.qr-container').innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <h2 style="color: #ff6b6b;">No Token Found</h2>
+          <p style="color: var(--muted);">Please complete your registration first.</p>
+          <a href="index.html" class="btn btn-primary">Go to Registration</a>
+        </div>
+      `;
+    } else {
+      // Display token and user info
+      document.getElementById('tokenNumber').textContent = token;
+      
+      // Populate user info
+      const userInfoContainer = document.getElementById('userInfo');
+      userInfoContainer.innerHTML = `
+        <div class="user-info-item">
+          <span class="user-info-label">Name:</span>
+          <span class="user-info-value">${name || 'N/A'}</span>
+        </div>
+        <div class="user-info-item">
+          <span class="user-info-label">Token:</span>
+          <span class="user-info-value">${token}</span>
+        </div>
+        <div class="user-info-item">
+          <span class="user-info-label">Event:</span>
+          <span class="user-info-value">ILLUMINA 2K25</span>
+        </div>
+        <div class="user-info-item">
+          <span class="user-info-label">Date:</span>
+          <span class="user-info-value">September 25, 2025</span>
+        </div>
+        <div class="user-info-item">
+          <span class="user-info-label">Venue:</span>
+          <span class="user-info-value">Lowry Adventist College</span>
+        </div>
+      `;
+
+      // Generate QR code
+      generateQRCode(token, name);
+    }
+
+    async function generateQRCode(tokenNo, userName) {
+      try {
+        const canvas = document.getElementById('qrCanvas');
+        
+        // Set canvas size for large display
+        canvas.width = 250;
+        canvas.height = 250;
+        
+        // Create verification payload
+        const payload = JSON.stringify({
+          type: 'ILLUMINA_ticket',
+          token: tokenNo,
+          name: userName,
+          event: 'ILLUMINA 2K25',
+          date: 'September 25, 2025',
+          venue: 'Lowry Adventist College, Bangalore',
+          ts: Date.now()
+        });
+        
+        // Generate black QR code with no border radius
+        await QRCode.toCanvas(canvas, payload, {
+          width: 250,
+          margin: 2,
+          errorCorrectionLevel: 'M',
+          color: { 
+            dark: '#000000',  // Black QR code
+            light: '#FFFFFF'  // White background
+          }
+        });
+        
+        console.log('QR code generated successfully');
+      } catch (error) {
+        console.error('Failed to generate QR code:', error);
+        
+        // Fallback display
+        const canvas = document.getElementById('qrCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 250;
+        canvas.height = 250;
+        
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#666';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR Code Error', canvas.width/2, canvas.height/2 - 10);
+        ctx.fillText('Please try again', canvas.width/2, canvas.height/2 + 10);
+      }
+    }
+  </script>
+</body>
+</html>

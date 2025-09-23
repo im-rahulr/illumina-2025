@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Event Admin Dashboard – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=20240916">
+  <link rel="stylesheet" href="event-admin.css?v=1">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+    }
+    
+    .dashboard-container {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .dashboard-container.show {
+      display: block;
+    }
+    
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    
+    .event-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+    }
+    
+    .event-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-decoration: none;
+      color: var(--text);
+    }
+    
+    .event-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    
+    .event-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text);
+    }
+    
+    .event-icon {
+      font-size: 24px;
+      opacity: 0.7;
+    }
+    
+    .event-description {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 8px 0 16px 0;
+      line-height: 1.4;
+    }
+    
+    .event-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .participant-count {
+      background: rgba(123, 191, 68, 0.1);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .dashboard-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--text);
+    }
+    
+    .dashboard-subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 0;
+    }
+    
+    .logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    
+    .logout-btn:hover {
+      background: var(--bg);
+      border-color: var(--primary);
+      text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+      .events-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .logout-btn {
+        position: static;
+        display: block;
+        text-align: center;
+        margin: 0 auto 20px;
+        width: fit-content;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Login Form -->
+  <div id="loginContainer" class="login-container">
+    <div class="form-card">
+      <h1 class="title" style="text-align: center; margin-bottom: 24px;">Event Admin Access</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="password">Access Password</label>
+          <input id="password" class="input" type="password" placeholder="Enter password" required>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Access Dashboard</button>
+      </form>
+      <div id="loginError" class="error-message" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardContainer" class="dashboard-container">
+    <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
+    
+    <header class="dashboard-header">
+      <h1 class="dashboard-title">Event Admin Dashboard</h1>
+      <p class="dashboard-subtitle">Manage participants for individual events</p>
+    </header>
+
+    <div class="events-grid" id="eventsGrid">
+      <!-- Events will be populated here -->
+    </div>
+  </div>
+
+  <script>
+    // Event data
+    const EVENTS_DATA = [
+      { id: 'coding', title: 'Coding (C)', description: 'Solve programming problems in C within the time limit.', icon: '💻', maxParticipants: 2 },
+      { id: 'debugging', title: 'Debugging', description: 'Find and fix bugs in given code.', icon: '🐛', maxParticipants: 2 },
+      { id: 'solo-dance', title: 'Solo Dance', description: 'Showcase your dancing skills in individual performance.', icon: '💃', maxParticipants: 1 },
+      { id: 'group-dance', title: 'Group Dance', description: 'Team dance performance with choreography.', icon: '🕺', maxParticipants: 8 },
+      { id: 'solo-singing', title: 'Solo Singing', description: 'Individual singing performance showcasing vocal talent.', icon: '🎤', maxParticipants: 1 },
+      { id: 'solo-instrumental', title: 'Solo Instrumental', description: 'Individual instrumental music performance.', icon: '🎸', maxParticipants: 1 },
+      { id: 'photography', title: 'Photography', description: 'Capture the best moments and showcase photography skills.', icon: '📸', maxParticipants: 1 },
+      { id: 'face-painting', title: 'Face Painting', description: 'Creative face painting competition with artistic designs.', icon: '🎨', maxParticipants: 1 },
+      { id: 'reels-creation', title: 'Reels Creation', description: 'Create engaging short video content and reels.', icon: '🎬', maxParticipants: 3 },
+      { id: 'general-quiz', title: 'General Quiz', description: 'Test your general knowledge in quiz competition.', icon: '🧠', maxParticipants: 2 },
+      { id: 'hindi-essay', title: 'Hindi Essay', description: 'Write compelling essays in Hindi on given topics.', icon: '📝', maxParticipants: 1 },
+      { id: 'kannada-essay', title: 'Kannada Essay', description: 'Write compelling essays in Kannada on given topics.', icon: '📝', maxParticipants: 1 },
+      { id: 'fireless-cooking', title: 'Fireless Cooking', description: 'Prepare delicious dishes without using fire or heat.', icon: '🍽️', maxParticipants: 2 },
+      { id: 'product-launch', title: 'Product Launch', description: 'Present and launch your innovative product idea.', icon: '🚀', maxParticipants: 3 },
+      { id: 'best-manager', title: 'Best Manager', description: 'Demonstrate your management and leadership skills.', icon: '👔', maxParticipants: 1 },
+      { id: 'red-carpet', title: 'Red Carpet', description: 'Fashion show and modeling competition.', icon: '👗', maxParticipants: 1 }
+    ];
+
+    const PASSWORD = 'iloveyou';
+    
+    // DOM elements
+    const loginContainer = document.getElementById('loginContainer');
+    const dashboardContainer = document.getElementById('dashboardContainer');
+    const loginForm = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('password');
+    const loginError = document.getElementById('loginError');
+    const eventsGrid = document.getElementById('eventsGrid');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Check if already logged in
+    function checkAuth() {
+      const isLoggedIn = sessionStorage.getItem('eventAdminAuth') === 'true';
+      if (isLoggedIn) {
+        showDashboard();
+      } else {
+        showLogin();
+      }
+    }
+
+    // Show login form
+    function showLogin() {
+      loginContainer.style.display = 'block';
+      dashboardContainer.classList.remove('show');
+      passwordInput.focus();
+    }
+
+    // Show dashboard
+    function showDashboard() {
+      loginContainer.style.display = 'none';
+      dashboardContainer.classList.add('show');
+      renderEvents();
+    }
+
+    // Handle login
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = passwordInput.value.trim();
+      
+      if (password === PASSWORD) {
+        sessionStorage.setItem('eventAdminAuth', 'true');
+        showDashboard();
+        loginError.style.display = 'none';
+      } else {
+        loginError.textContent = 'Invalid password. Please try again.';
+        loginError.style.display = 'block';
+        passwordInput.value = '';
+        passwordInput.focus();
+      }
+    });
+
+    // Handle logout
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      sessionStorage.removeItem('eventAdminAuth');
+      showLogin();
+    });
+
+    // Render events grid
+    function renderEvents() {
+      eventsGrid.innerHTML = EVENTS_DATA.map(event => `
+        <a href="admin-${event.id}.html" class="event-card">
+          <div class="event-card-header">
+            <h3 class="event-title">${event.title}</h3>
+            <span class="event-icon">${event.icon}</span>
+          </div>
+          <p class="event-description">${event.description}</p>
+          <div class="event-meta">
+            <span>Max Team: ${event.maxParticipants}</span>
+            <span class="participant-count">View Participants</span>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // Initialize
+    checkAuth();
+
+    // Handle browser back/forward
+    window.addEventListener('pageshow', () => {
+      checkAuth();
+    });
+  </script>
+</body>
+
+</html>

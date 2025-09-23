@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Test - illumina</title>
+  <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+  <h1>Deployment Test</h1>
+  <p>This page helps verify that your Netlify deployment is working correctly.</p>
+  
+  <div class="test-item">
+    <h3>Basic Page Load</h3>
+    <p>✅ Page loaded successfully</p>
+  </div>
+  
+  <div class="test-item">
+    <h3>File Structure Test</h3>
+    <div id="fileTest">Testing file access...</div>
+  </div>
+  
+  <div class="test-item">
+    <h3>CSS Loading Test</h3>
+    <div id="cssTest">Testing CSS...</div>
+  </div>
+  
+  <div class="test-item">
+    <h3>JavaScript Test</h3>
+    <div id="jsTest">Testing JavaScript...</div>
+  </div>
+  
+  <div class="test-item">
+    <h3>Firebase Connection Test</h3>
+    <div id="firebaseTest">Testing Firebase...</div>
+  </div>
+  
+  <div class="test-item">
+    <h3>Environment Info</h3>
+    <div id="envInfo">Loading environment info...</div>
+  </div>
+
+  <script type="module">
+    // Test file structure
+    async function testFileStructure() {
+      const fileTest = document.getElementById('fileTest');
+      try {
+        const response = await fetch('styles.css');
+        if (response.ok) {
+          fileTest.innerHTML = '✅ CSS file accessible';
+          fileTest.parentElement.classList.add('success');
+        } else {
+          fileTest.innerHTML = '❌ CSS file not accessible';
+          fileTest.parentElement.classList.add('error');
+        }
+      } catch (e) {
+        fileTest.innerHTML = '❌ File access error: ' + e.message;
+        fileTest.parentElement.classList.add('error');
+      }
+    }
+    
+    // Test CSS loading
+    function testCSS() {
+      const cssTest = document.getElementById('cssTest');
+      try {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'styles.css?v=3';
+        link.onload = () => {
+          cssTest.innerHTML = '✅ CSS loaded successfully';
+          cssTest.parentElement.classList.add('success');
+        };
+        link.onerror = () => {
+          cssTest.innerHTML = '❌ CSS failed to load';
+          cssTest.parentElement.classList.add('error');
+        };
+        document.head.appendChild(link);
+      } catch (e) {
+        cssTest.innerHTML = '❌ CSS test error: ' + e.message;
+        cssTest.parentElement.classList.add('error');
+      }
+    }
+    
+    // Test JavaScript
+    function testJavaScript() {
+      const jsTest = document.getElementById('jsTest');
+      try {
+        // Test basic JavaScript functionality
+        const testObj = { test: 'value' };
+        const testArr = [1, 2, 3];
+        const testStr = 'Hello World';
+        
+        if (JSON.stringify(testObj) === '{"test":"value"}' &&
+            testArr.length === 3 &&
+            testStr.includes('Hello')) {
+          jsTest.innerHTML = '✅ JavaScript working correctly';
+          jsTest.parentElement.classList.add('success');
+        } else {
+          jsTest.innerHTML = '❌ JavaScript basic functions failed';
+          jsTest.parentElement.classList.add('error');
+        }
+      } catch (e) {
+        jsTest.innerHTML = '❌ JavaScript error: ' + e.message;
+        jsTest.parentElement.classList.add('error');
+      }
+    }
+    
+    // Test Firebase
+    async function testFirebase() {
+      const firebaseTest = document.getElementById('firebaseTest');
+      try {
+        const { db } = await import('./firebase-config.js');
+        firebaseTest.innerHTML = '✅ Firebase configuration loaded';
+        firebaseTest.parentElement.classList.add('success');
+      } catch (e) {
+        firebaseTest.innerHTML = '❌ Firebase error: ' + e.message;
+        firebaseTest.parentElement.classList.add('error');
+      }
+    }
+    
+    // Environment info
+    function showEnvInfo() {
+      const envInfo = document.getElementById('envInfo');
+      const info = {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        onLine: navigator.onLine,
+        cookieEnabled: navigator.cookieEnabled,
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+        protocol: window.location.protocol
+      };
+      
+      envInfo.innerHTML = '<pre>' + JSON.stringify(info, null, 2) + '</pre>';
+      envInfo.parentElement.classList.add('success');
+    }
+    
+    // Run all tests
+    testFileStructure();
+    testCSS();
+    testJavaScript();
+    testFirebase();
+    showEnvInfo();
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product Launch – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=4">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9D6EQ7H1EN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-9D6EQ7H1EN');
+  </script>
+</head>
+<body class="event-page event-product-launch">
+  <div id="siteBanner" class="site-banner" role="region" aria-label="Announcement" style="display:none">
+    <span><strong>Check ILLUMINA brochure</strong> — download now</span>
+    <a href="https://app.getfiledrop.com/share/ea5b9aeb-c638-4dc2-a17a-25f5480206f5/download" target="_blank" rel="noopener" download>Download PDF</a>
+    <button id="closeBanner" class="banner-close" aria-label="Close announcement">×</button>
+  </div>
+  
+  <main class="container" role="main">
+    <div class="chess-logo">
+      <img src="../images/lowrylogo.png" alt="ILLUMINA Logo">
+    </div>
+    <h1 class="title">Product Launch</h1>
+    <p class="subtitle">Pitch your innovative product with clarity and impact.</p>
+
+    <div class="form-card" role="region" aria-labelledby="details-title">
+      <h2 id="details-title" style="margin-top:0">Rules</h2>
+      <ul>
+        <li>Team size: 3 members</li>
+        <li>Maximum 2 teams per college</li>
+        <li>Time limit: 4+1 minutes</li>
+        <li>PPT and hard copy mandatory (submit at registration)</li>
+      </ul>
+      
+      <h3>Staff Coordinators</h3>
+      <ul>
+        <li>Mrs. Madhavi R — 8050816937</li>
+        <li>Mrs. M Sheeba — 9731257883</li>
+      </ul>
+      
+      <h3>Student Coordinators</h3>
+      <ul>
+        <li>Sakshi — 8518917748</li>
+        <li>Nithin — 8867126958</li>
+        <li>Christina — 8884230131</li>
+      </ul>
+    </div>
+
+    <div class="social-cta" style="margin-top:14px">
+      <a class="login-link" href="../index.html">← Back to Events</a>
+    </div>
+  </main>
+
+  <script>
+    // Banner functionality
+    try {
+      const banner = document.getElementById('siteBanner');
+      if (banner) {
+        banner.style.display = 'flex';
+        document.body.classList.add('with-banner');
+        const h = banner.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--banner-h', h + 'px');
+        const btn = document.getElementById('closeBanner');
+        if (btn) btn.addEventListener('click', () => {
+          banner.style.display = 'none';
+          document.body.classList.remove('with-banner');
+        });
+      }
+    } catch {}
+  </script>
+</body>
+</html>

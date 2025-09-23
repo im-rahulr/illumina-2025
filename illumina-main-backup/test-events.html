@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test Events Flow</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+    button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    .success { background-color: #d4edda; border-color: #c3e6cb; }
+    .error { background-color: #f8d7da; border-color: #f5c6cb; }
+  </style>
+</head>
+<body>
+  <h1>Test Events Flow</h1>
+  
+  <div class="test-section">
+    <h3>Step 1: Simulate Registration</h3>
+    <button onclick="simulateRegistration()">Simulate Registration</button>
+    <div id="regResult"></div>
+  </div>
+  
+  <div class="test-section">
+    <h3>Step 2: Test Events Page</h3>
+    <a href="events-list.html" target="_blank">Open Events List</a>
+  </div>
+  
+  <div class="test-section">
+    <h3>Step 3: Test Payment Page</h3>
+    <a href="payment.html" target="_blank">Open Payment Page</a>
+  </div>
+
+  <script>
+    function simulateRegistration() {
+      // Simulate user registration data
+      const testToken = '123';
+      const testName = 'Test User';
+      const testCollege = 'Test College';
+      
+      try {
+        sessionStorage.setItem('lastToken', testToken);
+        sessionStorage.setItem('lastName', testName);
+        sessionStorage.setItem('lastCollege', testCollege);
+        
+        document.getElementById('regResult').innerHTML = 
+          '<div class="success">✅ Test registration data stored in session</div>';
+      } catch (e) {
+        document.getElementById('regResult').innerHTML = 
+          '<div class="error">❌ Error: ' + e.message + '</div>';
+      }
+    }
+  </script>
+</body>
+</html>

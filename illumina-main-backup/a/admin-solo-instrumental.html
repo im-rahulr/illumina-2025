@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solo Instrumental Admin – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=20240916">
+  <link rel="stylesheet" href="event-admin.css?v=1">
+</head>
+<body>
+  <div id="pageLoader" class="page-loader"><div class="spinner-standalone"></div><div id="pageLoaderText" class="loader-text">Loading participants...</div></div>
+  <main class="container event-admin-container">
+    <header class="event-admin-header">
+      <nav class="breadcrumb"><a href="../admin.html">Admin</a> > <span id="eventName">Solo Instrumental</span></nav>
+      <h1 class="event-title" id="eventTitle">Solo Instrumental Participants</h1>
+      <p class="event-description" id="eventDescription">Individual instrumental music performance.</p>
+      <div class="event-stats">
+        <span class="stat-badge primary">Participants: <span id="participantCount">0</span></span>
+        <span class="stat-badge">Max Team Size: 1</span>
+      </div>
+    </header>
+    <div id="errorMessage" class="error-message"></div>
+    <div class="event-toolbar">
+      <div class="toolbar-left"><input id="searchInput" class="search-input" type="text" placeholder="Search participants..."></div>
+      <div class="toolbar-right">
+        <button id="exportBtn" class="btn btn-secondary">📊 Export CSV</button>
+        <a href="../admin.html" class="btn btn-primary">← Back to Admin</a>
+      </div>
+    </div>
+    <div class="participants-section">
+      <div id="loading" class="loading-overlay"><div class="spinner"></div><p>Loading participants...</p></div>
+      <div id="emptyState" class="empty-state"><div class="empty-state-icon">🎸</div><h3>No participants yet</h3><p>No one has registered for Solo Instrumental yet.</p></div>
+      <table id="participantsTable" class="participants-table" style="display: none;">
+        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>College</th><th>Course</th><th>Payment</th><th>Token</th><th>Registered</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+  <script type="module">
+    import { EventAdminPage } from './event-admin.js';
+    const pageLoader = document.getElementById('pageLoader');
+    const showPageLoader = (text) => { if (pageLoader) { document.getElementById('pageLoaderText').textContent = text; pageLoader.classList.add('show'); } };
+    const hidePageLoader = () => { if (pageLoader) pageLoader.classList.remove('show'); };
+    async function initPage() {
+      try {
+        showPageLoader('Loading solo instrumental event data...');
+        const eventAdminPage = new EventAdminPage('solo-instrumental');
+        await eventAdminPage.init();
+        window.eventAdminPage = eventAdminPage;
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('errorMessage').textContent = `Failed to load: ${error.message}`;
+        document.getElementById('errorMessage').classList.add('show');
+      } finally { hidePageLoader(); }
+    }
+    window.addEventListener('beforeunload', () => { if (window.eventAdminPage) window.eventAdminPage.destroy(); });
+    initPage();
+  </script>
+</body>
+</html>

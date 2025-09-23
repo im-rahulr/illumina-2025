@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=20240916">
+  <style>
+    .emoji-burst { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 2000; }
+    .emoji { position: absolute; will-change: transform, opacity, filter; animation: burst 1400ms ease-out forwards; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+    @keyframes burst {
+      0% { transform: translate(0,0) scale(0.8) rotate(0deg); opacity: 0; }
+      12% { opacity: 1; }
+      100% { transform: translate(var(--dx, 0px), var(--dy, -160px)) scale(1.6) rotate(var(--rot, 25deg)); opacity: 0; }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Hide scrollbars on this page only (keep scrolling functional) */
+    html { overflow: hidden; }
+    body { overflow: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    body::-webkit-scrollbar { width: 0; height: 0; }
+    /* As a fallback, hide any element scrollbars */
+    * { scrollbar-width: none; }
+    *::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+  </style>
+  
+  <!-- Google tag (gtag.js) --> 
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-9D6EQ7H1EN"></script> 
+ <script> 
+   window.dataLayer = window.dataLayer || []; 
+   function gtag(){dataLayer.push(arguments);} 
+   gtag('js', new Date()); 
+  
+   gtag('config', 'G-9D6EQ7H1EN'); 
+ </script>
+  
+  <!-- PostHog Analytics -->
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Ce js Ls Te Fs Ds capture Ye calculateEventProperties Us register register_once register_for_session unregister unregister_for_session Ws getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Bs zs createPersonProfile Hs Ms Gs opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Ns debug L qs getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_UOdKm95N8QaKxaZvW1WBPdb3AqIHOTFBgf696oExyDa', {
+        api_host: 'https://us.i.posthog.com',
+        defaults: '2025-05-24',
+        person_profiles: 'identified_only'
+    })
+  </script>
+  
+  <meta name="description" content="Register for ILLUMINA at Lowry Adventist College.">
+  <!-- Open Graph / WhatsApp / Facebook -->
+  <meta property="og:site_name" content="ILLUMINA">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Register • ILLUMINA">
+  <meta property="og:description" content="Register your account for ILLUMINA at Lowry Adventist College.">
+  <meta property="og:url" content="https://lac-chess.netlify.app/register.html">
+  <meta property="og:image" content="https://lac-chess.netlify.app/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Register • ILLUMINA">
+  <meta name="twitter:description" content="Register for ILLUMINA at Lowry Adventist College.">
+  <meta name="twitter:image" content="https://lac-chess.netlify.app/images/og-image.jpg">
+</head>
+<body>
+
+
+  <main class="container" role="main">
+    <header class="event-header">
+      <div class="event-info">
+        <div class="event-breadcrumb">
+          <a href="../index.html">ILLUMINA</a> <span>/</span> <span>Registration</span>
+        </div>
+        <h1 class="event-title">Register Now</h1>
+        <p class="event-subtitle">Join the Inter-College Cultural Festival</p>
+      </div>
+    </header>
+    
+    <div id="liveWelcome" class="stat-badge" style="display:none">Welcome, <span id="liveName"></span> — ready to register</div>
+
+    <form class="form-card" action="#" method="post" novalidate>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="username">Name</label>
+          <input id="username" name="username" class="input" type="text" placeholder="Your Name" required minlength="2">
+        </div>
+        <div class="form-group">
+          <label for="course">Course</label>
+          <select id="course" name="course" class="input" required>
+            <option value="" disabled selected>Select course</option>
+            <option value="Degree / UG">Degree / UG</option>
+            <option value="PG">PG</option>
+            <option value="PUC / 12th / ISC / CBSE">PUC / 12th / ISC / CBSE</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="college">College Name</label>
+          <input id="college" name="college" class="input" type="text" placeholder="Your College Name" required minlength="2">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input id="phone" name="phone" class="input" type="tel" placeholder="10-digit phone number" required pattern="^\d{10}$" title="Enter a valid 10-digit phone number" inputmode="tel" maxlength="10">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" aria-busy="false">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Submit</span>
+        </button>
+        <div class="helper">Kindly provide valid phone number and details.</div>
+      </div>
+    </form>
+
+    <small><a class="login-link" href="https://maps.app.goo.gl/2jXy52wZcV9ZxGpP9?g_st=aw" target="_blank" rel="noopener">College Address</a></small>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <small>Designed by <a class="login-link" href="https://codecraft-team.netlify.app/" target="_blank" rel="noopener">CodeCraft</a></small>
+  </footer>
+
+  <!-- Page Loader Overlay -->
+  <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="false">
+    <div class="spinner-standalone" aria-hidden="true"></div>
+    <div id="loaderText" class="loader-text">Submitting…</div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+    <div class="modal-card success">
+      <div id="successTitle" class="modal-title">Thank you!</div>
+      <div class="modal-text" id="successBody"></div>
+      <div id="successId" class="id-badge"></div>
+      <button id="closeModal" class="btn btn-primary" type="button">Close</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    // Audio: prepare lightweight success chime without any permission prompts
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function ensureAudio(){
+      if (!AudioCtx) return;
+      if (!audioCtx) audioCtx = new AudioCtx();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    // Unlock audio on first user interaction so later playback works seamlessly
+    window.addEventListener('pointerdown', ensureAudio, { once: true });
+    window.addEventListener('keydown', ensureAudio, { once: true });
+    function playSuccessSound(){
+      try {
+        ensureAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          const t = now + i * 0.08;
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.15, t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+          osc.start(t);
+          osc.stop(t + 0.27);
+        });
+      } catch {}
+    }
+
+    // Emoji celebration burst
+    function burstEmojis(){
+      const container = document.createElement('div');
+      container.className = 'emoji-burst';
+      const emojis = ['🎉','✨','🥳','🏆','♟️','⭐','💫','🔥','🎊'];
+      const area = window.innerWidth * window.innerHeight;
+      const count = Math.min(160, Math.max(60, Math.floor(area / 12000)));
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement('span');
+        s.className = 'emoji';
+        s.textContent = emojis[i % emojis.length];
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        const dx = (Math.random() * 600 - 300);
+        const dy = (Math.random() * 600 - 300);
+        const rot = (Math.random() * 240 - 120) + 'deg';
+        s.style.left = startX + 'px';
+        s.style.top = startY + 'px';
+        s.style.setProperty('--dx', dx + 'px');
+        s.style.setProperty('--dy', dy + 'px');
+        s.style.setProperty('--rot', rot);
+        s.style.animationDelay = (Math.random() * 0.25) + 's';
+        s.style.animationDuration = (1000 + Math.random() * 900) + 'ms';
+        s.style.fontSize = (36 + Math.random() * 44) + 'px';
+        container.appendChild(s);
+      }
+      document.body.appendChild(container);
+      setTimeout(() => container.remove(), 2400);
+    }
+
+    const form = document.querySelector('form');
+    const liveWelcome = document.getElementById('liveWelcome');
+    const liveName = document.getElementById('liveName');
+    const nameInput = document.getElementById('username');
+    const pageLoader = document.getElementById('pageLoader');
+    const loaderText = document.getElementById('loaderText');
+
+    function showLoader(message){
+      if (loaderText) loaderText.textContent = message || 'Submitting…';
+      if (pageLoader) {
+        pageLoader.classList.add('show');
+        pageLoader.setAttribute('aria-busy','true');
+      }
+    }
+    function hideLoader(){
+      if (pageLoader) {
+        pageLoader.classList.remove('show');
+        pageLoader.setAttribute('aria-busy','false');
+      }
+    }
+    nameInput.addEventListener('input', () => {
+      const v = nameInput.value.trim();
+      if (v.length > 0) {
+        liveName.textContent = v;
+        liveWelcome.style.display = '';
+      } else {
+        liveWelcome.style.display = 'none';
+      }
+    });
+    const modal = document.getElementById('successModal');
+    const successBody = document.getElementById('successBody');
+    document.getElementById('closeModal').addEventListener('click', ()=> modal.classList.remove('show'));
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) modal.classList.remove('show'); });
+    
+
+    async function getIpFast(timeoutMs = 3000){
+      try {
+        const timeout = new Promise((resolve) => setTimeout(() => resolve('unknown'), timeoutMs));
+        
+        // Try multiple IP services for better reliability
+        const ipServices = [
+          'https://api.ipify.org?format=json',
+          'https://api64.ipify.org?format=json',
+          'https://ipapi.co/json/'
+        ];
+        
+        const req = Promise.any(ipServices.map(async (url) => {
+          try {
+            const response = await fetch(url, { 
+              cache: 'no-store',
+              mode: 'cors',
+              headers: { 'Accept': 'application/json' }
+            });
+            if (!response.ok) throw new Error('Response not ok');
+            const data = await response.json();
+            const ip = data.ip || data.query || data.address;
+            if (typeof ip === 'string' && ip.length <= 45 && /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) {
+              return ip;
+            }
+            throw new Error('Invalid IP format');
+          } catch (e) {
+            throw new Error(`Service ${url} failed: ${e.message}`);
+          }
+        }));
+        
+        return await Promise.race([req, timeout]);
+      } catch (error) {
+        console.warn('IP detection failed:', error.message);
+        return 'unknown';
+      }
+    }
+    
+
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const btnLabel = submitBtn.querySelector('.btn-label');
+      const previousLabel = btnLabel ? btnLabel.textContent : 'Submit';
+      submitBtn.disabled = true;
+      submitBtn.classList.add('is-loading');
+      submitBtn.setAttribute('aria-busy','true');
+      if (btnLabel) btnLabel.textContent = 'Submitting…';
+      showLoader('Submitting your registration…');
+      try {
+        // Parallel: IP fetch
+        const ipPromise = getIpFast();
+        const ipValue = await ipPromise;
+        let ip = ipValue || 'unknown';
+        
+        // Additional fallback: try to get IP from headers if available
+        if (ip === 'unknown') {
+          try {
+            // This will only work if your server passes the real IP in headers
+            const response = await fetch('/api/get-ip', { 
+              method: 'GET',
+              cache: 'no-store'
+            });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.ip && /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(data.ip)) {
+                ip = data.ip;
+              }
+            }
+          } catch (e) {
+            // Server endpoint not available, continue with 'unknown'
+          }
+        }
+        // Normalize phone number (digits only)
+        const normalizedPhone = (form.phone?.value || '').replace(/[^\d]/g, '').slice(0, 15);
+        // Generate a unique shortId using timestamp and random component for better reliability
+        let shortId;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        do {
+          const timestamp = Date.now();
+          const random = Math.floor(Math.random() * 1000);
+          const hash = ((timestamp % 10000) * 1000 + random) % 1000;
+          shortId = String(hash).padStart(3,'0');
+          
+          // Check if this shortId already exists (best-effort). If read is blocked by rules, skip the check.
+          try {
+            const existingQuery = query(collection(db, 'registrations'), where('shortId', '==', shortId), limit(1));
+            const existingSnap = await getDocs(existingQuery);
+            if (existingSnap.empty) break;
+          } catch (checkErr) {
+            console.warn('ID uniqueness check skipped due to read error:', checkErr);
+            break; // proceed with current shortId
+          }
+          
+          attempts++;
+        } while (attempts < maxAttempts);
+        
+        // If we couldn't find a unique ID after max attempts, use timestamp-based fallback
+        if (attempts >= maxAttempts) {
+          const timestamp = Date.now();
+          shortId = String(timestamp % 1000).padStart(3,'0');
+        }
+        
+        const payload = {
+          username: form.username.value.trim(),
+          course: form.course.value,
+          college: form.college.value.trim(),
+          phone: normalizedPhone,
+          ip,
+          shortId,
+          createdAt: serverTimestamp()
+        };
+        
+        // Create document with auto-generated ID and store the shortId
+        const docRef = doc(collection(db, 'registrations'));
+        await setDoc(docRef, payload);
+        
+        // Optional: You can verify by shortId if needed
+        console.log('Registration stored successfully with Token No:', shortId);
+        
+        if (btnLabel) btnLabel.textContent = 'Submitted';
+        // Persist user data to session and redirect to events selection page
+        try {
+          sessionStorage.setItem('lastToken', shortId);
+          sessionStorage.setItem('lastName', payload.username || '');
+          sessionStorage.setItem('lastCollege', payload.college || '');
+          sessionStorage.setItem('lastCourse', payload.course || '');
+        } catch {}
+        // Optional celebration before redirect
+        playSuccessSound();
+        burstEmojis();
+        // Quick redirect to events selection page (keep loader visible until navigation)
+        window.location.href = 'events-list.html';
+      } catch (err) {
+        console.error('Registration error:', err);
+        
+        // Log error to database for admin review
+        try {
+          const errorLogRef = collection(db, 'errorLogs');
+          await addDoc(errorLogRef, {
+            type: 'REGISTRATION_ERROR',
+            message: err.message,
+            details: {
+              username: form.username.value.trim(),
+              course: form.course.value,
+              ip: ip,
+              error: err.toString(),
+              stack: err.stack
+            },
+            timestamp: serverTimestamp()
+          });
+        } catch (logError) {
+          console.error('Failed to log error:', logError);
+        }
+        
+        if (err.message.includes('shortId')) {
+          alert('Failed to generate unique ID. Please try again.');
+        } else {
+          alert('Failed to submit. Please try again.');
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('is-loading');
+        submitBtn.removeAttribute('aria-busy');
+        if (btnLabel) btnLabel.textContent = previousLabel;
+        // Hide loader only if we're still on this page (i.e., an error occurred)
+        hideLoader();
+      }
+    });
+  </script>
+</body>
+</html>

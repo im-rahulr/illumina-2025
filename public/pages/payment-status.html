@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Status – illumina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=4">
+  <style>
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    
+    .status-pending {
+      border-color: #ffa94d;
+      background: rgba(255, 169, 77, 0.05);
+    }
+    
+    .status-verified {
+      border-color: var(--primary);
+      background: rgba(123, 191, 68, 0.05);
+    }
+    
+    .status-failed {
+      border-color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.05);
+    }
+    
+    .status-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .status-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    
+    .status-description {
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .transaction-details {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: left;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .detail-label {
+      color: var(--muted);
+    }
+    
+    .detail-value {
+      color: #fff;
+      font-weight: 600;
+    }
+    
+    .refresh-btn {
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main" style="min-height: 100vh; padding: 24px 0;">
+    <div style="max-width: 500px; margin: 0 auto; padding: 0 16px;">
+      <h1 class="title" style="text-align: center; margin-bottom: 8px;">Payment Status</h1>
+      <p class="subtitle" style="text-align: center; margin-top: 0;">Check your transaction status</p>
+
+      <div id="statusCard" class="status-card status-pending">
+        <div class="status-icon">⏳</div>
+        <div class="status-title">Checking Status...</div>
+        <div class="status-description">Please wait while we verify your payment</div>
+      </div>
+
+      <div id="transactionDetails" class="transaction-details" style="display: none;">
+        <h3 style="margin: 0 0 12px; color: #fff;">Transaction Details</h3>
+        <div class="detail-row">
+          <span class="detail-label">Transaction ID:</span>
+          <span class="detail-value" id="txnId">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount:</span>
+          <span class="detail-value" id="amount">₹200</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date & Time:</span>
+          <span class="detail-value" id="datetime">-</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value" id="status">-</span>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="refreshBtn" class="btn btn-secondary refresh-btn">
+          🔄 Refresh Status
+        </button>
+        
+        <button id="contactBtn" class="btn btn-primary" style="margin-left: 8px; display: none;">
+          📱 Contact Support
+        </button>
+      </div>
+
+      <div style="text-align: center; margin-top: 24px;">
+        <a href="success.html" class="login-link">← Back to Registration</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    const statusCard = document.getElementById('statusCard');
+    const transactionDetails = document.getElementById('transactionDetails');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const contactBtn = document.getElementById('contactBtn');
+
+    let userContext = null;
+    let paymentContext = null;
+
+    // Load user and payment context
+    function loadContext() {
+      try {
+        const userCtx = sessionStorage.getItem('payment_user_context');
+        const paymentCtx = sessionStorage.getItem('payment_context');
+        
+        userContext = userCtx ? JSON.parse(userCtx) : null;
+        paymentContext = paymentCtx ? JSON.parse(paymentCtx) : null;
+        
+        if (!userContext) {
+          showError('No payment session found. Please start from registration.');
+          return false;
+        }
+        
+        return true;
+      } catch (e) {
+        console.error('Failed to load context:', e);
+        showError('Invalid session data. Please restart payment process.');
+        return false;
+      }
+    }
+
+    // Check payment status from Firebase
+    async function checkPaymentStatus() {
+      if (!userContext) return;
+      
+      try {
+        // Query payment attempts for this user
+        const q = query(
+          collection(db, 'paymentAttempts'),
+          where('userToken', '==', userContext.token),
+          orderBy('timestamp', 'desc'),
+          limit(1)
+        );
+        
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+          const paymentData = snapshot.docs[0].data();
+          updateStatusDisplay(paymentData);
+        } else {
+          showPending('No payment attempts found for your registration.');
+        }
+        
+      } catch (error) {
+        console.error('Failed to check payment status:', error);
+        showError('Unable to check payment status. Please try again.');
+      }
+    }
+
+    // Update status display based on payment data
+    function updateStatusDisplay(paymentData) {
+      const { status, transactionId, timestamp, details } = paymentData;
+      
+      // Update transaction details
+      document.getElementById('txnId').textContent = transactionId || 'N/A';
+      document.getElementById('datetime').textContent = timestamp ? 
+        new Date(timestamp.toDate()).toLocaleString() : 'N/A';
+      document.getElementById('status').textContent = status || 'Unknown';
+      
+      transactionDetails.style.display = 'block';
+      
+      switch (status) {
+        case 'verification_sent':
+          showPending('Payment verification in progress. Our team is reviewing your transaction.');
+          break;
+          
+        case 'verified':
+        case 'completed':
+          showSuccess('Payment verified successfully! Your registration is confirmed.');
+          break;
+          
+        case 'failed':
+        case 'rejected':
+          showFailed('Payment verification failed. Please contact support or try again.');
+          break;
+          
+        default:
+          showPending('Payment status is being updated. Please check back in a few minutes.');
+      }
+    }
+
+    // Show pending status
+    function showPending(message) {
+      statusCard.className = 'status-card status-pending';
+      statusCard.innerHTML = `
+        <div class="status-icon">⏳</div>
+        <div class="status-title">Payment Pending</div>
+        <div class="status-description">${message}</div>
+      `;
+      contactBtn.style.display = 'inline-block';
+    }
+
+    // Show success status
+    function showSuccess(message) {
+      statusCard.className = 'status-card status-verified';
+      statusCard.innerHTML = `
+        <div class="status-icon">✅</div>
+        <div class="status-title">Payment Verified</div>
+        <div class="status-description">${message}</div>
+      `;
+      
+      // Add download ticket button
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'btn btn-primary';
+      downloadBtn.innerHTML = '📥 Download Ticket';
+      downloadBtn.onclick = () => window.location.href = 'success.html';
+      statusCard.appendChild(downloadBtn);
+    }
+
+    // Show failed status
+    function showFailed(message) {
+      statusCard.className = 'status-card status-failed';
+      statusCard.innerHTML = `
+        <div class="status-icon">❌</div>
+        <div class="status-title">Payment Failed</div>
+        <div class="status-description">${message}</div>
+      `;
+      contactBtn.style.display = 'inline-block';
+    }
+
+    // Show error status
+    function showError(message) {
+      statusCard.className = 'status-card status-failed';
+      statusCard.innerHTML = `
+        <div class="status-icon">⚠️</div>
+        <div class="status-title">Error</div>
+        <div class="status-description">${message}</div>
+      `;
+    }
+
+    // Contact support via WhatsApp
+    function contactSupport() {
+      const message = encodeURIComponent(`Hello! I need help with my payment status.
+
+Registration Details:
+• Name: ${userContext?.name || 'N/A'}
+• Token: ${userContext?.token || 'N/A'}
+• Transaction ID: ${paymentContext?.transactionId || 'N/A'}
+
+Please help me check my payment status.`);
+      
+      window.open(`https://wa.me/9739904620?text=${message}`, '_blank');
+    }
+
+    // Event listeners
+    refreshBtn.addEventListener('click', () => {
+      refreshBtn.disabled = true;
+      refreshBtn.innerHTML = '🔄 Refreshing...';
+      
+      checkPaymentStatus().finally(() => {
+        refreshBtn.disabled = false;
+        refreshBtn.innerHTML = '🔄 Refresh Status';
+      });
+    });
+
+    contactBtn.addEventListener('click', contactSupport);
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      if (loadContext()) {
+        checkPaymentStatus();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(checkPaymentStatus, 30000);
+      }
+    });
+  </script>
+</body>
+</html>

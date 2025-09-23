@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Online Payment – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20240916">
+  <style>
+    /* Enhanced payment flow styles */
+    .payment-status-message {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .btn.is-loading .btn-label {
+      opacity: 0.7;
+    }
+
+    .btn-secondary {
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(123, 191, 68, 0.3);
+    }
+
+    /* Security indicator */
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .security-badge::before {
+      content: '🔒';
+      font-size: 10px;
+    }
+
+    /* Check payment button styles */
+    #checkPaymentBtn {
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    #checkPaymentBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(123, 191, 68, 0.4);
+      opacity: 0.9;
+    }
+
+    #checkPaymentBtn:active {
+      transform: translateY(0);
+    }
+
+    /* WhatsApp Widget Styles */
+    .whatsapp-widget {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+    }
+
+    .whatsapp-button {
+      width: 60px;
+      height: 60px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    .whatsapp-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.8), 0 0 0 10px rgba(37, 211, 102, 0.1);
+      }
+
+      100% {
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+      }
+    }
+
+    .whatsapp-popup {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+    }
+
+    .whatsapp-popup.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .whatsapp-header {
+      background: #075E54;
+      color: white;
+      padding: 16px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .whatsapp-avatar .avatar-circle {
+      width: 40px;
+      height: 40px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .whatsapp-info {
+      flex: 1;
+    }
+
+    .whatsapp-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .whatsapp-status {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+
+    .whatsapp-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .whatsapp-messages {
+      padding: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .whatsapp-message {
+      margin-bottom: 12px;
+    }
+
+    .whatsapp-message.received .message-text {
+      background: #f0f0f0;
+      color: #333;
+      padding: 8px 12px;
+      border-radius: 12px 12px 12px 4px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    .whatsapp-actions {
+      padding: 16px;
+      border-top: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .whatsapp-action {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .whatsapp-action:hover {
+      background: #e9ecef;
+      transform: translateX(2px);
+    }
+
+    @media (max-width: 768px) {
+      .whatsapp-popup {
+        width: 280px;
+      }
+    }
+
+    /* Full-screen popup styles */
+    .payment-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 11, 11, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .payment-popup-overlay.show {
+      display: flex;
+    }
+
+    .payment-popup {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .payment-popup h2 {
+      color: var(--primary);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      font-family: 'Poppins', system-ui, sans-serif;
+    }
+
+    .payment-popup p {
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+
+    .payment-popup .btn {
+      margin: 10px;
+      min-width: 120px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Mobile responsive styles */
+    @media (max-width: 767px) {
+      .container {
+        padding: 0 12px;
+      }
+      
+      .form-card {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      
+      #eventSelections h3 {
+        font-size: 16px;
+      }
+      
+      .summary-item {
+        font-size: 13px;
+        padding: 6px 0;
+      }
+      
+      .btn {
+        font-size: 14px;
+        padding: 12px 16px;
+      }
+      
+      .title {
+        font-size: 24px;
+      }
+      
+      .subtitle {
+        font-size: 14px;
+      }
+    }
+  </style>
+  <meta name="description" content="Pay your registration fee online via UPI." />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9D6EQ7H1EN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-9D6EQ7H1EN');
+  </script>
+</head>
+
+<body>
+  <main class="container" role="main"
+    style="min-height:100vh; padding: 24px 0; display: flex; align-items: center; justify-content: center;">
+    <div style="max-width: 400px; margin: 0 auto; padding: 0 16px; width: 100%;">
+      <h1 class="title" style="text-align: center; margin-bottom: 4px;" id="paymentTitle">Pay ₹250</h1>
+      <p class="subtitle" style="text-align: center; margin-top: 0;">Scan the QR code to pay using any UPI app</p>
+      <!-- User Details (from session) -->
+      <div id="userInfo" style="display:none; background: rgba(123, 191, 68, 0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 12px; margin: 12px 0;">
+        <h3 style="margin: 0 0 6px 0; color: var(--primary); font-size: 14px;">Registration Details</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:12px;">
+          <div><strong>Name:</strong> <span id="userName"></span></div>
+          <div><strong>Token:</strong> <span id="userToken"></span></div>
+        </div>
+      </div>
+      
+      <section class="form-card"
+        style="background: var(--surface); border:1px solid var(--line); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        <div style="text-align: center;">
+          <div
+            style="background: #fff; border-radius: 12px; padding: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <img src="images/qrcode.png" alt="Payment QR Code" style="width: 200px; height: 200px; display: block;" />
+          </div>
+          <div class="helper" style="margin: 12px 0 0; font-weight: 500; text-align: center;">
+            <div style="margin-top: 12px; font-size: 15px; font-weight: 600; color: #fff;">Name: MADHAVI</div>
+            <div style="margin-top: 4px; font-size: 13px; color: var(--muted);">Phone: 8050816937</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;">
+          <img src="images/gpay.png" alt="Google Pay" style="width: 40px; height: 40px; border-radius: 8px;" />
+          <img src="images/phonepe.png" alt="PhonePe" style="width: 40px; height: 40px; border-radius: 8px;" />
+          <img src="images/upi.png" alt="UPI" style="width: 40px; height: 40px; border-radius: 8px;" />
+        </div>
+
+        <div style="text-align: center; width: 100%;">
+          <div class="helper" style="margin-bottom: 16px; color: var(--muted);">Or tap the button below to open your UPI
+            app directly</div>
+          <button id="openUpiBtn" class="btn btn-primary" style="width: 100%; font-weight: 600;">
+            <span class="btn-label">Pay Now</span>
+          </button>
+        </div>
+
+        <div class="helper" style="text-align: center; color: var(--muted); font-size: 12px;">
+          After payment, you'll receive a confirmation. Please save the transaction ID for your records.
+          <div class="security-badge" style="margin-top: 8px;">
+            Secure Payment Gateway
+          </div>
+          <button id="checkPaymentBtn" class="btn btn-secondary"
+            style="width: 100%; margin-top: 12px; font-size: 13px; padding: 8px 16px; background: var(--primary); color: #10210a; border: 1px solid var(--primary); display: block;">
+            Check Payment Status
+          </button>
+        </div>
+      </section>
+
+      <div style="text-align: center; margin-top: 16px;">
+        <a href="events-list.html" class="login-link" style="font-size: 14px;">← Back to Events Selection</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- WhatsApp Chat Widget -->
+  <div id="whatsappWidget" class="whatsapp-widget">
+    <div class="whatsapp-button" id="whatsappBtn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+        <path
+          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.516" />
+      </svg>
+    </div>
+    <div class="whatsapp-popup" id="whatsappPopup">
+      <div class="whatsapp-header">
+        <div class="whatsapp-avatar">
+          <div class="avatar-circle">V</div>
+        </div>
+        <div class="whatsapp-info">
+          <div class="whatsapp-name">Vishal</div>
+          <div class="whatsapp-status">Online • Payment Support</div>
+        </div>
+        <button class="whatsapp-close" id="whatsappClose">×</button>
+      </div>
+      <div class="whatsapp-messages">
+        <div class="whatsapp-message received">
+          <div class="message-text">Need help with payment? 💳<br>I'm here to assist you!</div>
+          <div class="message-time">Just now</div>
+        </div>
+      </div>
+      <div class="whatsapp-actions">
+        <button class="whatsapp-action" data-message="Hi! I'm having trouble with UPI payment for ILLUMINA">
+          🔄 UPI Payment Issue
+        </button>
+        <button class="whatsapp-action"
+          data-message="Hello! My payment was successful but I need confirmation for ILLUMINA">
+          ✅ Payment Confirmation
+        </button>
+        <button class="whatsapp-action" data-message="Hi! I need help with QR code scanning for ILLUMINA payment">
+          📱 QR Code Help
+        </button>
+        <button class="whatsapp-action" data-message="Hello! I need general payment support for ILLUMINA">
+          💬 General Payment Help
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Loader Overlay -->
+  <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="false">
+    <div class="spinner-standalone" aria-hidden="true"></div>
+    <div id="loaderText" class="loader-text">Opening your UPI app…</div>
+  </div>
+
+  <!-- Payment Status Popup -->
+  <div id="paymentPopup" class="payment-popup-overlay">
+    <div class="payment-popup">
+      <h2>Payment Confirmation</h2>
+      <p>Please scan the QR code to make payment. After completing the payment, click "Check Payment Status" for manual
+        verification.</p>
+      <div
+        style="margin: 16px 0; padding: 12px; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; border-radius: 8px; font-size: 14px; color: #856404;">
+        <strong>Note:</strong> Payment confirmation will be done manually by our team. Please wait for verification
+        after payment.
+      </div>
+      <div>
+        <button id="paymentCompletedBtn" class="btn btn-primary">Check Payment Status</button>
+        <button id="paymentPendingBtn" class="btn btn-secondary">Not Yet, Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Secure UPI payment configuration
+    const UPI_CONFIG = {
+      id: '8050816937@ibl',
+      amount: '250',
+      merchantName: 'MADHAVI',
+      transactionNote: 'ILLUMINA Registration Fee',
+      whatsappNumber: '7349321463'
+    };
+
+    // Load event selections and update payment amount (no UI list)
+    function loadEventSelections() {
+      try {
+        const totalAmount = '250'; // Fixed amount
+        UPI_CONFIG.amount = totalAmount;
+        // Update page title to show fixed amount
+        const titleEl = document.getElementById('paymentTitle');
+        if (titleEl) titleEl.textContent = `Pay ₹${totalAmount}`;
+        // Update transaction note using user context
+        const userContext = getUserContext();
+        UPI_CONFIG.transactionNote = `Token ${userContext?.token || 'N/A'} ILLUMINA Registration`;
+      } catch (e) {
+        console.warn('Unable to initialize payment amount:', e);
+      }
+    }
+
+    // Payment state management
+    const PaymentState = {
+      INITIAL: 'initial',
+      UPI_OPENED: 'upi_opened',
+      AWAITING_VERIFICATION: 'awaiting_verification',
+      VERIFIED: 'verified'
+    };
+
+    let currentState = PaymentState.INITIAL;
+    let transactionId = null;
+    let paymentTimestamp = null;
+
+    const openUpiBtn = document.getElementById('openUpiBtn');
+    const checkPaymentBtn = document.getElementById('checkPaymentBtn');
+    const pageLoader = document.getElementById('pageLoader');
+    const loaderText = document.getElementById('loaderText');
+
+    // Generate secure transaction ID with validation
+    function generateTransactionId() {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 10000);
+      const userContext = getUserContext();
+
+      // Include user token hash for additional security
+      let hashComponent = '';
+      if (userContext?.token) {
+        hashComponent = userContext.token.slice(-3);
+      }
+
+      return `ILM${timestamp}${random}${hashComponent}`.slice(-16);
+    }
+
+    // Validate payment session integrity
+    function validatePaymentSession() {
+      const userContext = getUserContext();
+      const paymentContext = getPaymentContext();
+
+      if (!userContext) {
+        throw new Error('User session expired. Please restart from registration.');
+      }
+
+      if (paymentContext) {
+        const timeDiff = Date.now() - new Date(paymentContext.timestamp).getTime();
+        if (timeDiff > 30 * 60 * 1000) { // 30 minutes
+          throw new Error('Payment session expired. Please restart.');
+        }
+      }
+
+      return true;
+    }
+
+    // Get payment context from session storage
+    function getPaymentContext() {
+      try {
+        const context = sessionStorage.getItem('payment_context');
+        return context ? JSON.parse(context) : null;
+      } catch (e) {
+        console.warn('Unable to get payment context:', e);
+        return null;
+      }
+    }
+
+    // Build secure UPI payment link
+    function buildSecureUpiLink() {
+      transactionId = generateTransactionId();
+      paymentTimestamp = new Date().toISOString();
+
+      // Store transaction context securely
+      try {
+        sessionStorage.setItem('payment_context', JSON.stringify({
+          transactionId,
+          timestamp: paymentTimestamp,
+          amount: UPI_CONFIG.amount,
+          merchantName: UPI_CONFIG.merchantName
+        }));
+      } catch (e) {
+        console.warn('Unable to store payment context:', e);
+      }
+
+      // Get user context for transaction note
+      const userContext = getUserContext();
+      let transactionNote = `Token ${userContext?.token || 'N/A'} ILLUMINA Lowry College`;
+
+      const params = new URLSearchParams({
+        pa: '8050816937@ibl',
+        pn: 'MADHAVI R',
+        mc: '0000',
+        mode: '02',
+        purpose: '00',
+        am: UPI_CONFIG.amount,
+        cu: 'INR',
+        tn: transactionNote,
+        tr: transactionId
+      });
+
+      const upiLink = `upi://pay?${params.toString()}`;
+      console.log('Generated UPI link:', upiLink);
+      return upiLink;
+    }
+
+    // Get user context from session storage
+    function getUserContext() {
+      try {
+        const userContext = sessionStorage.getItem('payment_user_context');
+        return userContext ? JSON.parse(userContext) : null;
+      } catch (e) {
+        console.warn('Unable to get user context:', e);
+        return null;
+      }
+    }
+
+    // Show the Registration Details box on the payment page (without college)
+    function displayUserInfoPayment() {
+      try {
+        const user = getUserContext();
+        const userInfoBox = document.getElementById('userInfo');
+        const nameEl = document.getElementById('userName');
+        const tokenEl = document.getElementById('userToken');
+
+        if (!userInfoBox || !nameEl || !tokenEl) return;
+
+        if (user) {
+          // Populate fields
+          nameEl.textContent = user.name || '';
+          // If token is numeric, pad to 3 digits to match display like 058
+          const rawToken = user.token ?? '';
+          const paddedToken = (typeof rawToken === 'number') ? String(rawToken).padStart(3, '0') : String(rawToken);
+          tokenEl.textContent = paddedToken;
+
+          // Reveal box
+          userInfoBox.style.display = 'block';
+        } else {
+          // Hide if no context available
+          userInfoBox.style.display = 'none';
+        }
+      } catch (e) {
+        console.warn('Failed to display user info on payment page:', e);
+      }
+    }
+
+    // Build WhatsApp verification link with context
+    function buildWhatsAppLink(userContext = null) {
+      let message = 'hello';
+
+      if (userContext) {
+        message = `Hello! I have completed payment for ILLUMINA registration.
+        
+Details:
+• Name: ${userContext.name}
+• Token: ${userContext.token}
+• Amount: ₹${UPI_CONFIG.amount}
+• Time: ${new Date().toLocaleString()}
+
+Please confirm my payment status.`;
+      }
+
+      return `https://wa.me/${UPI_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+    }
+
+    // Track payment events for analytics
+    function trackPaymentEvent(eventName, data = {}) {
+      try {
+        // Send to analytics if available
+        if (typeof gtag !== 'undefined') {
+          gtag('event', eventName, {
+            event_category: 'payment',
+            event_label: 'upi_payment',
+            custom_parameter: JSON.stringify(data)
+          });
+        }
+
+        // Send to PostHog if available
+        if (typeof posthog !== 'undefined') {
+          posthog.capture(eventName, {
+            category: 'payment',
+            ...data
+          });
+        }
+
+        console.log('Payment event tracked:', eventName, data);
+      } catch (e) {
+        console.warn('Failed to track payment event:', e);
+      }
+    }
+
+    // Update button state based on payment flow
+    function updateButtonState(state) {
+      currentState = state;
+
+      switch (state) {
+        case PaymentState.INITIAL:
+          openUpiBtn.innerHTML = '<span class="btn-label">Pay Now</span>';
+          openUpiBtn.className = 'btn btn-primary';
+          openUpiBtn.style.width = '100%';
+          openUpiBtn.style.fontWeight = '600';
+          break;
+
+        case PaymentState.UPI_OPENED:
+          openUpiBtn.innerHTML = '<span class="btn-label">Opening UPI App...</span>';
+          openUpiBtn.disabled = true;
+          openUpiBtn.className = 'btn btn-primary is-loading';
+          break;
+
+        case PaymentState.AWAITING_VERIFICATION:
+          openUpiBtn.innerHTML = '<span class="btn-label">Check Payment Status</span>';
+          openUpiBtn.disabled = false;
+          openUpiBtn.className = 'btn btn-secondary';
+          openUpiBtn.style.background = 'var(--primary)';
+          openUpiBtn.style.color = '#10210a';
+          break;
+
+        case PaymentState.VERIFIED:
+          openUpiBtn.innerHTML = '<span class="btn-label">⏳ Payment Yet to Verify</span>';
+          openUpiBtn.disabled = false;
+          openUpiBtn.className = 'btn btn-secondary';
+          openUpiBtn.style.background = '#ffc107';
+          openUpiBtn.style.color = '#212529';
+          break;
+      }
+    }
+
+    // Show/hide loader with enhanced messaging
+    function showLoader(message, isError = false) {
+      if (loaderText) {
+        loaderText.textContent = message || 'Processing...';
+        loaderText.style.color = isError ? '#ff6b6b' : 'var(--text)';
+      }
+      if (pageLoader) {
+        pageLoader.classList.add('show');
+        pageLoader.setAttribute('aria-busy', 'true');
+      }
+    }
+
+    function hideLoader() {
+      if (pageLoader) {
+        pageLoader.classList.remove('show');
+        pageLoader.setAttribute('aria-busy', 'false');
+      }
+    }
+
+    // Handle UPI payment initiation
+    function initiateUpiPayment() {
+      try {
+        // Validate user context before proceeding
+        const userContext = getUserContext();
+        if (!userContext) {
+          throw new Error('User context not found. Please restart from registration.');
+        }
+
+        updateButtonState(PaymentState.UPI_OPENED);
+        showLoader('Securing transaction and redirecting to UPI app...');
+
+        const upiLink = buildSecureUpiLink();
+        console.log('Initiating secure UPI payment with transaction ID:', transactionId);
+
+        // Track payment initiation
+        trackPaymentEvent('payment_initiated', {
+          transactionId,
+          amount: UPI_CONFIG.amount,
+          userToken: userContext.token,
+          timestamp: paymentTimestamp
+        });
+
+        // Add security delay to prevent rapid-fire attempts
+        setTimeout(() => {
+          console.log('Opening UPI link:', upiLink);
+
+          // Try multiple methods to open UPI app
+          let upiOpened = false;
+
+          try {
+            // Method 1: Direct window.location (most reliable)
+            window.location.href = upiLink;
+            upiOpened = true;
+          } catch (e) {
+            console.warn('Method 1 failed:', e);
+          }
+
+          if (!upiOpened) {
+            try {
+              // Method 2: Create and click a link
+              const tempLink = document.createElement('a');
+              tempLink.href = upiLink;
+              tempLink.style.display = 'none';
+              document.body.appendChild(tempLink);
+              tempLink.click();
+              document.body.removeChild(tempLink);
+              upiOpened = true;
+            } catch (e) {
+              console.warn('Method 2 failed:', e);
+            }
+          }
+
+          if (!upiOpened) {
+            // Method 3: Show manual instructions
+            hideLoader();
+            showManualUpiInstructions(upiLink);
+            return;
+          }
+
+          // Track UPI app opening
+          trackPaymentEvent('upi_app_opened', {
+            transactionId,
+            timestamp: new Date().toISOString()
+          });
+        }, 500);
+
+        // Handle return from UPI app - show popup instead of message
+        setTimeout(() => {
+          hideLoader();
+          updateButtonState(PaymentState.AWAITING_VERIFICATION);
+
+          // Show payment status popup when user returns
+          showPaymentStatusPopup();
+
+          // Track return from UPI app
+          trackPaymentEvent('returned_from_upi', {
+            transactionId,
+            timestamp: new Date().toISOString()
+          });
+        }, 3000);
+
+      } catch (error) {
+        console.error('UPI payment initiation failed:', error);
+        trackPaymentEvent('payment_initiation_failed', {
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+        showLoader('Payment failed. Please try again.', true);
+        setTimeout(() => {
+          hideLoader();
+          updateButtonState(PaymentState.INITIAL);
+        }, 2000);
+      }
+    }
+
+    // Show manual UPI instructions if automatic opening fails
+    function showManualUpiInstructions(upiLink) {
+      const instructionsDiv = document.createElement('div');
+      instructionsDiv.className = 'manual-upi-instructions';
+      instructionsDiv.style.cssText = `
+        background: rgba(123, 191, 68, 0.1);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 16px 0;
+        text-align: center;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+      `;
+
+      instructionsDiv.innerHTML = `
+        <div style="color: var(--primary); font-weight: 600; margin-bottom: 12px;">
+          📱 Manual UPI Payment
+        </div>
+        <div style="margin-bottom: 16px;">
+          If your UPI app didn't open automatically, please follow these steps:
+        </div>
+        <div style="text-align: left; margin-bottom: 16px;">
+          <strong>Option 1:</strong> Copy the UPI ID below and pay manually<br>
+          <div style="background: var(--surface); padding: 8px; border-radius: 4px; margin: 8px 0; font-family: monospace;">
+            8050816937@ybl
+          </div>
+          <strong>Amount:</strong> ₹${UPI_CONFIG.amount}<br>
+          <strong>Note:</strong> Token ${getUserContext()?.token || 'N/A'} ILLUMINA
+        </div>
+        <div style="margin-bottom: 16px;">
+          <strong>Option 2:</strong> Try opening UPI link again
+        </div>
+        <button id="retryUpiBtn" class="btn btn-primary" style="margin: 8px;">
+          🔄 Try UPI Link Again
+        </button>
+        <button id="manualPayBtn" class="btn btn-secondary" style="margin: 8px;">
+          💳 I'll Pay Manually
+        </button>
+      `;
+
+      // Insert after the form card
+      const formCard = document.querySelector('.form-card');
+      formCard.parentNode.insertBefore(instructionsDiv, formCard.nextSibling);
+
+      // Add event listeners
+      document.getElementById('retryUpiBtn').addEventListener('click', () => {
+        window.location.href = upiLink;
+      });
+
+      document.getElementById('manualPayBtn').addEventListener('click', () => {
+        instructionsDiv.remove();
+        showPaymentStatusPopup();
+      });
+    }
+
+    // Show payment status popup
+    function showPaymentStatusPopup() {
+      const popup = document.getElementById('paymentPopup');
+      if (popup) {
+        popup.classList.add('show');
+      }
+    }
+
+    // Hide payment status popup
+    function hidePaymentStatusPopup() {
+      const popup = document.getElementById('paymentPopup');
+      if (popup) {
+        popup.classList.remove('show');
+      }
+    }
+
+    // Handle payment status verification via WhatsApp
+    function verifyPaymentStatus() {
+      try {
+        const userContext = getUserContext();
+        const whatsappLink = buildWhatsAppLink(userContext);
+        window.location.href = whatsappLink;
+        trackPaymentEvent('whatsapp_verification_initiated', {
+          transactionId,
+          timestamp: new Date().toISOString()
+        });
+        showVerificationMessage();
+      } catch (error) {
+        console.error('Payment verification failed:', error);
+        trackPaymentEvent('verification_failed', { error: error.message });
+        showLoader('Verification failed. Please contact support.', true);
+        setTimeout(() => {
+          hideLoader();
+        }, 2000);
+      }
+    }
+
+    // Handle payment completed confirmation
+    function handlePaymentCompleted() {
+      hidePaymentStatusPopup();
+
+      // Redirect to WhatsApp for verification
+      const userContext = getUserContext();
+      const whatsappLink = buildWhatsAppLink(userContext);
+      window.location.href = whatsappLink;
+
+      trackPaymentEvent('whatsapp_verification_initiated', {
+        transactionId,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Handle payment pending
+    function handlePaymentPending() {
+      hidePaymentStatusPopup();
+      // Keep the popup available for retry
+      updateButtonState(PaymentState.INITIAL);
+    }
+
+    // Initialize payment page
+    function initPaymentPage() {
+      loadEventSelections();
+      
+      // Check if user has valid context
+      const userContext = getUserContext();
+      if (!userContext) {
+        alert('Please complete registration and event selection first.');
+        window.location.href = 'register.html';
+        return;
+      }
+    }
+
+    // Show payment status message
+    function showPaymentStatusMessage() {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'payment-status-message';
+      messageDiv.style.cssText = `
+        background: rgba(123, 191, 68, 0.1);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        text-align: center;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+      `;
+
+      messageDiv.innerHTML = `
+        <div style="color: var(--primary); font-weight: 600; margin-bottom: 8px;">
+          ✓ UPI App Opened Successfully
+        </div>
+        <div>
+          If you completed the payment, click "Check Payment Status" below to verify your transaction.
+        </div>
+        <div style="margin-top: 8px; font-size: 12px; color: var(--muted);">
+          Transaction ID: ${transactionId}
+        </div>
+      `;
+
+      // Insert after the form card
+      const formCard = document.querySelector('.form-card');
+      formCard.parentNode.insertBefore(messageDiv, formCard.nextSibling);
+    }
+
+    // Show verification message
+    function showVerificationMessage() {
+      const existingMessage = document.querySelector('.payment-status-message');
+      if (existingMessage) {
+        existingMessage.innerHTML = `
+          <div style="color: var(--primary); font-weight: 600; margin-bottom: 8px;">
+            📱 WhatsApp Opened
+          </div>
+          <div>
+            Please send "hello" to verify your payment. Our team will confirm your transaction shortly.
+          </div>
+          <div style="margin-top: 12px; padding: 8px; background: var(--surface); border-radius: 6px; font-size: 12px;">
+            <strong>Next Steps:</strong><br>
+            1. Send the message in WhatsApp<br>
+            2. Share your transaction screenshot<br>
+            3. Wait for confirmation
+          </div>
+        `;
+      }
+    }
+
+    // Handle visibility change (user returning from UPI app)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && currentState === PaymentState.UPI_OPENED) {
+        console.log('User returned from UPI app');
+        setTimeout(() => {
+          if (currentState === PaymentState.UPI_OPENED) {
+            hideLoader();
+            updateButtonState(PaymentState.AWAITING_VERIFICATION);
+            // Show popup when user returns from UPI app
+            showPaymentStatusPopup();
+          }
+        }, 500);
+      }
+    });
+
+    // Handle page focus (alternative detection method)
+    window.addEventListener('focus', () => {
+      if (currentState === PaymentState.UPI_OPENED) {
+        console.log('Page focused - user likely returned from UPI app');
+        setTimeout(() => {
+          if (currentState === PaymentState.UPI_OPENED) {
+            hideLoader();
+            updateButtonState(PaymentState.AWAITING_VERIFICATION);
+            // Show popup when user returns from UPI app
+            showPaymentStatusPopup();
+          }
+        }, 1000);
+      }
+    });
+
+    // Main button click handler with security validation
+    openUpiBtn.addEventListener('click', () => {
+      // Detect suspicious activity
+      if (detectSuspiciousActivity()) {
+        return;
+      }
+
+      try {
+        // Validate payment session before proceeding
+        validatePaymentSession();
+
+        switch (currentState) {
+          case PaymentState.INITIAL:
+            // First redirect to UPI app directly
+            initiateUpiPayment();
+            break;
+
+          case PaymentState.AWAITING_VERIFICATION:
+            verifyPaymentStatus();
+            break;
+
+          default:
+            console.log('Button clicked in state:', currentState);
+        }
+      } catch (error) {
+        console.error('Payment validation failed:', error);
+        trackPaymentEvent('validation_failed', {
+          error: error.message,
+          state: currentState,
+          timestamp: new Date().toISOString()
+        });
+
+        const errorId = generateErrorId();
+
+        // Track validation error
+        trackPaymentEvent('validation_failed', {
+          errorId: errorId,
+          error: error.message,
+          state: currentState,
+          timestamp: new Date().toISOString()
+        });
+
+        hideLoader();
+        showErrorSupport(error.message, errorId);
+
+        // Don't auto-redirect, let user contact support
+        setTimeout(() => {
+          updateButtonState(PaymentState.INITIAL);
+        }, 1000);
+      }
+    });
+
+    // Check payment button click handler
+    if (checkPaymentBtn) {
+      checkPaymentBtn.addEventListener('click', () => {
+        // Detect suspicious activity
+        if (detectSuspiciousActivity()) {
+          return;
+        }
+
+        try {
+          // Validate payment session before proceeding
+          validatePaymentSession();
+          verifyPaymentStatus();
+        } catch (error) {
+          console.error('Payment verification failed:', error);
+          trackPaymentEvent('verification_validation_failed', {
+            error: error.message,
+            timestamp: new Date().toISOString()
+          });
+
+          showLoader(error.message, true);
+          setTimeout(() => {
+            hideLoader();
+          }, 3000);
+        }
+      });
+    }
+
+    // Show initial page loading animation
+    function showInitialLoader() {
+      showLoader('Loading payment page...');
+      setTimeout(() => {
+        hideLoader();
+      }, 1500); // Hide after 1.5 seconds
+    }
+
+    // Add popup event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // Payment popup button handlers
+      const paymentCompletedBtn = document.getElementById('paymentCompletedBtn');
+      const paymentPendingBtn = document.getElementById('paymentPendingBtn');
+
+      if (paymentCompletedBtn) {
+        paymentCompletedBtn.addEventListener('click', handlePaymentCompleted);
+      }
+
+      if (paymentPendingBtn) {
+        paymentPendingBtn.addEventListener('click', handlePaymentPending);
+      }
+
+      // Close popup when clicking outside
+      const paymentPopup = document.getElementById('paymentPopup');
+      if (paymentPopup) {
+        paymentPopup.addEventListener('click', (e) => {
+          if (e.target === paymentPopup) {
+            hidePaymentStatusPopup();
+          }
+        });
+      }
+    });
+
+    // Initialize payment state on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Show loading animation when page loads
+      showInitialLoader();
+      // Show user details box
+      displayUserInfoPayment();
+
+      // Check user context from registration flow
+      try {
+        const userContext = sessionStorage.getItem('payment_user_context');
+        if (userContext) {
+          const userData = JSON.parse(userContext);
+          console.log('Payment initiated for user:', userData.name, 'Token:', userData.token);
+
+          // Update page title with user info
+          const titleElement = document.querySelector('.title');
+          if (titleElement && userData.name) {
+            titleElement.innerHTML = `Pay ₹250<br><small style="font-size: 16px; color: var(--muted); font-weight: 400;">for ${userData.name}</small>`;
+          }
+        }
+      } catch (e) {
+        console.warn('Unable to load user context:', e);
+      }
+
+      // Check if returning from a previous payment attempt
+      try {
+        const savedContext = sessionStorage.getItem('payment_context');
+        if (savedContext) {
+          const context = JSON.parse(savedContext);
+          const timeDiff = Date.now() - new Date(context.timestamp).getTime();
+
+          // If less than 10 minutes ago, assume payment might be pending
+          if (timeDiff < 10 * 60 * 1000) {
+            transactionId = context.transactionId;
+            paymentTimestamp = context.timestamp;
+            updateButtonState(PaymentState.AWAITING_VERIFICATION);
+            if (checkPaymentBtn) {
+              checkPaymentBtn.style.display = 'block';
+            }
+            showPaymentStatusMessage();
+          }
+        }
+      } catch (e) {
+        console.warn('Unable to restore payment context:', e);
+      }
+
+      console.log('Secure payment system initialized');
+    });
+
+    // Generate error ID for support tracking
+    function generateErrorId() {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 1000);
+      return `ERR${timestamp}${random}`.slice(-12);
+    }
+
+    // Show error support panel
+    function showErrorSupport(errorMessage, errorId) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-support-panel';
+      errorDiv.style.cssText = `
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid #dc3545;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        text-align: center;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+      `;
+
+      errorDiv.innerHTML = `
+        <div style="color: #dc3545; font-weight: 600; margin-bottom: 8px;">
+          ⚠️ Payment Error Occurred
+        </div>
+        <div style="margin-bottom: 12px;">
+          ${errorMessage}
+        </div>
+        <div style="margin-bottom: 12px; font-size: 12px; color: var(--muted);">
+          Error ID: ${errorId}
+        </div>
+        <button id="contactSupportBtn" class="btn btn-secondary" style="width: 100%; margin-top: 8px; font-size: 13px; padding: 8px 16px; background: #dc3545; color: white; border: 1px solid #dc3545;">
+          Contact Support Team
+        </button>
+      `;
+
+      // Insert after the form card
+      const formCard = document.querySelector('.form-card');
+      if (formCard) {
+        formCard.parentNode.insertBefore(errorDiv, formCard.nextSibling);
+      }
+
+      // Add click handler for support button
+      const contactBtn = document.getElementById('contactSupportBtn');
+      if (contactBtn) {
+        contactBtn.addEventListener('click', () => {
+          contactSupportWithError(errorId, errorMessage);
+        });
+      }
+    }
+
+    // Contact support via WhatsApp with error details
+    function contactSupportWithError(errorId, errorMessage) {
+      const userContext = getUserContext();
+
+      let supportMessage = `Hello! I'm experiencing a payment issue on ILLUMINA registration.
+
+Error Details:
+• Error ID: ${errorId}
+• Issue: ${errorMessage}
+• Time: ${new Date().toLocaleString()}`;
+
+      if (userContext) {
+        supportMessage += `
+• Name: ${userContext.name}
+• Token: ${userContext.token}`;
+      }
+
+      if (transactionId) {
+        supportMessage += `
+• Transaction ID: ${transactionId}`;
+      }
+
+      supportMessage += `
+
+Please help me resolve this issue.`;
+
+      const whatsappLink = `https://wa.me/${UPI_CONFIG.whatsappNumber}?text=${encodeURIComponent(supportMessage)}`;
+
+      // Track support contact
+      trackPaymentEvent('support_contacted', {
+        errorId,
+        errorMessage,
+        userToken: userContext?.token,
+        timestamp: new Date().toISOString()
+      });
+
+      // Save error to Firebase for admin tracking
+      saveErrorToFirebase(errorId, errorMessage, userContext);
+
+      // Open WhatsApp
+      window.open(whatsappLink, '_blank');
+    }
+
+    // Save error to Firebase for admin panel
+    async function saveErrorToFirebase(errorId, errorMessage, userContext) {
+      try {
+        // Import Firebase functions
+        const { db } = await import('./firebase-config.js');
+        const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js");
+
+        const errorData = {
+          errorId: errorId,
+          errorMessage: errorMessage,
+          userToken: userContext?.token || 'Unknown',
+          userName: userContext?.name || 'Unknown',
+          transactionId: transactionId || null,
+          timestamp: serverTimestamp(),
+          status: 'open',
+          page: 'payment',
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        };
+
+        await addDoc(collection(db, 'paymentErrors'), errorData);
+        console.log('Error saved to Firebase for admin tracking');
+
+      } catch (error) {
+        console.warn('Failed to save error to Firebase:', error);
+      }
+    }
+
+    // Enhanced error handling and security monitoring
+    window.addEventListener('error', (event) => {
+      if (currentState !== PaymentState.INITIAL) {
+        console.error('Payment flow error:', event.error);
+
+        const errorId = generateErrorId();
+        const errorMessage = event.error?.message || 'Unknown error occurred';
+
+        // Track error for monitoring
+        trackPaymentEvent('payment_error', {
+          errorId: errorId,
+          error: errorMessage,
+          state: currentState,
+          transactionId: transactionId,
+          timestamp: new Date().toISOString()
+        });
+
+        hideLoader();
+        showErrorSupport(errorMessage, errorId);
+        updateButtonState(PaymentState.INITIAL);
+      }
+    });
+
+    // Monitor for suspicious activity
+    let clickCount = 0;
+    let lastClickTime = 0;
+
+    function detectSuspiciousActivity() {
+      const now = Date.now();
+      if (now - lastClickTime < 1000) { // Less than 1 second between clicks
+        clickCount++;
+        if (clickCount > 3) {
+          console.warn('Suspicious rapid clicking detected');
+          trackPaymentEvent('suspicious_activity', {
+            type: 'rapid_clicking',
+            count: clickCount,
+            timestamp: new Date().toISOString()
+          });
+
+          showLoader('Please wait before trying again.', true);
+          setTimeout(() => {
+            hideLoader();
+            clickCount = 0;
+          }, 5000);
+          return true;
+        }
+      } else {
+        clickCount = 0;
+      }
+      lastClickTime = now;
+      return false;
+    }
+
+    // Save payment attempt to Firebase for admin tracking
+    async function savePaymentAttempt(status, details = {}) {
+      try {
+        const userContext = getUserContext();
+        if (!userContext) return;
+
+        // Import Firebase functions
+        const { db } = await import('./firebase-config.js');
+        const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js");
+
+        const paymentData = {
+          userToken: userContext.token,
+          userName: userContext.name,
+          transactionId: transactionId,
+          amount: UPI_CONFIG.amount,
+          status: status,
+          timestamp: serverTimestamp(),
+          details: details,
+          upiId: UPI_CONFIG.id,
+          merchantName: UPI_CONFIG.merchantName
+        };
+
+        await addDoc(collection(db, 'paymentAttempts'), paymentData);
+        console.log('Payment attempt saved to Firebase');
+
+      } catch (error) {
+        console.warn('Failed to save payment attempt:', error);
+      }
+    }
+
+    // Enhanced verification message with Firebase integration
+    function showVerificationMessage() {
+      const existingMessage = document.querySelector('.payment-status-message');
+      if (existingMessage) {
+        existingMessage.innerHTML = `
+          <div style="color: var(--primary); font-weight: 600; margin-bottom: 8px;">
+            📱 WhatsApp Verification Sent
+          </div>
+          <div>
+            Your payment details have been sent to our verification team. You'll receive confirmation shortly.
+          </div>
+          <div style="margin-top: 12px; padding: 8px; background: var(--surface); border-radius: 6px; font-size: 12px;">
+            <strong>What happens next:</strong><br>
+            1. Our team will verify your payment<br>
+            2. You'll receive confirmation via WhatsApp<br>
+            3. Your registration will be activated<br>
+            4. You can download your ticket
+          </div>
+          <div style="margin-top: 8px; font-size: 11px; color: var(--muted);">
+            Verification usually takes 5-10 minutes during business hours.
+          </div>
+        `;
+
+        // Save verification attempt to Firebase
+        savePaymentAttempt('verification_sent', {
+          whatsappNumber: UPI_CONFIG.whatsappNumber,
+          verificationTime: new Date().toISOString()
+        });
+      }
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (currentState === PaymentState.VERIFIED) {
+        sessionStorage.removeItem('payment_context');
+
+        // Save completion status
+        savePaymentAttempt('completed', {
+          completionTime: new Date().toISOString()
+        });
+      }
+    });
+
+    // WhatsApp Widget Functionality
+    (function () {
+      const whatsappBtn = document.getElementById('whatsappBtn');
+      const whatsappPopup = document.getElementById('whatsappPopup');
+      const whatsappClose = document.getElementById('whatsappClose');
+      const whatsappActions = document.querySelectorAll('.whatsapp-action');
+      const whatsappNumber = '7349321463'; // Support number
+
+      // Toggle popup
+      whatsappBtn.addEventListener('click', () => {
+        whatsappPopup.classList.toggle('show');
+      });
+
+      // Close popup
+      whatsappClose.addEventListener('click', () => {
+        whatsappPopup.classList.remove('show');
+      });
+
+      // Close popup when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.whatsapp-widget')) {
+          whatsappPopup.classList.remove('show');
+        }
+      });
+
+      // Handle action buttons
+      whatsappActions.forEach(action => {
+        action.addEventListener('click', () => {
+          const message = action.getAttribute('data-message');
+          const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, '_blank');
+          whatsappPopup.classList.remove('show');
+        });
+      });
+    })();
+
+    // Initialize the payment page when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initPaymentPage);
+  </script>
+</body>
+
+</html>

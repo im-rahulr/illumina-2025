@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILUMINA 2K25</title>
+    <style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: url('Copy of ilumina 25 rules.png'); /* Placeholder for background image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px; /* Adjust as needed */
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent overlay */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.college-logo {
+    width: 80px;
+    height: 80px;
+    margin-right: 15px;
+}
+
+.college-info h1 {
+    font-size: 1.8em;
+    margin: 0;
+    color: #ffd700; /* Gold color for college name */
+}
+
+.college-info p {
+    font-size: 0.9em;
+    margin: 5px 0 0;
+    color: #ccc;
+}
+
+.event-title h2 {
+    font-family: 'Georgia', serif; /* Example font, adjust as needed */
+    font-size: 3.5em;
+    margin: 0;
+    color: #fff;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.event-title h3 {
+    font-family: 'Brush Script MT', cursive; /* Example font, adjust as needed */
+    font-size: 2em;
+    margin: 5px 0 0;
+    color: #ff4500; /* OrangeRed color for spark */
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.qr-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.qr-code {
+    width: 150px;
+    height: 150px;
+    border: 5px solid #fff;
+    border-radius: 5px;
+}
+
+.qr-section p {
+    margin-top: 10px;
+    font-size: 1.1em;
+    color: #fff;
+}
+
+.rules-section {
+    width: 100%;
+    text-align: left;
+}
+
+.rules-section h4 {
+    font-size: 1.5em;
+    color: #ffd700; /* Gold color for rules heading */
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.rules-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rules-section ul li {
+    margin-bottom: 10px;
+    font-size: 1em;
+    line-height: 1.5;
+    color: #eee;
+    position: relative;
+    padding-left: 20px;
+}
+
+.rules-section ul li::before {
+    content: '•';
+    color: #ffd700; /* Gold color for bullet points */
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+footer h5 {
+    font-size: 1.2em;
+    color: #ff4500; /* OrangeRed color for footer text */
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    .college-logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .college-info h1 {
+        font-size: 1.5em;
+    }
+
+    .event-title h2 {
+        font-size: 2.5em;
+    }
+
+    .event-title h3 {
+        font-size: 1.5em;
+    }
+
+    .qr-code {
+        width: 120px;
+        height: 120px;
+    }
+
+    .rules-section h4 {
+        font-size: 1.3em;
+    }
+
+    .rules-section ul li {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+
+    .logo-section {
+        flex-direction: column;
+    }
+
+    .college-logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .college-info h1 {
+        font-size: 1.2em;
+    }
+
+    .college-info p {
+        font-size: 0.8em;
+    }
+
+    .event-title h2 {
+        font-size: 2em;
+    }
+
+    .event-title h3 {
+        font-size: 1.2em;
+    }
+
+    .qr-code {
+        width: 100px;
+        height: 100px;
+    }
+
+    .rules-section h4 {
+        font-size: 1.1em;
+    }
+
+    .rules-section ul li {
+        font-size: 0.85em;
+        padding-left: 15px;
+    }
+
+    .rules-section ul li::before {
+        left: 0;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <img src="Copy of ilumina 25 rules.png" alt="Lowry Adventist College Logo" class="college-logo">
+                <div class="college-info">
+                    <h1>LOWRY ADVENTIST COLLEGE</h1>
+                    <p>Besides K R Pura Metro Station, Dooravaninagar, Bengaluru - 16</p>
+                </div>
+            </div>
+            <div class="event-title">
+                <h2>ILUMINA 2k25</h2>
+                <h3>Ignite the Spark</h3>
+            </div>
+        </header>
+
+        <main>
+            <!-- Scanner section removed -->
+
+            <div class="rules-section">
+                <h4>RULES TO BE FOLLOWED</h4>
+                <ul>
+                    <li>Registration for all the events is from 8:00 a.m. to 10:00 a.m.</li>
+                    <li>The registration fee for each participant is Rs. 250/- includes entry for all events and is non transferable or non-refundable.</li>
+                    <li>Each participant must carry his/her college ID at all times.</li>
+                    <li>Participants must be present for the inaugural program at 8:30 a.m.</li>
+                    <li>Teams that are late or miss their slot for any event will be disqualified.</li>
+                    <li>Partaking in any kind of obscenity will lead to the debarring of the team from any further participation.</li>
+                    <li>Smoking and consumption of any alcoholic beverages are strictly prohibited.</li>
+                    <li>Participants must strictly follow the code of conduct and maintain discipline.</li>
+                    <li>Participants must carry the required equipment for their events.</li>
+                    <li>The organizers reserve the right to cancel, reschedule the time or change the venue of any event.</li>
+                    <li>Decision of the judges and coordinators will be final.</li>
+                    <li>No religious acts will be permitted.</li>
+                    <li>Tracks for solo dance, group dance, solo instrumental must be submitted in a pen drive at the time of registration.</li>
+                    <li>The management will not be responsible for any loss of personal belongings.</li>
+                    <li>Lunch will be provided for all the registered participants.</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer>
+            <h5>EXCITING CASH PRIZES AND MANY MORE AWAITING</h5>
+        </footer>
+    </div>
+</body>
+</html>

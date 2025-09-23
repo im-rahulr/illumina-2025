@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILLUMINA 2K25 - Rules</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            background: #0b0b0b;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            color: #B3B3B3;
+        }
+
+        /* Star Animation Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        .star:nth-child(odd) {
+            animation-delay: 1s;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Shooting stars */
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #fff, #ffd700);
+            border-radius: 50%;
+            animation: shoot 3s linear infinite;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translateX(-100px) translateY(100px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100vw) translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .college-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .event-title {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+
+        .year {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: #ffd700;
+            font-style: italic;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .decorative-line {
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ffd700, transparent);
+            margin: 20px auto;
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .rules-section {
+            background: #262524;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 40px 0;
+            border: 1px solid #31302F;
+            position: relative;
+        }
+
+
+
+        .rules-title {
+            font-size: 2rem;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 800;
+            font-family: 'Poppins', system-ui, sans-serif;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            color: #B3B3B3;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            padding: 15px 20px 15px 50px;
+            position: relative;
+            background: #31302F;
+            border-radius: 10px;
+            border-left: 4px solid #7bbf44;
+            transition: all 0.3s ease;
+        }
+
+        .rules-list li:hover {
+            background: #262524;
+            transform: translateX(5px);
+        }
+
+        .rules-list li::before {
+            content: "•";
+            color: #7bbf44;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 20px;
+            top: 15px;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-top: 30px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #7bbf44;
+            border: 1px solid #6aac37;
+            color: #10210a;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .back-button:hover {
+            background: #82c24d;
+            transform: translateY(1px);
+        }
+
+        .rules-counter {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: #7bbf44;
+            color: #10210a;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .college-name { font-size: 1.8rem; }
+            .event-title { font-size: 2.5rem; }
+            .year { font-size: 2rem; }
+            .tagline { font-size: 1.2rem; }
+            .rules-section { padding: 30px 20px; }
+            .rules-list li { 
+                font-size: 1rem; 
+                padding: 12px 15px 12px 40px;
+            }
+            .rules-list li::before {
+                left: 15px;
+                top: 12px;
+            }
+            .rules-counter {
+                top: 15px;
+                right: 20px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <a href="index.html" class="back-button">← Back to Home</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="college-name">LOWRY ADVENTIST COLLEGE</h1>
+            <h2 class="event-title">ILLUMINA 2K25</h2>
+            <p class="tagline">IGNITE THE SPARK</p>
+        </div>
+
+        <div class="decorative-line"></div>
+
+        <div class="rules-section">
+            <div class="rules-counter">15 RULES</div>
+            <h2 class="rules-title">RULES TO BE FOLLOWED</h2>
+            <ul class="rules-list">
+                <li>Registration for all the events is from 8:00 a.m. to 10:00 a.m.</li>
+                <li>The registration fee for each participant is Rs. 250/- inclusive of all the events and is non-refundable.</li>
+                <li>Each participant must carry his/ her college ID at all times.</li>
+                <li>Participants must be present for the inaugural program at 8:30 a.m.</li>
+                <li>Teams that are late or miss their slot for any event will be disqualified.</li>
+                <li>Partaking in any kind of obscenity will lead to the debarring of the team from any further participation.</li>
+                <li>Smoking and consumption of any alcoholic beverages are strictly prohibited.</li>
+                <li>Participants must strictly follow the code of conduct and maintain discipline.</li>
+                <li>Participants must carry the required equipment for their events.</li>
+                <li>The organizers reserve the right to cancel, reschedule the time or change the venue of any event.</li>
+                <li>Decision of the judges and coordinators will be final.</li>
+                <li>No religious acts will be permitted.</li>
+                <li>Tracks for solo dance, group dance solo instrumental must be submitted in a pen drive at the time of registration.</li>
+                <li>The management will not be responsible for any loss of personal belongings.</li>
+                <li>Lunch will be provided for all the registered participants.</li>
+            </ul>
+        </div>
+
+        <div class="rules-section">
+            <h2 class="rules-title">EVENT COORDINATORS</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+                
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Product Launch</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mrs. Madhavi R (8050816937), Mrs. M Sheeba (9731257883)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Sakshi (8518917748), Nithin (8867126958), Christina (8884230131)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Best Manager</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mrs. Jovitta Paul (6355039338), Mrs. Shailaja B (7204250608)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Zaiba (8310649338), Harsha (6364661931)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Debugging</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mrs. Shalini B (8867119402), Ms. Shagufta Naz (9380468570)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Charan R (8792584761), Mohan Raj M (6361070638), Steven T (8072939782)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Coding</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mr. Ashish (9886484217), Ms. Yasmeen Taj (6361661375)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Jane (7676898710), Levin (7013841508)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">General Knowledge Quiz</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mrs. Shravani R (9738632424), Mr. Ashish H (9886484217), Ms. Ankitha (8919053540)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Afreen (9113824258), Delight (9548473361)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Solo Dance</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Ms. Shagufta Naz (9380468570), Mrs. Madhavi R (8050816937)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Komathi (8123633495), Abhisheik SK (9943231882)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Group Dance</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Ms. Rashmi A (8197565618), Mrs. Shalini B (8867119402)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Abhishek (9108455077), Brinda (8073234399)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Instrumental</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Ms. Ankitha (8919053540), Ms. Yasmeen Taj (6361661375)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Hannah (9356089573), Darius (7337892833)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Solo Singing</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mr. Nuthan (6361707436), Mrs. Jovitta (6355039338)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Ralf (8123633495), Deepak (9943231882)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Fireless Cooking</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mrs. Sheeba (9731257883), Mrs. Radha Bai (9844722299), Mrs. Jennita Alice (9600332939)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Kaveri (7899579275), Veronica (8747089910)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Photography</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mr. Rahul (8266950752), Mr. Iqbal (7411102974)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Sharath (9972436912), Vikas (9019746021)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Reels Creation</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Ms. Keerthana S (9902888024), Mr. Gabriel Joshua (7349677404)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Suresh (9844879664), Delvin (9071127668)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Face Painting</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mrs. Mahiba (8050700979), Mr. Kiran Kumar (9743306212)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Nethra (7406230557), Annie Joy (7708276962)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Red Carpet</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Ms. Rashmi A (8197565618), Mrs. Shailaja B (7204250608)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Denzel (8197652390), Rajeshwari (8660126431), Nayana (8971649645)</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Kannada Essay Writing</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Mr. Kiran Kumar (9743306212), Mr. Deepak (9845546999)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Shalini (9686687653), Shaguni S</p>
+                </div>
+
+                <div style="background: #31302F; border-radius: 10px; padding: 20px; border-left: 4px solid #7bbf44;">
+                    <h3 style="color: #7bbf44; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">Hindi Essay Writing</h3>
+                    <p style="color: #B3B3B3; margin-bottom: 10px;"><strong>Staff:</strong> Dr. Sunita Shah (9019819671), Dr. Joseph Sharma (6363650397)</p>
+                    <p style="color: #B3B3B3;"><strong>Students:</strong> Ambika (9901142098), Monika (9380932479)</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer-text">
+            EXCITING CASH PRIZES AND MANY MORE AWAITING
+        </div>
+    </div>
+
+    <script>
+        // Create animated stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numberOfStars = 100;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Random position
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                // Random size
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // Random animation delay
+                star.style.animationDelay = Math.random() * 2 + 's';
+                
+                starsContainer.appendChild(star);
+            }
+
+            // Create shooting stars
+            for (let i = 0; i < 3; i++) {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'shooting-star';
+                
+                shootingStar.style.top = Math.random() * 50 + '%';
+                shootingStar.style.animationDelay = Math.random() * 3 + 's';
+                shootingStar.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                
+                starsContainer.appendChild(shootingStar);
+            }
+        }
+
+        // Initialize stars when page loads
+        window.addEventListener('load', createStars);
+
+        // Add sparkle effect on scroll
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const stars = document.querySelectorAll('.star');
+            
+            stars.forEach((star, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                star.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+    </script>
+</body>
+</html>

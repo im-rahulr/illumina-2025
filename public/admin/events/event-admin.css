@@ -1,0 +1,357 @@
+/* Event Admin Pages Styles */
+
+/* Base styles extending main admin interface */
+.event-admin-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header styles */
+.event-admin-header {
+  margin-bottom: 24px;
+}
+
+.breadcrumb {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.event-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+
+.event-description {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 0 0 16px 0;
+}
+
+.event-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stat-badge.primary {
+  background: rgba(123, 191, 68, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Toolbar styles */
+.event-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--bg);
+  border-color: var(--primary);
+}
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #10210a;
+}
+
+.btn-primary:hover {
+  background: #9bc157;
+  border-color: #9bc157;
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.btn-secondary:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Table styles */
+.participants-section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.participants-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.participants-table th {
+  background: var(--bg);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+
+.participants-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+}
+
+.participants-table tr:hover {
+  background: var(--bg);
+}
+
+.participants-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-badge.pending {
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.status-badge.failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Loading and empty states */
+.loading-overlay {
+  display: none;
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+}
+
+.loading-overlay.show {
+  display: block;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--line);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.empty-state.show {
+  display: block;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  color: var(--text);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Error message */
+.error-message {
+  display: none;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+.error-message.show {
+  display: block;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .event-admin-container {
+    padding: 12px;
+  }
+
+  .event-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    justify-content: center;
+  }
+
+  .search-input {
+    max-width: none;
+  }
+
+  .event-stats {
+    justify-content: center;
+  }
+
+  /* Make table responsive */
+  .participants-section {
+    overflow-x: auto;
+  }
+
+  .participants-table {
+    min-width: 600px;
+  }
+
+  .participants-table th,
+  .participants-table td {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-title {
+    font-size: 24px;
+  }
+
+  .event-description {
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .participants-table th,
+  .participants-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .participants-table th {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .participants-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}

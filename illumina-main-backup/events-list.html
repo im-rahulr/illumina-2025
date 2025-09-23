@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Select Events – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20240917">
+  <style>
+    .events-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 16px 0;
+      padding-bottom: 200px; /* Increased space for fixed summary */
+    }
+    
+    @media (min-width: 768px) {
+      .events-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .events-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+    }
+    
+    .event-card {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      transition: all 0.3s ease;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 60px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+    
+    .event-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .event-card.selected {
+      border-color: var(--primary);
+      background: rgba(123, 191, 68, 0.05);
+    }
+    
+    .event-card .event-content {
+      flex: 1;
+      margin-right: 12px;
+    }
+    
+    .event-card .event-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+    
+    .event-card .event-description {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+      margin-bottom: 0;
+    }
+    
+    .event-card .event-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    
+    .select-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 11px;
+      transition: all 0.3s ease;
+      min-width: 65px;
+      text-align: center;
+    }
+    
+    .select-btn:hover {
+      background: var(--primary);
+      color: #10210a;
+    }
+    
+    .select-btn.selected {
+      background: var(--primary);
+      color: #10210a;
+    }
+    
+
+    
+    .selection-summary {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px 12px 0 0;
+      padding: 16px;
+      margin: 0;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
+      max-height: 50vh;
+      overflow-y: auto;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    
+    .selection-summary.show {
+      display: block;
+    }
+    
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 14px;
+    }
+    
+    .user-info {
+      background: rgba(123, 191, 68, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+    
+    .user-info h3 {
+      margin: 0 0 4px 0;
+      color: var(--primary);
+      font-size: 14px;
+    }
+    
+    .user-info p {
+      margin: 2px 0;
+      font-size: 12px;
+      display: inline;
+      margin-right: 12px;
+    }
+    
+    .user-info-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 767px) {
+      .container {
+        padding: 0 12px;
+      }
+      
+      .events-grid {
+        gap: 6px;
+        margin: 12px 0;
+        padding-bottom: 220px;
+      }
+      
+      .event-card {
+        padding: 10px;
+        min-height: 55px;
+      }
+      
+      .event-card .event-title {
+        font-size: 13px;
+      }
+      
+      .event-card .event-description {
+        font-size: 10px;
+      }
+      
+      .select-btn {
+        padding: 5px 10px;
+        font-size: 10px;
+        min-width: 60px;
+      }
+      
+      .user-info {
+        padding: 6px 8px;
+        margin-bottom: 10px;
+      }
+      
+      .user-info h3 {
+        font-size: 12px;
+      }
+      
+      .user-info p {
+        font-size: 10px;
+        margin-right: 6px;
+      }
+      
+
+    }
+    
+    /* Desktop optimizations */
+    @media (min-width: 1200px) {
+      .events-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Wider container for desktop to fit 3-4 columns nicely */
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 1200px;
+      }
+    }
+  </style>
+</head>
+<body class="home-page">
+  <main class="container" role="main">
+    <header class="event-header">
+      <div class="event-info">
+        <div class="event-breadcrumb">
+          <a href="index.html">ILLUMINA</a> <span>/</span> <span>Select Events</span>
+        </div>
+        <h1 class="event-title">Choose Your Events</h1>
+        <p class="event-subtitle">Select the events you want to participate in (Registration fee: ₹250)</p>
+      </div>
+    </header>
+
+    <div id="userInfo" class="user-info" style="display: none;">
+      <h3>Registration Details</h3>
+      <div class="user-info-content">
+        <p><strong>Name:</strong> <span id="userName"></span></p>
+        <p><strong>Token:</strong> <span id="userToken"></span></p>
+        <p><strong>College:</strong> <span id="userCollege"></span></p>
+      </div>
+    </div>
+
+    <div class="events-grid" id="eventsGrid">
+      <!-- Events will be loaded here -->
+    </div>
+
+    <div class="selection-summary" id="selectionSummary">
+      <h3 style="margin-top: 0;">Selected Events</h3>
+      <div id="summaryItems"></div>
+      <button class="btn btn-primary btn-block" id="proceedToPayment" style="margin-top: 16px;">
+        Submit
+      </button>
+    </div>
+    
+    <div style="text-align: center; margin-top: 24px;">
+      <a href="register.html" class="login-link" style="font-size: 14px;">← Back to Registration</a>
+    </div>
+  </main>
+
+  <!-- Page Loader -->
+  <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="false">
+    <div class="spinner-standalone" aria-hidden="true"></div>
+    <div id="loaderText" class="loader-text">Loading events...</div>
+  </div>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, doc, setDoc, updateDoc, getDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    // Event data
+    const EVENTS_DATA = [
+      {
+        id: 'coding',
+        title: 'Coding (C)',
+        description: 'Solve programming problems in C within the time limit.',
+        maxParticipants: 2
+      },
+      {
+        id: 'debugging',
+        title: 'Debugging',
+        description: 'Find and fix bugs in given code.',
+        maxParticipants: 2
+      },
+      {
+        id: 'solo-dance',
+        title: 'Solo Dance',
+        description: 'Showcase your dancing skills in individual performance.',
+        maxParticipants: 1
+      },
+      {
+        id: 'group-dance',
+        title: 'Group Dance',
+        description: 'Team dance performance with choreography.',
+        maxParticipants: 8
+      },
+      {
+        id: 'solo-singing',
+        title: 'Solo Singing',
+        description: 'Individual singing performance showcasing vocal talent.',
+        maxParticipants: 1
+      },
+      {
+        id: 'solo-instrumental',
+        title: 'Solo Instrumental',
+        description: 'Individual instrumental music performance.',
+        maxParticipants: 1
+      },
+      {
+        id: 'photography',
+        title: 'Photography',
+        description: 'Capture the best moments and showcase photography skills.',
+        maxParticipants: 1
+      },
+      {
+        id: 'face-painting',
+        title: 'Face Painting',
+        description: 'Creative face painting competition with artistic designs.',
+        maxParticipants: 1
+      },
+      {
+        id: 'reels-creation',
+        title: 'Reels Creation',
+        description: 'Create engaging short video content and reels.',
+        maxParticipants: 3
+      },
+      {
+        id: 'general-quiz',
+        title: 'General Quiz',
+        description: 'Test your general knowledge in quiz competition.',
+        maxParticipants: 2
+      },
+      {
+        id: 'hindi-essay',
+        title: 'Hindi Essay',
+        description: 'Write compelling essays in Hindi on given topics.',
+        maxParticipants: 1
+      },
+      {
+        id: 'kannada-essay',
+        title: 'Kannada Essay',
+        description: 'Write compelling essays in Kannada on given topics.',
+        maxParticipants: 1
+      },
+      {
+        id: 'fireless-cooking',
+        title: 'Fireless Cooking',
+        description: 'Prepare delicious dishes without using fire or heat.',
+        maxParticipants: 2
+      },
+      {
+        id: 'product-launch',
+        title: 'Product Launch',
+        description: 'Present and launch your innovative product idea.',
+        maxParticipants: 3
+      },
+      {
+        id: 'best-manager',
+        title: 'Best Manager',
+        description: 'Demonstrate your management and leadership skills.',
+        maxParticipants: 1
+      },
+      {
+        id: 'red-carpet',
+        title: 'Red Carpet',
+        description: 'Fashion show and modeling competition.',
+        maxParticipants: 1
+      }
+    ];
+
+    let selectedEvents = {};
+    let userContext = null;
+
+    // DOM elements
+    const eventsGrid = document.getElementById('eventsGrid');
+    const selectionSummary = document.getElementById('selectionSummary');
+    const summaryItems = document.getElementById('summaryItems');
+    const proceedBtn = document.getElementById('proceedToPayment');
+    const pageLoader = document.getElementById('pageLoader');
+    const userInfo = document.getElementById('userInfo');
+
+    function showLoader(message) {
+      document.getElementById('loaderText').textContent = message || 'Loading...';
+      pageLoader.classList.add('show');
+    }
+
+    function hideLoader() {
+      pageLoader.classList.remove('show');
+    }
+
+    // Get user context from session storage
+    function getUserContext() {
+      try {
+        const token = sessionStorage.getItem('lastToken');
+        const name = sessionStorage.getItem('lastName');
+        const college = sessionStorage.getItem('lastCollege');
+        
+        if (token && name) {
+          return { token, name, college: college || 'N/A' };
+        }
+        return null;
+      } catch (e) {
+        console.warn('Unable to get user context:', e);
+        return null;
+      }
+    }
+
+    // Check if user already submitted events; if yes, skip this page
+    function enforceSubmissionLock() {
+      try {
+        const token = sessionStorage.getItem('lastToken');
+        const lockedToken = sessionStorage.getItem('events_submitted_token');
+        if (token && lockedToken && token === lockedToken) {
+          // Already submitted, redirect to success page
+          window.location.replace('success.html');
+          return true;
+        }
+      } catch (e) {
+        console.warn('Lock check failed:', e);
+      }
+      return false;
+    }
+
+    // Display user information
+    function displayUserInfo() {
+      userContext = getUserContext();
+      if (userContext) {
+        document.getElementById('userName').textContent = userContext.name;
+        document.getElementById('userToken').textContent = userContext.token;
+        document.getElementById('userCollege').textContent = userContext.college;
+        userInfo.style.display = 'block';
+      } else {
+        // Redirect to registration if no user context
+        alert('Please complete registration first.');
+        window.location.href = 'register.html';
+      }
+    }
+
+    // Render events grid
+    function renderEvents() {
+      eventsGrid.innerHTML = '';
+      
+      EVENTS_DATA.forEach(event => {
+        const eventCard = document.createElement('div');
+        eventCard.className = 'event-card';
+        eventCard.dataset.eventId = event.id;
+        
+        eventCard.innerHTML = `
+          <div class="event-content">
+            <div class="event-title">${event.title}</div>
+            <div class="event-description">${event.description}</div>
+          </div>
+          <div class="event-actions">
+            <button class="select-btn" data-event-id="${event.id}">Select</button>
+          </div>
+        `;
+        
+        // Add select button handler
+        const selectBtn = eventCard.querySelector('.select-btn');
+        selectBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleEventSelection(event.id);
+        });
+        
+        eventsGrid.appendChild(eventCard);
+      });
+    }
+
+    // Toggle event selection
+    function toggleEventSelection(eventId) {
+      const eventCard = document.querySelector(`[data-event-id="${eventId}"]`);
+      const selectBtn = eventCard.querySelector('.select-btn');
+      
+      if (selectedEvents[eventId]) {
+        // Deselect event
+        delete selectedEvents[eventId];
+        eventCard.classList.remove('selected');
+        selectBtn.classList.remove('selected');
+        selectBtn.textContent = 'Select';
+      } else {
+        // Select event with default quantity of 1
+        selectedEvents[eventId] = 1;
+        eventCard.classList.add('selected');
+        selectBtn.classList.add('selected');
+        selectBtn.textContent = 'Unselect';
+      }
+      
+      updateSelectionSummary();
+    }
+
+    // Update selection summary
+    function updateSelectionSummary() {
+      const hasSelections = Object.keys(selectedEvents).length > 0;
+      
+      if (hasSelections) {
+        selectionSummary.classList.add('show');
+        
+        let summaryHTML = '';
+        
+        Object.entries(selectedEvents).forEach(([eventId]) => {
+          const event = EVENTS_DATA.find(e => e.id === eventId);
+          
+          summaryHTML += `
+            <div class="summary-item">
+              <span>${event.title}</span>
+              <span>✓ Selected</span>
+            </div>
+          `;
+        });
+        
+        summaryItems.innerHTML = summaryHTML;
+      } else {
+        selectionSummary.classList.remove('show');
+      }
+    }
+
+    // Proceed to payment
+    async function proceedToPayment() {
+      if (Object.keys(selectedEvents).length === 0) {
+        alert('Please select at least one event.');
+        return;
+      }
+
+      if (!userContext) {
+        alert('User session expired. Please register again.');
+        window.location.href = 'register.html';
+        return;
+      }
+
+      showLoader('Saving your event selections...');
+
+      try {
+        // Prepare event selections without pricing
+        const eventSelections = [];
+
+        Object.entries(selectedEvents).forEach(([eventId, quantity]) => {
+          const event = EVENTS_DATA.find(e => e.id === eventId);
+          
+          eventSelections.push({
+            eventId,
+            eventTitle: event.title,
+            quantity,
+            maxParticipants: event.maxParticipants
+          });
+        });
+
+        // Find user by shortId
+        const registrationsRef = collection(db, 'registrations');
+        const querySnapshot = await getDocs(query(registrationsRef, where('shortId', '==', userContext.token)));
+
+        if (querySnapshot.empty) {
+          throw new Error('User registration not found. Please register again.');
+        }
+
+        // Use the first matching document
+        const userDocData = querySnapshot.docs[0];
+
+        // Persist selections in eventSelections (rules allow create here)
+        const eventSelectionsRef = collection(db, 'eventSelections');
+        const selectionDocRef = doc(eventSelectionsRef);
+        await setDoc(selectionDocRef, {
+          userId: userDocData.id,
+          userToken: userContext.token,
+          selections: eventSelections,
+          totalAmount: 250,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          paymentStatus: 'pending'
+        });
+
+        // Best-effort: link selection to registration (ignore if denied by rules)
+        try {
+          await updateDoc(userDocData.ref, {
+            hasSelectedEvents: true,
+            eventSelectionId: selectionDocRef.id,
+            eventSelectionTimestamp: serverTimestamp(),
+            totalAmount: 250
+          });
+        } catch (linkErr) {
+          console.warn('Linking selection to registration was skipped due to rules:', linkErr?.message || linkErr);
+        }
+
+        // Store selections in session storage for payment page
+        sessionStorage.setItem('eventSelections', JSON.stringify(eventSelections));
+        sessionStorage.setItem('totalAmount', '250'); // Fixed amount
+        sessionStorage.setItem('payment_user_context', JSON.stringify({
+          name: userContext.name,
+          token: userContext.token,
+          college: userContext.college
+        }));
+
+        hideLoader();
+
+        // Set submission lock so user cannot come back and resubmit
+        try {
+          sessionStorage.setItem('events_submitted_token', userContext.token);
+          sessionStorage.setItem('events_submitted_time', String(Date.now()));
+        } catch (e) { console.warn('Failed to set submission lock:', e); }
+
+        // Redirect to final step page
+        window.location.href = 'success.html';
+
+      } catch (error) {
+        console.error('Error saving event selections:', {
+          message: error?.message || String(error),
+          code: error?.code,
+          stack: error?.stack
+        });
+        hideLoader();
+        alert('Failed to save event selections. Please try again.');
+      }
+    }
+
+    // Initialize page
+    function init() {
+      // If already submitted, redirect to success immediately
+      if (enforceSubmissionLock()) return;
+
+      displayUserInfo();
+      renderEvents();
+      
+      // Add proceed button handler
+      proceedBtn.addEventListener('click', proceedToPayment);
+
+      // Handle back-forward cache returns: re-check lock and redirect if needed
+      window.addEventListener('pageshow', () => {
+        enforceSubmissionLock();
+      });
+    }
+
+    // Start the application
+    init();
+  </script>
+</body>
+</html>

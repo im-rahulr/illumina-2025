@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RSVP Management – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=8">
+  <style>
+    .rsvp-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .rsvp-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .rsvp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .rsvp-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .rsvp-card h3 {
+      color: var(--primary);
+      margin: 0 0 20px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .input-group .input {
+      flex: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--line);
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-details-card {
+      background: var(--bg);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .user-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .user-details-title {
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .user-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .user-info-item {
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .user-info-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .user-info-value {
+      font-size: 16px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .token-display {
+      background: var(--surface);
+      border: 2px dashed var(--primary);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .token-number {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      font-family: monospace;
+    }
+
+    .recent-downloads {
+      margin-top: 40px;
+    }
+
+    .downloads-table {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .downloads-table th,
+    .downloads-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .downloads-table th {
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .downloads-table td {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .downloads-table tbody tr:hover {
+      background: rgba(123, 191, 68, 0.05);
+    }
+
+    .download-type {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .download-type.user {
+      background: rgba(123, 191, 68, 0.2);
+      color: var(--primary);
+    }
+
+    .download-type.admin {
+      background: rgba(255, 170, 77, 0.2);
+      color: #ffa94d;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: #90d15b;
+    }
+
+    @media (max-width: 768px) {
+      .rsvp-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .user-info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+
+      .rsvp-container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="rsvp-container">
+    <a href="admin.html" class="back-link">
+      ← Back to Admin Panel
+    </a>
+
+    <header class="rsvp-header">
+      <h1 class="title">RSVP Management</h1>
+      <p class="subtitle">Generate and manage ILLUMINA 2K25 event tickets</p>
+    </header>
+
+    <div class="rsvp-grid">
+      <!-- Generate RSVP Section -->
+      <div class="rsvp-card">
+        <h3>🎫 Generate RSVP by Token</h3>
+        <div class="input-group">
+          <input id="rsvpTokenInput" class="input" placeholder="Enter Token Number" type="text">
+          <button id="generateRsvpBtn" class="btn btn-primary">Generate</button>
+        </div>
+        <div class="input-group">
+          <select id="paymentModeSelect" class="input">
+            <option value="">Select Payment Mode</option>
+            <option value="onspot">Pay on Spot</option>
+            <option value="online">Online Payment</option>
+          </select>
+          <button id="updatePaymentBtn" class="btn btn-secondary">Update</button>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="rsvp-card">
+        <h3>📊 RSVP Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number" id="totalDownloads">0</div>
+            <div class="stat-label">Total Downloads</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="userDownloads">0</div>
+            <div class="stat-label">User Downloads</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="adminGenerated">0</div>
+            <div class="stat-label">Admin Generated</div>
+          </div>
+        </div>
+        <button id="refreshStatsBtn" class="btn btn-secondary" style="width: 100%;">
+          Refresh Statistics
+        </button>
+      </div>
+    </div>
+
+    <!-- User Details Card -->
+    <div id="userDetailsCard" class="user-details-card">
+      <div class="user-details-header">
+        <h4 class="user-details-title">👤 User Details</h4>
+        <button id="closeUserDetails" class="btn btn-secondary">Close</button>
+      </div>
+      
+      <div class="token-display">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 8px;">Token Number</div>
+        <div id="displayToken" class="token-number">---</div>
+      </div>
+
+      <div id="userDetailsContent" class="user-info-grid">
+        <!-- User details will be populated here -->
+      </div>
+
+      <button id="downloadAdminRsvp" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+        📥 Download RSVP Ticket
+      </button>
+    </div>
+
+    <!-- Recent Downloads Section -->
+    <div class="recent-downloads">
+      <h3 style="color: var(--text); margin-bottom: 20px;">📋 Recent Downloads</h3>
+      <div style="overflow-x: auto;">
+        <table class="downloads-table">
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Name</th>
+              <th>Payment Mode</th>
+              <th>Type</th>
+              <th>Downloaded At</th>
+            </tr>
+          </thead>
+          <tbody id="downloadsTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--muted); padding: 20px;">
+                No downloads yet
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <small>Designed by <a class="login-link" href="https://codecraft-team.netlify.app/" target="_blank" rel="noopener">CodeCraft</a></small>
+  </footer>
+
+  <script type="module">
+    import { db } from './firebase-config.js';
+    import { collection, doc, getDocs, query, where, limit, orderBy, setDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm';
+
+    // Elements
+    const rsvpTokenInput = document.getElementById('rsvpTokenInput');
+    const generateRsvpBtn = document.getElementById('generateRsvpBtn');
+    const paymentModeSelect = document.getElementById('paymentModeSelect');
+    const updatePaymentBtn = document.getElementById('updatePaymentBtn');
+    const userDetailsCard = document.getElementById('userDetailsCard');
+    const userDetailsContent = document.getElementById('userDetailsContent');
+    const displayToken = document.getElementById('displayToken');
+    const downloadAdminRsvp = document.getElementById('downloadAdminRsvp');
+    const closeUserDetails = document.getElementById('closeUserDetails');
+    const refreshStatsBtn = document.getElementById('refreshStatsBtn');
+    const downloadsTableBody = document.getElementById('downloadsTableBody');
+
+    // Statistics elements
+    const totalDownloads = document.getElementById('totalDownloads');
+    const userDownloads = document.getElementById('userDownloads');
+    const adminGenerated = document.getElementById('adminGenerated');
+
+    let currentUserData = null;
+
+    // Load statistics on page load
+    loadRsvpStats();
+    loadRecentDownloads();
+
+    // Event listeners
+    generateRsvpBtn.addEventListener('click', generateRsvpByToken);
+    updatePaymentBtn.addEventListener('click', updatePaymentMode);
+    downloadAdminRsvp.addEventListener('click', downloadAdminRsvpTicket);
+    closeUserDetails.addEventListener('click', () => {
+      userDetailsCard.style.display = 'none';
+      currentUserData = null;
+    });
+    refreshStatsBtn.addEventListener('click', () => {
+      loadRsvpStats();
+      loadRecentDownloads();
+    });
+
+    // Generate QR Code
+    async function generateQRCode(text, size = 120) {
+      const canvas = document.createElement('canvas');
+      const payload = JSON.stringify({
+        type: 'ILLUMINA_ticket',
+        token: text,
+        event: 'ILLUMINA 2K25',
+        date: 'September 25, 2025',
+        venue: 'Lowry Adventist College, Bangalore',
+        ts: Date.now()
+      });
+      await QRCode.toCanvas(canvas, payload, {
+        width: size,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+        color: { dark: '#000000', light: '#FFFFFF' }
+      });
+      return canvas;
+    }
+
+    // Generate RSVP by Token
+    async function generateRsvpByToken() {
+      const tokenNo = rsvpTokenInput.value.trim();
+      if (!tokenNo) {
+        alert('Please enter a token number');
+        return;
+      }
+
+      const originalText = generateRsvpBtn.textContent;
+      try {
+        generateRsvpBtn.textContent = 'Searching...';
+        generateRsvpBtn.disabled = true;
+
+        // Find user by token
+        const q = query(collection(db, 'registrations'), where('shortId', '==', tokenNo), limit(1));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          alert('No registration found with this token number');
+          return;
+        }
+
+        const userData = snapshot.docs[0].data();
+        currentUserData = { ...userData, id: snapshot.docs[0].id };
+        
+        // Display user details
+        displayUserDetails(userData, tokenNo);
+        
+        generateRsvpBtn.textContent = 'Found!';
+        setTimeout(() => {
+          generateRsvpBtn.textContent = originalText;
+          generateRsvpBtn.disabled = false;
+        }, 2000);
+
+      } catch (error) {
+        console.error('Error finding user:', error);
+        alert('Error finding user. Please try again.');
+        generateRsvpBtn.textContent = originalText;
+        generateRsvpBtn.disabled = false;
+      }
+    }
+
+    // Display user details
+    function displayUserDetails(userData, tokenNo) {
+      displayToken.textContent = tokenNo;
+      
+      userDetailsContent.innerHTML = `
+        <div class="user-info-item">
+          <div class="user-info-label">Name</div>
+          <div class="user-info-value">${userData.username || 'N/A'}</div>
+        </div>
+        <div class="user-info-item">
+          <div class="user-info-label">Phone</div>
+          <div class="user-info-value">${userData.phone || 'N/A'}</div>
+        </div>
+        <div class="user-info-item">
+          <div class="user-info-label">Course</div>
+          <div class="user-info-value">${userData.course || 'N/A'}</div>
+        </div>
+        <div class="user-info-item">
+          <div class="user-info-label">College</div>
+          <div class="user-info-value">${userData.college || 'N/A'}</div>
+        </div>
+        <div class="user-info-item">
+          <div class="user-info-label">Payment Mode</div>
+          <div class="user-info-value">${userData.paymentMode || 'Not Set'}</div>
+        </div>
+        <div class="user-info-item">
+          <div class="user-info-label">Registered</div>
+          <div class="user-info-value">${userData.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'}</div>
+        </div>
+      `;
+
+      userDetailsCard.style.display = 'block';
+      userDetailsCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Update payment mode
+    async function updatePaymentMode() {
+      const tokenNo = rsvpTokenInput.value.trim();
+      const paymentMode = paymentModeSelect.value;
+
+      if (!tokenNo || !paymentMode) {
+        alert('Please enter token number and select payment mode');
+        return;
+      }
+
+      const originalText = updatePaymentBtn.textContent;
+      try {
+        updatePaymentBtn.textContent = 'Updating...';
+        updatePaymentBtn.disabled = true;
+
+        const q = query(collection(db, 'registrations'), where('shortId', '==', tokenNo), limit(1));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          alert('No registration found with this token number');
+          return;
+        }
+
+        const docRef = snapshot.docs[0].ref;
+        await updateDoc(docRef, {
+          paymentMode: paymentMode,
+          paymentUpdatedAt: serverTimestamp(),
+          paymentUpdatedBy: 'admin'
+        });
+
+        updatePaymentBtn.textContent = 'Updated!';
+        updatePaymentBtn.style.background = '#28a745';
+        
+        // Refresh user details if currently displayed
+        if (currentUserData && currentUserData.shortId === tokenNo) {
+          const updatedData = { ...currentUserData, paymentMode };
+          displayUserDetails(updatedData, tokenNo);
+        }
+
+        setTimeout(() => {
+          updatePaymentBtn.textContent = originalText;
+          updatePaymentBtn.style.background = '';
+          updatePaymentBtn.disabled = false;
+        }, 3000);
+
+      } catch (error) {
+        console.error('Error updating payment mode:', error);
+        alert('Error updating payment mode. Please try again.');
+        updatePaymentBtn.textContent = originalText;
+        updatePaymentBtn.disabled = false;
+      }
+    }
+
+    // Download admin RSVP ticket
+    async function downloadAdminRsvpTicket() {
+      if (!currentUserData) {
+        alert('Please generate RSVP first');
+        return;
+      }
+
+      const originalText = downloadAdminRsvp.textContent;
+      try {
+        downloadAdminRsvp.textContent = '⏳ Generating...';
+        downloadAdminRsvp.disabled = true;
+
+        await generateAdminTicket(
+          currentUserData.shortId,
+          currentUserData.username,
+          currentUserData.paymentMode || 'onspot'
+        );
+
+        // Track download
+        await trackAdminDownload(
+          currentUserData.shortId,
+          currentUserData.username,
+          currentUserData.paymentMode || 'onspot'
+        );
+
+        downloadAdminRsvp.textContent = '✅ Downloaded';
+        downloadAdminRsvp.style.background = '#28a745';
+
+        // Refresh stats and recent downloads
+        loadRsvpStats();
+        loadRecentDownloads();
+
+        setTimeout(() => {
+          downloadAdminRsvp.textContent = originalText;
+          downloadAdminRsvp.style.background = '';
+          downloadAdminRsvp.disabled = false;
+        }, 3000);
+
+      } catch (error) {
+        console.error('Error generating ticket:', error);
+        alert('Error generating ticket. Please try again.');
+        downloadAdminRsvp.textContent = originalText;
+        downloadAdminRsvp.disabled = false;
+      }
+    }
+
+    // Generate admin ticket
+    async function generateAdminTicket(tokenNo, userName, mode) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = 800;
+      canvas.height = 600;
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#0b0b0b');
+      gradient.addColorStop(1, '#262524');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Border
+      ctx.strokeStyle = '#7bbf44';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+      
+      // Header section
+      ctx.fillStyle = '#7bbf44';
+      ctx.fillRect(40, 40, canvas.width - 80, 80);
+      
+      // Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('ILLUMINA 2K25', canvas.width / 2, 90);
+      
+      // Subtitle
+      ctx.font = '18px Arial';
+      ctx.fillStyle = '#B3B3B3';
+      ctx.fillText('Lowry Adventist College, Bangalore', canvas.width / 2, 160);
+      
+      // Event details
+      ctx.font = 'bold 24px Arial';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('REGISTRATION TICKET', canvas.width / 2, 220);
+      
+      // Token number
+      ctx.font = 'bold 48px Arial';
+      ctx.fillStyle = '#7bbf44';
+      ctx.fillText(`TOKEN: ${tokenNo}`, canvas.width / 2, 300);
+      
+      // User details
+      ctx.font = '20px Arial';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`Name: ${userName}`, canvas.width / 2, 360);
+      
+      // Payment mode
+      ctx.font = '18px Arial';
+      ctx.fillStyle = '#B3B3B3';
+      ctx.fillText(`Payment Mode: ${mode === 'onspot' ? 'Pay on Spot' : 'Online Payment'}`, canvas.width / 2, 400);
+      
+      // Event date
+      ctx.font = 'bold 20px Arial';
+      ctx.fillStyle = '#7bbf44';
+      ctx.fillText('Event Date: September 25, 2025', canvas.width / 2, 430);
+      
+      // Footer
+      ctx.font = '14px Arial';
+      ctx.fillStyle = '#7bbf44';
+      ctx.fillText('Please present this ticket at the venue', canvas.width / 2, 480);
+      
+      // Admin watermark
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#999';
+      ctx.fillText('Generated by Admin', canvas.width / 2, 520);
+      
+      // Generate and add QR code
+      const qrCanvas = await generateQRCode(tokenNo, 140);
+      ctx.drawImage(qrCanvas, canvas.width - 180, canvas.height - 180, 140, 140);
+      
+      // QR code label
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#B3B3B3';
+      ctx.fillText('Scan for verification', canvas.width - 100, canvas.height - 25);
+      
+      // Download
+      const link = document.createElement('a');
+      link.download = `ILLUMINA-2K25-admin-ticket-${tokenNo}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    // Track admin download
+    async function trackAdminDownload(tokenNo, userName, mode) {
+      const downloadRef = doc(collection(db, 'rsvpDownloads'));
+      await setDoc(downloadRef, {
+        tokenNo: tokenNo,
+        username: userName,
+        paymentMode: mode,
+        downloadedAt: serverTimestamp(),
+        downloadType: 'admin_generated'
+      });
+    }
+
+    // Load RSVP statistics
+    async function loadRsvpStats() {
+      try {
+        const downloadsQuery = query(collection(db, 'rsvpDownloads'));
+        const snapshot = await getDocs(downloadsQuery);
+        
+        let total = 0;
+        let userCount = 0;
+        let adminCount = 0;
+        
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          total++;
+          if (data.downloadType === 'user_download') {
+            userCount++;
+          } else if (data.downloadType === 'admin_generated') {
+            adminCount++;
+          }
+        });
+        
+        totalDownloads.textContent = total;
+        userDownloads.textContent = userCount;
+        adminGenerated.textContent = adminCount;
+        
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Load recent downloads
+    async function loadRecentDownloads() {
+      try {
+        const downloadsQuery = query(
+          collection(db, 'rsvpDownloads'),
+          orderBy('downloadedAt', 'desc'),
+          limit(10)
+        );
+        const snapshot = await getDocs(downloadsQuery);
+        
+        if (snapshot.empty) {
+          downloadsTableBody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--muted); padding: 20px;">
+                No downloads yet
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
+        const rows = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const downloadType = data.downloadType === 'user_download' ? 'user' : 'admin';
+          const downloadTime = data.downloadedAt?.toDate?.()?.toLocaleString() || 'N/A';
+          
+          rows.push(`
+            <tr>
+              <td><strong>${data.tokenNo || 'N/A'}</strong></td>
+              <td>${data.username || 'N/A'}</td>
+              <td>${data.paymentMode || 'N/A'}</td>
+              <td><span class="download-type ${downloadType}">${downloadType}</span></td>
+              <td>${downloadTime}</td>
+            </tr>
+          `);
+        });
+        
+        downloadsTableBody.innerHTML = rows.join('');
+        
+      } catch (error) {
+        console.error('Error loading recent downloads:', error);
+        downloadsTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; color: #ff6b6b; padding: 20px;">
+              Error loading downloads
+            </td>
+          </tr>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILLUMINA 2K25 - Event Information</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Cosmic background effects */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 69, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }      
+  .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-size: 14px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+        }
+
+        .college-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .event-title {
+            font-size: 5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            margin-bottom: 15px;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+        }
+
+        .year {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+
+        .tagline {
+            font-size: 1.8rem;
+            color: #ffd700;
+            font-style: italic;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        } 
+       .qr-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .qr-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .qr-code {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .qr-text {
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .rules-section {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(26, 26, 46, 0.9));
+            border-radius: 25px;
+            padding: 40px;
+            margin: 40px 0;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            box-shadow: 
+                0 0 50px rgba(255, 215, 0, 0.3),
+                inset 0 0 50px rgba(255, 215, 0, 0.1);
+        }
+
+        .rules-section::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            border-radius: 25px;
+            z-index: -1;
+            animation: borderGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }      
+  .section-title {
+            font-size: 2.2rem;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            color: #ffffff;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 18px;
+            padding: 15px 20px 15px 50px;
+            position: relative;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .rules-list li:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .rules-list li::before {
+            content: "★";
+            color: #ffd700;
+            font-size: 1.2rem;
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }

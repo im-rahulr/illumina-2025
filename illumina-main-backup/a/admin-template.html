@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Event Admin – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=20240916">
+  <link rel="stylesheet" href="event-admin.css?v=1">
+  <meta name="description" content="Event admin panel for ILLUMINA registrations.">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y0TXQST3MG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-Y0TXQST3MG');
+  </script>
+</head>
+
+<body>
+  <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="true">
+    <div class="spinner-standalone" aria-hidden="true"></div>
+    <div id="pageLoaderText" class="loader-text">Loading participants...</div>
+  </div>
+
+  <main class="container event-admin-container" role="main">
+    <!-- Header Section -->
+    <header class="event-admin-header">
+      <nav class="breadcrumb">
+        <a href="../admin.html">Admin</a> > <span id="eventName">Event</span>
+      </nav>
+      <h1 class="event-title" id="eventTitle">Event Participants</h1>
+      <p class="event-description" id="eventDescription">Event description</p>
+      <div class="event-stats">
+        <span class="stat-badge primary">
+          Participants: <span id="participantCount">0</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message"></div>
+
+    <!-- Toolbar -->
+    <div class="event-toolbar">
+      <div class="toolbar-left">
+        <input 
+          id="searchInput" 
+          class="search-input" 
+          type="text" 
+          placeholder="Search participants by name, email, phone, or token..."
+        >
+      </div>
+      <div class="toolbar-right">
+        <button id="exportBtn" class="btn btn-secondary">
+          📊 Export CSV
+        </button>
+        <a href="../admin.html" class="btn btn-primary">
+          ← Back to Admin
+        </a>
+      </div>
+    </div>
+
+    <!-- Participants Section -->
+    <div class="participants-section">
+      <!-- Loading State -->
+      <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading participants...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state">
+        <div class="empty-state-icon">👥</div>
+        <h3>No participants yet</h3>
+        <p>No one has registered for this event yet. Check back later!</p>
+      </div>
+
+      <!-- Participants Table -->
+      <table id="participantsTable" class="participants-table" style="display: none;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>College</th>
+            <th>Course</th>
+            <th>Payment</th>
+            <th>Token</th>
+            <th>Registered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Participants will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Page initialization script -->
+  <script type="module">
+    import { EventAdminPage, getEventIdFromUrl } from './event-admin.js';
+
+    // Page loader helpers
+    const pageLoader = document.getElementById('pageLoader');
+    const pageLoaderText = document.getElementById('pageLoaderText');
+    
+    const showPageLoader = (text = 'Loading...') => {
+      if (pageLoader) {
+        if (pageLoaderText) pageLoaderText.textContent = text;
+        pageLoader.classList.add('show');
+      }
+    };
+    
+    const hidePageLoader = () => { 
+      if (pageLoader) pageLoader.classList.remove('show'); 
+    };
+
+    // Initialize the page
+    async function initPage() {
+      try {
+        showPageLoader('Loading event data...');
+        
+        // Get event ID from URL
+        const eventId = getEventIdFromUrl();
+        if (!eventId) {
+          throw new Error('Invalid event URL');
+        }
+
+        // Create and initialize event admin page
+        const eventAdminPage = new EventAdminPage(eventId);
+        await eventAdminPage.init();
+        
+        // Store reference for cleanup
+        window.eventAdminPage = eventAdminPage;
+        
+      } catch (error) {
+        console.error('Failed to initialize event admin page:', error);
+        const errorEl = document.getElementById('errorMessage');
+        if (errorEl) {
+          errorEl.textContent = `Failed to load event page: ${error.message}`;
+          errorEl.classList.add('show');
+        }
+      } finally {
+        hidePageLoader();
+      }
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (window.eventAdminPage) {
+        window.eventAdminPage.destroy();
+      }
+    });
+
+    // Start the application
+    initPage();
+  </script>
+</body>
+</html>

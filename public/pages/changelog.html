@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Changelog • illumina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css?v=4">
+  <style>
+    /* Page-specific enhancements for changelog (timeline style) */
+    .cl-page { max-width: 860px; margin: 0 auto; padding: 24px; }
+    .log-header { display: grid; gap: 6px; margin-bottom: 12px; }
+    .cl-title { font-family: 'Poppins', system-ui, sans-serif; font-weight: 800; font-size: clamp(28px, 4vw + 10px, 44px); margin: 0; }
+    .cl-desc { color: var(--muted); }
+    .version { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 700; }
+    .version .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 6px rgba(123,191,68,0.12); }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 800; font-size: 11px; letter-spacing: .04em; }
+    .pill.new { background: rgba(123,191,68,0.2); color: var(--primary); }
+    .pill.fix { background: rgba(255,170,77,0.2); color: #ffa94d; }
+    .pill.improve { background: rgba(116,192,252,0.2); color: #74c0fc; }
+    .pill.remove { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+    .log-entry { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .log-entry h3 { margin: 0 0 8px; font-size: 18px; color: #fff; }
+    .log-entry ul { margin: 8px 0 0; padding-left: 20px; }
+    .log-entry li { margin-bottom: 6px; color: var(--text); }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--primary); text-decoration: none; font-weight: 600; margin-bottom: 20px; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="cl-page">
+    <a href="../index.html" class="back-link">← Back to illumina</a>
+    
+    <div class="log-header">
+      <h1 class="cl-title">Changelog</h1>
+      <p class="cl-desc">Track updates, improvements, and fixes to the illumina registration system.</p>
+    </div>
+
+    <div class="log-entry">
+      <div class="version">
+        <span class="dot"></span>
+        <span>Version 4.0</span>
+        <span style="color: var(--muted); font-weight: 400;">• January 2025</span>
+      </div>
+      <h3>Major UI Overhaul & Event System</h3>
+      <ul>
+        <li><span class="pill new">NEW</span> Complete redesign with modern dark theme</li>
+        <li><span class="pill new">NEW</span> Event listing system with detailed pages</li>
+        <li><span class="pill new">NEW</span> Enhanced registration flow with better UX</li>
+        <li><span class="pill improve">IMPROVE</span> Mobile-first responsive design</li>
+        <li><span class="pill improve">IMPROVE</span> Better accessibility and screen reader support</li>
+        <li><span class="pill fix">FIX</span> Resolved merge conflicts and code consistency</li>
+      </ul>
+    </div>
+
+    <div class="log-entry">
+      <div class="version">
+        <span class="dot"></span>
+        <span>Version 3.2</span>
+        <span style="color: var(--muted); font-weight: 400;">• December 2024</span>
+      </div>
+      <h3>Payment Integration & Analytics</h3>
+      <ul>
+        <li><span class="pill new">NEW</span> UPI payment integration with QR codes</li>
+        <li><span class="pill new">NEW</span> Google Analytics and PostHog tracking</li>
+        <li><span class="pill new">NEW</span> Downloadable registration tickets</li>
+        <li><span class="pill improve">IMPROVE</span> Enhanced success page with payment options</li>
+        <li><span class="pill fix">FIX</span> Firebase connection stability improvements</li>
+      </ul>
+    </div>
+
+    <div class="log-entry">
+      <div class="version">
+        <span class="dot"></span>
+        <span>Version 3.1</span>
+        <span style="color: var(--muted); font-weight: 400;">• November 2024</span>
+      </div>
+      <h3>Registration System Enhancements</h3>
+      <ul>
+        <li><span class="pill new">NEW</span> Real-time form validation</li>
+        <li><span class="pill new">NEW</span> Unique token generation system</li>
+        <li><span class="pill improve">IMPROVE</span> Better error handling and logging</li>
+        <li><span class="pill improve">IMPROVE</span> Optimized Firebase queries</li>
+        <li><span class="pill fix">FIX</span> Phone number validation issues</li>
+      </ul>
+    </div>
+
+    <div class="log-entry">
+      <div class="version">
+        <span class="dot"></span>
+        <span>Version 3.0</span>
+        <span style="color: var(--muted); font-weight: 400;">• October 2024</span>
+      </div>
+      <h3>Firebase Integration & Core Features</h3>
+      <ul>
+        <li><span class="pill new">NEW</span> Firebase Firestore database integration</li>
+        <li><span class="pill new">NEW</span> Automated registration system</li>
+        <li><span class="pill new">NEW</span> Admin panel for registration management</li>
+        <li><span class="pill new">NEW</span> QR code generation for tickets</li>
+        <li><span class="pill improve">IMPROVE</span> Form validation and user feedback</li>
+      </ul>
+    </div>
+
+    <div class="log-entry">
+      <div class="version">
+        <span class="dot"></span>
+        <span>Version 2.0</span>
+        <span style="color: var(--muted); font-weight: 400;">• September 2024</span>
+      </div>
+      <h3>Initial Registration System</h3>
+      <ul>
+        <li><span class="pill new">NEW</span> Basic registration form</li>
+        <li><span class="pill new">NEW</span> Countdown timer to event</li>
+        <li><span class="pill new">NEW</span> Responsive design implementation</li>
+        <li><span class="pill new">NEW</span> College branding and styling</li>
+      </ul>
+    </div>
+
+    <div class="log-entry">
+      <div class="version">
+        <span class="dot"></span>
+        <span>Version 1.0</span>
+        <span style="color: var(--muted); font-weight: 400;">• August 2024</span>
+      </div>
+      <h3>Project Launch</h3>
+      <ul>
+        <li><span class="pill new">NEW</span> Initial website structure</li>
+        <li><span class="pill new">NEW</span> Basic HTML/CSS foundation</li>
+        <li><span class="pill new">NEW</span> Landing page design</li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: var(--muted);">
+      <small>Built with ❤️ by <a href="https://codecraft-team.netlify.app/" target="_blank" rel="noopener" class="login-link">CodeCraft Team</a></small>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fireless Cooking – ILLUMINA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=4">
+  <!-- Google tag (gtag.js) --> 
+ <script async src="https://www.googletagmanager.com/gtag/js?id=G-9D6EQ7H1EN"></script> 
+ <script> 
+   window.dataLayer = window.dataLayer || []; 
+   function gtag(){dataLayer.push(arguments);} 
+   gtag('js', new Date()); 
+  
+   gtag('config', 'G-9D6EQ7H1EN'); 
+ </script>
+</head>
+<body class="event-page event-fireless-cooking">
+  <div id="siteBanner" class="site-banner" role="region" aria-label="Announcement" style="display:none">
+    <span><strong>Check ILLUMINA brochure</strong> — download now</span>
+    <a href="https://app.getfiledrop.com/share/ea5b9aeb-c638-4dc2-a17a-25f5480206f5/download" target="_blank" rel="noopener" download>Download PDF</a>
+    <button id="closeBanner" class="banner-close" aria-label="Close announcement">×</button>
+  </div>
+  
+  <main class="container" role="main">
+    <div class="chess-logo">
+      <img src="../images/lowrylogo.png" alt="ILLUMINA Logo">
+    </div>
+    <h1 class="title">Fireless Cooking</h1>
+    <p class="subtitle">Creativity without heat – prepare delicious dishes fire-free.</p>
+
+    <div class="form-card" role="region" aria-labelledby="details-title">
+      <h2 id="details-title" style="margin-top:0">Rules</h2>
+      <ul>
+        <li>Team size: Maximum 2 members</li>
+        <li>Prep time: 1 hour</li>
+        <li>Be present 15 minutes before allotted time</li>
+        <li>No cutting/heating of vegetables/fruits</li>
+        <li>Clean work zones post-competition</li>
+        <li>Evaluated on taste, hygiene, presentation, and dish name</li>
+      </ul>
+      
+      <h3>Staff Coordinators</h3>
+      <ul>
+        <li>Mrs. Sheeba — 9731257883</li>
+        <li>Mrs. Radha Bai — 9844722299</li>
+        <li>Mrs. Jennita Alice — 9600332939</li>
+      </ul>
+      
+      <h3>Student Coordinators</h3>
+      <ul>
+        <li>Kaveri — 7899579275</li>
+        <li>Veronica — 8747089910</li>
+      </ul>
+    </div>
+
+    <div class="social-cta" style="margin-top:14px">
+      <a class="login-link" href="../index.html">← Back to Events</a>
+    </div>
+  </main>
+
+  <script>
+    // Banner functionality
+    try {
+      const banner = document.getElementById('siteBanner');
+      if (banner) {
+        banner.style.display = 'flex';
+        document.body.classList.add('with-banner');
+        const h = banner.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--banner-h', h + 'px');
+        const btn = document.getElementById('closeBanner');
+        if (btn) btn.addEventListener('click', () => {
+          banner.style.display = 'none';
+          document.body.classList.remove('with-banner');
+        });
+      }
+    } catch {}
+  </script>
+</body>
+</html>
