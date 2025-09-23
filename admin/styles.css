@@ -1,0 +1,7 @@
+/* Admin CSS compatibility shim
+   This file ensures older admin pages that reference '../styles.css'
+   continue to work by importing the new consolidated stylesheet. */
+
+@import url('../assets/css/main.css');
+
+/* You can place any admin-specific overrides below if needed. */

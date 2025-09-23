@@ -26,20 +26,123 @@
     <div id="pageLoaderText" class="loader-text">Loading participants...</div>
   </div>
 
-  <!-- Login Form -->
-  <div id="loginContainer" class="container" style="max-width: 400px; margin: 100px auto;">
-    <div class="form-card">
-      <h1 class="title" style="text-align: center; margin-bottom: 24px;">Coding Event Admin</h1>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="password">Access Password</label>
-          <input id="password" class="input" type="password" placeholder="Enter password" required>
+  <!-- Enhanced Login Form -->
+  <div id="loginContainer" class="login-container" style="display: block; max-width: 480px; margin: 80px auto 120px; padding: 0 20px;">
+    <div class="form-card" style="background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #90d15b); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 20px rgba(123, 191, 68, 0.3);">
+          <span style="font-size: 32px;">💻</span>
         </div>
-        <button class="btn btn-primary btn-block" type="submit">Access Event Admin</button>
+        <h1 class="title" style="margin: 0; font-size: 28px; background: linear-gradient(135deg, #fff, #f0f0f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Event Admin Access</h1>
+        <p style="color: rgba(255, 255, 255, 0.7); margin: 8px 0 0; font-size: 16px;">Secure access to Coding event management</p>
+      </div>
+
+      <form id="loginForm" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="form-group" style="position: relative;">
+          <label for="password" style="display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 14px;">
+            🔐 Access Password
+          </label>
+          <div style="position: relative;">
+            <input
+              id="password"
+              class="input"
+              type="password"
+              placeholder="Enter password"
+              required
+              style="width: 100%; padding: 16px 50px 16px 20px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: rgba(255, 255, 255, 0.95); font-size: 16px; transition: all 0.3s ease; box-sizing: border-box;"
+              oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')"
+            >
+            <button
+              id="togglePassword"
+              class="btn-icon password-toggle"
+              type="button"
+              aria-label="Show password"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255, 255, 255, 0.6); font-size: 18px; cursor: pointer; padding: 8px; border-radius: 6px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;"
+            >
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <button
+          class="btn btn-primary btn-block login-btn"
+          type="submit"
+          style="padding: 16px 24px; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, var(--primary), #90d15b); border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;"
+        >
+          <span class="btn-text">Access Event Admin</span>
+          <span class="btn-loading" style="display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+            <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+          </span>
+        </button>
       </form>
-      <div id="loginError" class="error-message" style="margin-top: 16px; display: none;"></div>
+
+      <div id="loginError" class="error-message" style="margin-top: 20px; padding: 12px; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; color: #ff6b6b; font-size: 14px; display: none; text-align: center;">
+        <span style="font-size: 16px; margin-right: 8px;">⚠️</span>
+        Invalid password. Please try again.
+      </div>
+
+      <div style="margin-top: 24px; text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+        <p>🔒 Secure login required for event management</p>
+        <p style="margin: 4px 0;">Contact admin if you need access assistance</p>
+      </div>
     </div>
   </div>
+
+  <style>
+    /* Enhanced password toggle animation */
+    .password-toggle:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      transform: translateY(-50%) scale(1.1) !important;
+    }
+
+    /* Input focus effects */
+    .form-group .input:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(123, 191, 68, 0.2) !important;
+      background: rgba(255, 255, 255, 0.15) !important;
+      transform: translateY(-1px);
+    }
+
+    /* Button hover effects */
+    .login-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(123, 191, 68, 0.3);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Loading spinner animation */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error message slide in animation */
+    .error-message {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Success feedback */
+    .login-success {
+      background: rgba(76, 175, 80, 0.1) !important;
+      border-color: rgba(76, 175, 80, 0.3) !important;
+      color: #4caf50 !important;
+    }
+  </style>
 
   <main id="mainContainer" class="container event-admin-container" role="main" style="display: none;">
     <!-- Header Section -->
@@ -76,9 +179,10 @@
         <button id="exportBtn" class="btn btn-secondary">
           📊 Export CSV
         </button>
-        <a href="../admin.html" class="btn btn-primary">
-          ← Back to Admin
+        <a href="../events/redirect.html" class="btn btn-primary">
+          🏆 Score Board
         </a>
+        <button id="supportBtn" class="btn btn-secondary">🆘 Support</button>
       </div>
     </div>
 
@@ -116,13 +220,42 @@
         </tbody>
       </table>
     </div>
+    <footer class="admin-footer">Anny Sarah Owner</footer>
   </main>
+
+  <!-- Support Modal -->
+  <div id="supportModal" class="support-modal" aria-hidden="true" role="dialog" aria-labelledby="supportModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="supportModalTitle" class="modal-title">Support – Illumina Coordination</h3>
+        <button class="btn btn-secondary" id="closeSupportModal" aria-label="Close support modal">✖</button>
+      </div>
+      <div class="modal-body">
+        <p>Choose who to contact for <strong id="supportEventName">this event</strong>.</p>
+        <div class="contact-options">
+          <div class="contact-card">
+            <h4 class="contact-title">Rahul</h4>
+            <div class="contact-role">Site Admin & Developer</div>
+            <button class="btn btn-whatsapp contact-btn" data-support-name="Rahul" data-support-role="Site Admin & Developer" data-phone="919739904620">💬 WhatsApp</button>
+          </div>
+          <div class="contact-card">
+            <h4 class="contact-title">Vishal</h4>
+            <div class="contact-role">Registration & Site Designer</div>
+            <button class="btn btn-whatsapp contact-btn" data-support-name="Vishal" data-support-role="Registration & Site Designer" data-phone="917349321463">💬 WhatsApp</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="closeSupportModal2">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Page initialization script -->
   <script type="module">
     import { EventAdminPage } from './event-admin.js';
 
-    const PASSWORD = 'helloworld';
+    const PASSWORD = 'iloveu';
     
     // DOM elements
     const loginContainer = document.getElementById('loginContainer');
@@ -132,19 +265,108 @@
     const loginError = document.getElementById('loginError');
     const pageLoader = document.getElementById('pageLoader');
     const pageLoaderText = document.getElementById('pageLoaderText');
-    
+
+    // Enhanced login functionality
+    const togglePassword = document.getElementById('togglePassword');
+    const loginBtn = document.querySelector('.login-btn');
+    const btnText = document.querySelector('.btn-text');
+    const btnLoading = document.querySelector('.btn-loading');
+
+    // Password visibility toggle
+    togglePassword.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      togglePassword.textContent = isPassword ? '🙈' : '👁️';
+      togglePassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+
+      // Add visual feedback
+      togglePassword.style.transform = 'translateY(-50%) scale(1.2)';
+      setTimeout(() => {
+        togglePassword.style.transform = 'translateY(-50%) scale(1)';
+      }, 150);
+    });
+
+    // Enhanced login submission
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const password = passwordInput.value.trim();
+      if (!password) {
+        showError('Please enter a password');
+        return;
+      }
+
+      // Show loading state
+      loginBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoading.style.display = 'block';
+      loginError.style.display = 'none';
+
+      // Simulate authentication check with delay
+      setTimeout(() => {
+        if (password === PASSWORD) {
+          // Success animation
+          loginBtn.style.background = 'linear-gradient(135deg, #66bb6a, #4caf50)';
+          btnText.textContent = '✓ Access Granted!';
+          btnText.style.display = 'block';
+          btnLoading.style.display = 'none';
+
+          setTimeout(() => {
+            sessionStorage.setItem('eventAdminAuth', 'true');
+            showMainContent();
+          }, 800);
+        } else {
+          // Error animation
+          showError('Invalid password. Please try again.');
+          loginBtn.disabled = false;
+          btnText.style.display = 'block';
+          btnLoading.style.display = 'none';
+          passwordInput.value = '';
+          passwordInput.focus();
+
+          // Shake animation for error
+          loginBtn.style.animation = 'shake 0.5s ease-in-out';
+          setTimeout(() => {
+            loginBtn.style.animation = '';
+          }, 500);
+        }
+      }, 1000);
+    });
+
+    // Enhanced error display
+    function showError(message) {
+      loginError.innerHTML = `<span style="font-size: 16px; margin-right: 8px;">⚠️</span>${message}`;
+      loginError.style.display = 'block';
+      loginError.style.animation = 'slideIn 0.3s ease-out';
+    }
+
+    // Add shake animation for errors
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Auto-focus password field
+    passwordInput.focus();
+
+    // Page loader functions
     const showPageLoader = (text = 'Loading...') => {
       if (pageLoader) {
         if (pageLoaderText) pageLoaderText.textContent = text;
         pageLoader.classList.add('show');
       }
     };
-    
-    const hidePageLoader = () => { 
-      if (pageLoader) pageLoader.classList.remove('show'); 
+
+    const hidePageLoader = () => {
+      if (pageLoader) pageLoader.classList.remove('show');
     };
 
-    // Check if already logged in
+    // Authentication functions
     function checkAuth() {
       const isLoggedIn = sessionStorage.getItem('eventAdminAuth') === 'true';
       if (isLoggedIn) {
@@ -154,36 +376,17 @@
       }
     }
 
-    // Show login form
     function showLogin() {
       loginContainer.style.display = 'block';
       mainContainer.style.display = 'none';
       passwordInput.focus();
     }
 
-    // Show main content
     function showMainContent() {
       loginContainer.style.display = 'none';
       mainContainer.style.display = 'block';
       initPage();
     }
-
-    // Handle login
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const password = passwordInput.value.trim();
-      
-      if (password === PASSWORD) {
-        sessionStorage.setItem('eventAdminAuth', 'true');
-        showMainContent();
-        loginError.style.display = 'none';
-      } else {
-        loginError.textContent = 'Invalid password. Please try again.';
-        loginError.style.display = 'block';
-        passwordInput.value = '';
-        passwordInput.focus();
-      }
-    });
 
     // Initialize the page
     async function initPage() {
@@ -223,6 +426,61 @@
     window.addEventListener('pageshow', () => {
       checkAuth();
     });
+  </script>
+
+  <!-- Support handling script -->
+  <script>
+    (function() {
+      const supportBtn = document.getElementById('supportBtn');
+      const modal = document.getElementById('supportModal');
+      const closeBtns = [
+        document.getElementById('closeSupportModal'),
+        document.getElementById('closeSupportModal2')
+      ].filter(Boolean);
+      const eventTitleEl = document.getElementById('eventTitle');
+      const eventName = eventTitleEl ? eventTitleEl.textContent.trim() : 'Event';
+      const supportEventNameEl = document.getElementById('supportEventName');
+      if (supportEventNameEl) supportEventNameEl.textContent = eventName;
+
+      function buildMessage(name, role) {
+        return `Hello Illumina Coordination, I need support for ${eventName}. Contacting: ${name} (${role}).`;
+      }
+      function openWhatsAppWith(phone, name, role) {
+        const text = encodeURIComponent(buildMessage(name, role));
+        const url = `https://wa.me/${phone}?text=${text}`;
+        window.open(url, '_blank');
+      }
+
+      if (supportBtn && modal) {
+        supportBtn.addEventListener('click', () => {
+          modal.classList.add('show');
+          modal.setAttribute('aria-hidden', 'false');
+        });
+      }
+
+      closeBtns.forEach(btn => btn && btn.addEventListener('click', () => {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }));
+
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+          }
+        });
+      }
+
+      document.querySelectorAll('.contact-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const phone = btn.getAttribute('data-phone');
+          const name = btn.getAttribute('data-support-name');
+          const role = btn.getAttribute('data-support-role');
+          if (phone) openWhatsAppWith(phone, name, role);
+        });
+      });
+    })();
   </script>
 </body>
 </html>

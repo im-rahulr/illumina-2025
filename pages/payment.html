@@ -1324,7 +1324,7 @@ Please help me resolve this issue.`;
     async function saveErrorToFirebase(errorId, errorMessage, userContext) {
       try {
         // Import Firebase functions
-        const { db } = await import('./firebase-config.js');
+        const { db } = await import('../assets/js/firebase-config.js');
         const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js");
 
         const errorData = {
@@ -1408,7 +1408,7 @@ Please help me resolve this issue.`;
         if (!userContext) return;
 
         // Import Firebase functions
-        const { db } = await import('./firebase-config.js');
+        const { db } = await import('../assets/js/firebase-config.js');
         const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js");
 
         const paymentData = {

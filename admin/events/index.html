@@ -10,21 +10,10 @@
   <link rel="stylesheet" href="../styles.css?v=20240916">
   <link rel="stylesheet" href="event-admin.css?v=1">
   <style>
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 20px;
-    }
-    
     .dashboard-container {
-      display: none;
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
-    }
-    
-    .dashboard-container.show {
-      display: block;
     }
     
     .events-grid {
@@ -151,27 +140,10 @@
 </head>
 
 <body>
-  <!-- Login Form -->
-  <div id="loginContainer" class="login-container">
-    <div class="form-card">
-      <h1 class="title" style="text-align: center; margin-bottom: 24px;">Event Admin Access</h1>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="password">Access Password</label>
-          <input id="password" class="input" type="password" placeholder="Enter password" required>
-        </div>
-        <button class="btn btn-primary btn-block" type="submit">Access Dashboard</button>
-      </form>
-      <div id="loginError" class="error-message" style="margin-top: 16px;"></div>
-    </div>
-  </div>
-
   <!-- Dashboard -->
   <div id="dashboardContainer" class="dashboard-container">
-    <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
-    
     <header class="dashboard-header">
-      <h1 class="dashboard-title">Event Admin Dashboard</h1>
+      <h1 class="dashboard-title">Event Score Board</h1>
       <p class="dashboard-subtitle">Manage participants for individual events</p>
     </header>
 
@@ -201,64 +173,8 @@
       { id: 'red-carpet', title: 'Red Carpet', description: 'Fashion show and modeling competition.', icon: '👗', maxParticipants: 1 }
     ];
 
-    const PASSWORD = 'iloveyou';
-    
     // DOM elements
-    const loginContainer = document.getElementById('loginContainer');
-    const dashboardContainer = document.getElementById('dashboardContainer');
-    const loginForm = document.getElementById('loginForm');
-    const passwordInput = document.getElementById('password');
-    const loginError = document.getElementById('loginError');
     const eventsGrid = document.getElementById('eventsGrid');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    // Check if already logged in
-    function checkAuth() {
-      const isLoggedIn = sessionStorage.getItem('eventAdminAuth') === 'true';
-      if (isLoggedIn) {
-        showDashboard();
-      } else {
-        showLogin();
-      }
-    }
-
-    // Show login form
-    function showLogin() {
-      loginContainer.style.display = 'block';
-      dashboardContainer.classList.remove('show');
-      passwordInput.focus();
-    }
-
-    // Show dashboard
-    function showDashboard() {
-      loginContainer.style.display = 'none';
-      dashboardContainer.classList.add('show');
-      renderEvents();
-    }
-
-    // Handle login
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const password = passwordInput.value.trim();
-      
-      if (password === PASSWORD) {
-        sessionStorage.setItem('eventAdminAuth', 'true');
-        showDashboard();
-        loginError.style.display = 'none';
-      } else {
-        loginError.textContent = 'Invalid password. Please try again.';
-        loginError.style.display = 'block';
-        passwordInput.value = '';
-        passwordInput.focus();
-      }
-    });
-
-    // Handle logout
-    logoutBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      sessionStorage.removeItem('eventAdminAuth');
-      showLogin();
-    });
 
     // Render events grid
     function renderEvents() {
@@ -277,13 +193,8 @@
       `).join('');
     }
 
-    // Initialize
-    checkAuth();
-
-    // Handle browser back/forward
-    window.addEventListener('pageshow', () => {
-      checkAuth();
-    });
+    // Initialize on page load
+    renderEvents();
   </script>
 </body>
 

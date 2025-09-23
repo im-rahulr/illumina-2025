@@ -1,7 +1,7 @@
 // Shared Event Admin JavaScript Module
 // Handles common functionality for all individual event admin pages
 
-import { db } from '../firebase-config.js';
+import { db } from '../../assets/js/firebase-config.js';
 import { collection, getDocs, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 // Event data from events-list.html
@@ -247,11 +247,7 @@ class EventAdminPage {
         <td>${participant.phone || 'N/A'}</td>
         <td>${participant.college || 'N/A'}</td>
         <td>${participant.course || 'N/A'}</td>
-        <td>
-          <span class="status-badge ${participant.paymentStatus === 'completed' ? 'success' : 'pending'}">
-            ${participant.paymentStatus || 'pending'}
-          </span>
-        </td>
+        <td></td>
         <td>${participant.shortId || 'N/A'}</td>
         <td>${this.formatDate(participant.createdAt)}</td>
       </tr>
@@ -315,7 +311,7 @@ class EventAdminPage {
       return;
     }
 
-    const headers = ['#', 'Name', 'Phone', 'College', 'Course', 'Payment Status', 'Token', 'Registration Date'];
+    const headers = ['#', 'Name', 'Phone', 'College', 'Course', 'Token', 'Registration Date'];
     const csvContent = [
       headers.join(','),
       ...this.filteredParticipants.map((participant, index) => [
@@ -324,7 +320,6 @@ class EventAdminPage {
         `"${participant.phone || 'N/A'}"`,
         `"${participant.college || 'N/A'}"`,
         `"${participant.course || 'N/A'}"`,
-        `"${participant.paymentStatus || 'pending'}"`,
         `"${participant.shortId || 'N/A'}"`,
         `"${this.formatDate(participant.createdAt)}"`
       ].join(','))

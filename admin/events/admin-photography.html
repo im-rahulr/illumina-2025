@@ -27,7 +27,7 @@
       <div class="toolbar-left"><input id="searchInput" class="search-input" type="text" placeholder="Search participants..."></div>
       <div class="toolbar-right">
         <button id="exportBtn" class="btn btn-secondary">📊 Export CSV</button>
-        <a href="../admin.html" class="btn btn-primary">← Back to Admin</a>
+        <a href="../events/redirect.html" class="btn btn-primary">🏆 Score Board</a>
       </div>
     </div>
     <div class="participants-section">
@@ -41,6 +41,7 @@
   </main>
   <script type="module">
     import { EventAdminPage } from './event-admin.js';
+    const PASSWORD = 'iloveu';
     const pageLoader = document.getElementById('pageLoader');
     const showPageLoader = (text) => { if (pageLoader) { document.getElementById('pageLoaderText').textContent = text; pageLoader.classList.add('show'); } };
     const hidePageLoader = () => { if (pageLoader) pageLoader.classList.remove('show'); };

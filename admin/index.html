@@ -248,12 +248,12 @@
           <input id="searchBox" class="input search" placeholder="Search name, Token No, IP..." />
           <button id="exportCsv" class="btn btn-dark">Export CSV</button>
           <button id="debugIds" class="btn btn-secondary">Debug IDs</button>
+          <button id="debugEvents" class="btn btn-secondary">Debug Events</button>
+          <button id="refreshEvents" class="btn btn-secondary">Refresh Events</button>
           <button id="showErrors" class="btn btn-secondary">Error Log <span id="errorCount" class="badge"
               aria-label="unread errors">0</span></button>
           <button id="runTests" class="btn btn-secondary">Run Tests</button>
           <button id="refreshData" class="btn btn-primary">Refresh</button>
-          <button id="refreshRsvpStatus" class="btn btn-secondary">Refresh RSVP</button>
-          <button id="testRsvpBtn" class="btn btn-secondary">Test RSVP</button>
           <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
       </div>
@@ -345,8 +345,6 @@
               <th>Payment</th>
               <th>College</th>
               <th>IP</th>
-              <th>Token No</th>
-              <th>RSVP Status</th>
               <th>Created</th>
             </tr>
           </thead>
@@ -384,24 +382,45 @@
 
     function startEventSelectionsListener() {
       try {
+        console.log('Starting event selections listener...');
         const esRef = collection(db, 'eventSelections');
         onSnapshot(esRef, (snap) => {
           const map = new Map();
+          console.log(`Processing ${snap.size} event selection documents`);
+          
           snap.forEach(doc => {
             const d = doc.data();
-            if (d && d.userToken) {
-              map.set(String(d.userToken), { id: doc.id, ...d });
+            console.log('Event selection document:', doc.id, d);
+            
+            // Handle different possible token field names
+            const userToken = d.userToken || d.tokenNo || d.shortId || d.token;
+            
+            if (userToken) {
+              map.set(String(userToken), { id: doc.id, ...d });
+              console.log(`Mapped events for token ${userToken}:`, d.selections);
+            } else {
+              console.warn('Event selection document missing user token:', doc.id, d);
             }
           });
+          
           __eventSelectionsByToken = map;
+          console.log('Event selections cache updated:', map.size, 'entries');
+          
           // Re-render table if we already have rows
           if (window.__lastAllRows) {
-            try { renderWithFilters(window.__lastAllRows); } catch {}
+            try { 
+              console.log('Re-rendering table with updated event selections');
+              renderWithFilters(window.__lastAllRows); 
+            } catch (e) {
+              console.error('Error re-rendering table:', e);
+            }
           }
         }, (err) => {
+          console.error('Event selections listener error:', err);
           errorLog.addError('EVENT_SEL_LISTEN_ERROR', 'Failed to listen to eventSelections', err);
         });
       } catch (e) {
+        console.error('Failed to initialize event selections listener:', e);
         errorLog.addError('EVENT_SEL_INIT_ERROR', 'Could not initialize eventSelections listener', e);
       }
     }
@@ -529,6 +548,8 @@
         if (mainEl) mainEl.classList.add('is-logged-in');
         try {
           await initDataFeed();
+          // Listen to event selections in real-time so Events column stays updated
+          startEventSelectionsListener();
           // Start a light real-time feed for errorLogs so admins see user issues immediately
           try {
             const errRef = query(collection(db, 'errorLogs'), orderBy('timestamp', 'desc'));
@@ -855,65 +876,59 @@
             const tr = document.createElement('tr');
             const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : '';
             const shortIdDisplay = d.shortId || 'N/A';
-            // Create RSVP status cell
-            const rsvpCell = document.createElement('td');
-            rsvpCell.style.textAlign = 'center';
-            rsvpCell.style.padding = '8px';
-
-            if (d.shortId && d.shortId !== 'N/A') {
-              // Check RSVP download status
-              rsvpCell.innerHTML = '<span style="color: var(--muted); font-size: 12px;">⏳ Checking...</span>';
-              
-              checkRsvpDownloadStatus(d.shortId).then(status => {
-                console.log('RSVP status result for token', d.shortId, ':', status);
-                if (status.downloaded) {
-                  rsvpCell.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                      <span style="color: #28a745; font-weight: 600; font-size: 12px;">✅ Downloaded</span>
-                      <span style="color: var(--muted); font-size: 10px;">${status.downloadType}</span>
-                      <span style="color: var(--muted); font-size: 9px;">${status.downloadTime}</span>
-                    </div>
-                  `;
-                } else {
-                  rsvpCell.innerHTML = `
-                    <span style="color: #ffc107; font-weight: 600; font-size: 12px;">⏳ Not Downloaded</span>
-                  `;
-                }
-              }).catch((error) => {
-                console.error('Error displaying RSVP status for token', d.shortId, ':', error);
-                rsvpCell.innerHTML = `
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                    <span style="color: #dc3545; font-size: 12px;">❌ Error</span>
-                    <span style="color: var(--muted); font-size: 9px;" title="${error.message}">${error.message.substring(0, 20)}...</span>
-                  </div>
-                `;
-              });
-            } else {
-              rsvpCell.innerHTML = '<span style="color: var(--muted); font-size: 12px;">No Token</span>';
-            }
 
             // Format event selections for display
             let eventsDisplay = '—';
             let eventsArray = [];
-            if (d.eventSelections && Array.isArray(d.eventSelections) && d.eventSelections.length > 0) {
-              eventsArray = d.eventSelections;
-            } else if (d.shortId && __eventSelectionsByToken && __eventSelectionsByToken.has(String(d.shortId))) {
-              const es = __eventSelectionsByToken.get(String(d.shortId));
-              if (es && Array.isArray(es.selections)) {
-                eventsArray = es.selections;
+            let eventSource = 'none';
+            
+            try {
+              // First check if events are stored directly in the registration document
+              if (d.eventSelections && Array.isArray(d.eventSelections) && d.eventSelections.length > 0) {
+                eventsArray = d.eventSelections;
+                eventSource = 'registration.eventSelections';
+              } 
+              // Then check if events are stored in the separate eventSelections collection
+              else if (d.shortId && __eventSelectionsByToken && __eventSelectionsByToken.has(String(d.shortId))) {
+                const es = __eventSelectionsByToken.get(String(d.shortId));
+                if (es && Array.isArray(es.selections)) {
+                  eventsArray = es.selections;
+                  eventSource = 'eventSelections.selections';
+                }
               }
+              // Also check for legacy event storage formats
+              else if (d.events && Array.isArray(d.events)) {
+                eventsArray = d.events;
+                eventSource = 'registration.events';
+              }
+              else if (d.selectedEvents && Array.isArray(d.selectedEvents)) {
+                eventsArray = d.selectedEvents;
+                eventSource = 'registration.selectedEvents';
+              }
+
+              if (eventsArray.length > 0) {
+                const eventsList = eventsArray.map(ev => {
+                  try {
+                    // Handle different event object formats
+                    const eventName = ev.eventTitle || ev.eventId || ev.name || ev.title || ev;
+                    const quantity = ev.quantity ? ` (${ev.quantity})` : '';
+                    return `${eventName}${quantity}`;
+                  } catch (evError) {
+                    console.warn('Error processing event:', ev, evError);
+                    return 'Invalid Event';
+                  }
+                }).join(', ');
+                eventsDisplay = `<div title="${eventsList} (Source: ${eventSource})" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${eventsList}</div>`;
+              } else if (d.shortId) {
+                // Show that we're looking for events but haven't found any
+                eventsDisplay = `<div title="No events found for token ${d.shortId}" style="color: var(--muted); font-style: italic;">No events</div>`;
+              }
+            } catch (eventError) {
+              console.error('Error processing events for user:', d.username, eventError);
+              eventsDisplay = `<div title="Error loading events" style="color: var(--error);">Error</div>`;
             }
 
-            if (eventsArray.length > 0) {
-              const eventsList = eventsArray.map(ev => `${ev.eventTitle || ev.eventId} ${ev.quantity ? '('+ev.quantity+')' : ''}`.trim()).join(', ');
-              eventsDisplay = `<div title="${eventsList}">${eventsList}</div>`;
-            }
-
-            tr.innerHTML = `<td>${idx++}</td><td>${escapeHtml(d.username || '')}</td><td>${escapeHtml(d.phone || '—')}</td><td>${escapeHtml(d.course || '')}</td><td>${eventsDisplay}</td><td>${escapeHtml(d.paymentMode || '—')}</td><td>${escapeHtml(d.college || '')}</td><td>${escapeHtml(d.ip || '')}</td><td>${escapeHtml(shortIdDisplay)}</td><td></td><td>${created}</td>`;
-
-            // Replace the empty RSVP cell with our generated one
-            const cells = tr.querySelectorAll('td');
-            tr.replaceChild(rsvpCell, cells[9]); // Replace the 10th cell (RSVP Status column)
+            tr.innerHTML = `<td>${idx++}</td><td>${escapeHtml(d.username || '')}</td><td>${escapeHtml(d.phone || '—')}</td><td>${escapeHtml(d.course || '')}</td><td>${eventsDisplay}</td><td>${escapeHtml(d.paymentMode || '—')}</td><td>${escapeHtml(d.college || '')}</td><td>${escapeHtml(d.ip || '')}</td><td>${escapeHtml(shortIdDisplay)}</td><td>${created}</td>`;
 
             tbody.appendChild(tr);
 
@@ -1097,42 +1112,85 @@
     }
 
     document.getElementById('exportCsv').addEventListener('click', async () => {
-      const q = query(collection(db, 'registrations'), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      const rows = [['#', 'username', 'phone', 'course', 'payment', 'college', 'ip', 'Token No', 'RSVP Downloaded', 'createdAt']];
-      let i = 1;
-      // Create an array to store promises for RSVP status checks
-      const rsvpPromises = [];
-      const docData = [];
-      
-      snap.forEach(doc => {
-        const d = doc.data();
-        docData.push(d);
+      try {
+        showPageLoader('Exporting data...');
         
-        if (d.shortId && d.shortId !== 'N/A') {
-          rsvpPromises.push(checkRsvpDownloadStatus(d.shortId));
-        } else {
-          rsvpPromises.push(Promise.resolve({ downloaded: false }));
-        }
-      });
+        const q = query(collection(db, 'registrations'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        const rows = [['#', 'Username', 'Phone', 'Course', 'Events', 'Payment', 'College', 'IP', 'Token No', 'Created At']];
+        let i = 1;
+        
+        // Create an array to store promises for RSVP status checks
+        const rsvpPromises = [];
+        const docData = [];
+        
+        snap.forEach(doc => {
+          const d = doc.data();
+          docData.push(d);
+        });
 
-      // Wait for all RSVP status checks to complete
-      const rsvpStatuses = await Promise.all(rsvpPromises);
-      
-      // Build CSV rows with RSVP status
-      docData.forEach((d, index) => {
-        const created = d.createdAt?.toDate ? d.createdAt.toDate().toISOString() : '';
-        const rsvpStatus = rsvpStatuses[index].downloaded ? 'Yes' : 'No';
-        rows.push([i++, d.username || '', d.phone || '', d.course || '', d.paymentMode || '', d.college || '', d.ip || '', d.shortId || 'N/A', rsvpStatus, created]);
-      });
+        // Build CSV rows with events
+        docData.forEach((d, index) => {
+          // Format events for CSV
+          let eventsList = '';
+          try {
+            let eventsArray = [];
+            if (d.eventSelections && Array.isArray(d.eventSelections) && d.eventSelections.length > 0) {
+              eventsArray = d.eventSelections;
+            } else if (d.shortId && __eventSelectionsByToken && __eventSelectionsByToken.has(String(d.shortId))) {
+              const es = __eventSelectionsByToken.get(String(d.shortId));
+              if (es && Array.isArray(es.selections)) {
+                eventsArray = es.selections;
+              }
+            } else if (d.events && Array.isArray(d.events)) {
+              eventsArray = d.events;
+            } else if (d.selectedEvents && Array.isArray(d.selectedEvents)) {
+              eventsArray = d.selectedEvents;
+            }
 
-      const csv = rows.map(r => r.map(v => '"' + String(v).replaceAll('"', '""') + '"').join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'registrations.csv';
-      a.click();
-      URL.revokeObjectURL(a.href);
+            if (eventsArray.length > 0) {
+              eventsList = eventsArray.map(ev => {
+                const eventName = ev.eventTitle || ev.eventId || ev.name || ev.title || ev;
+                const quantity = ev.quantity ? ` (${ev.quantity})` : '';
+                return `"${eventName}${quantity}"`;
+              }).join('; ');
+            }
+          } catch (eventError) {
+            console.error('Error processing events for CSV:', d.username, eventError);
+            eventsList = 'Error';
+          }
+
+          const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : '';
+          rows.push([
+            i++,
+            `"${(d.username || '').replace(/"/g, '""')}"`,
+            `"${(d.phone || '').replace(/"/g, '""')}"`,
+            `"${(d.course || '').replace(/"/g, '""')}"`,
+            eventsList,
+            `"${(d.paymentMode || '').replace(/"/g, '""')}"`,
+            `"${(d.college || '').replace(/"/g, '""')}"`,
+            `"${(d.ip || '').replace(/"/g, '""')}"`,
+            `"${(d.shortId || 'N/A').replace(/"/g, '""')}"`,
+            `"${created.replace(/"/g, '""')}"`
+          ]);
+        });
+
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `illumina-registrations-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+
+        console.log(`Successfully exported ${docData.length} registrations to CSV`);
+
+      } catch (error) {
+        errorLog.addError('CSV_EXPORT_ERROR', 'Failed to export CSV', error);
+        alert('Failed to export CSV. Check the error log for details.');
+      } finally {
+        hidePageLoader();
+      }
     });
 
     document.getElementById('debugIds').addEventListener('click', async () => {
@@ -1172,6 +1230,56 @@
       } catch (error) {
         errorLog.addError('DEBUG_ERROR', 'Failed to debug IDs', error);
         alert('Failed to debug IDs. Check the error log for details.');
+      }
+    });
+
+    document.getElementById('debugEvents').addEventListener('click', async () => {
+      try {
+        showPageLoader('Debugging events...');
+        const result = await window.debugEventSelections();
+        
+        let message = `Event Debug Results:\n\n`;
+        message += `Registrations checked: ${result.registrationsChecked || 0}\n`;
+        message += `Event selections found: ${result.eventSelectionsFound || 0}\n`;
+        message += `Cache size: ${result.cacheSize || 0}\n\n`;
+        
+        if (result.error) {
+          message += `Error: ${result.error}`;
+        } else {
+          message += `Check browser console for detailed logs.`;
+        }
+        
+        alert(message);
+      } catch (error) {
+        errorLog.addError('DEBUG_EVENTS_ERROR', 'Failed to debug events', error);
+        alert('Failed to debug events. Check the error log for details.');
+      } finally {
+        hidePageLoader();
+      }
+    });
+
+    document.getElementById('refreshEvents').addEventListener('click', async () => {
+      try {
+        showPageLoader('Refreshing event data...');
+        
+        // Restart the event selections listener
+        console.log('Manually refreshing event selections...');
+        startEventSelectionsListener();
+        
+        // Force re-render of the table
+        if (window.__lastAllRows) {
+          renderWithFilters(window.__lastAllRows);
+        }
+        
+        setTimeout(() => {
+          hidePageLoader();
+          alert('Event data refreshed! Check the Events column for updates.');
+        }, 2000);
+        
+      } catch (error) {
+        errorLog.addError('REFRESH_EVENTS_ERROR', 'Failed to refresh events', error);
+        alert('Failed to refresh events. Check the error log for details.');
+        hidePageLoader();
       }
     });
 
@@ -1223,93 +1331,6 @@
       } catch (error) {
         errorLog.addError('REFRESH_ERROR', 'Failed to refresh data', error);
         alert('Failed to refresh data. Check the error log for details.');
-      }
-    });
-
-    // Refresh RSVP Status button
-    document.getElementById('refreshRsvpStatus').addEventListener('click', async () => {
-      try {
-        const refreshBtn = document.getElementById('refreshRsvpStatus');
-        const originalText = refreshBtn.textContent;
-        refreshBtn.textContent = 'Refreshing...';
-        refreshBtn.disabled = true;
-
-        console.log('Manual RSVP status refresh initiated');
-        
-        // Get all RSVP cells and refresh their status
-        const rsvpCells = document.querySelectorAll('td:nth-child(9)'); // 9th column is RSVP Status
-        let refreshCount = 0;
-        
-        for (const cell of rsvpCells) {
-          const row = cell.parentElement;
-          const tokenCell = row.querySelector('td:nth-child(8)'); // 8th column is Token No
-          
-          if (tokenCell && tokenCell.textContent && tokenCell.textContent !== 'N/A' && tokenCell.textContent.trim() !== '') {
-            const tokenNo = tokenCell.textContent.trim();
-            
-            try {
-              cell.innerHTML = '<span style="color: var(--muted); font-size: 12px;">⏳ Checking...</span>';
-              
-              const status = await checkRsvpDownloadStatus(tokenNo);
-              
-              if (status.downloaded) {
-                cell.innerHTML = `
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                    <span style="color: #28a745; font-weight: 600; font-size: 12px;">✅ Downloaded</span>
-                    <span style="color: var(--muted); font-size: 10px;">${status.downloadType}</span>
-                    <span style="color: var(--muted); font-size: 9px;">${status.downloadTime}</span>
-                  </div>
-                `;
-              } else {
-                cell.innerHTML = `
-                  <span style="color: #ffc107; font-weight: 600; font-size: 12px;">⏳ Not Downloaded</span>
-                `;
-              }
-              refreshCount++;
-            } catch (error) {
-              console.error('Error refreshing RSVP status for token', tokenNo, ':', error);
-              cell.innerHTML = `
-                <span style="color: #dc3545; font-size: 12px;">❌ Error</span>
-              `;
-            }
-          }
-        }
-        
-        console.log(`RSVP status refresh completed for ${refreshCount} tokens`);
-        refreshBtn.textContent = `✅ Refreshed (${refreshCount})`;
-        refreshBtn.style.background = '#28a745';
-        
-        setTimeout(() => {
-          refreshBtn.textContent = originalText;
-          refreshBtn.style.background = '';
-          refreshBtn.disabled = false;
-        }, 3000);
-        
-      } catch (error) {
-        console.error('RSVP refresh error:', error);
-        const refreshBtn = document.getElementById('refreshRsvpStatus');
-        refreshBtn.textContent = '❌ Error';
-        refreshBtn.style.background = '#dc3545';
-        
-        setTimeout(() => {
-          refreshBtn.textContent = 'Refresh RSVP';
-          refreshBtn.style.background = '';
-          refreshBtn.disabled = false;
-        }, 3000);
-      }
-    });
-
-    // Test RSVP Status button
-    document.getElementById('testRsvpBtn').addEventListener('click', async () => {
-      const tokenNo = prompt('Enter token number to test RSVP status:');
-      if (tokenNo) {
-        console.log('Testing RSVP status for token:', tokenNo);
-        try {
-          const result = await window.testRsvpStatus(tokenNo);
-          alert(`RSVP Status for token ${tokenNo}:\n${JSON.stringify(result, null, 2)}`);
-        } catch (error) {
-          alert(`Error testing token ${tokenNo}: ${error.message}`);
-        }
       }
     });
 
@@ -1517,111 +1538,55 @@
       } catch (error) {
         console.error('Failed to generate enlarged QR code:', error);
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#f0f0f0';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#666';
         ctx.font = '16px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('QR Code', canvas.width / 2, canvas.height / 2);
         ctx.fillText('Error', canvas.width / 2, canvas.height / 2 + 20);
       }
+      }
     }
 
-    // Check RSVP download status
-    async function checkRsvpDownloadStatus(tokenNo) {
+    // Debug function to check event selections
+    window.debugEventSelections = async function() {
+      console.log('=== Debugging Event Selections ===');
       try {
-        // Ensure tokenNo is a string and trim any whitespace
-        const cleanToken = String(tokenNo).trim();
-        console.log('Checking RSVP status for token:', cleanToken, '(type:', typeof cleanToken, ')');
-        
-        // Check if db is available
-        if (!db) {
-          console.error('Database not initialized');
-          throw new Error('Database not available');
-        }
-        
-        const q = query(collection(db, 'rsvpDownloads'), where('tokenNo', '==', cleanToken));
-        const snapshot = await getDocs(q);
-        
-        console.log('RSVP query result for token', cleanToken, ':', snapshot.size, 'documents found');
-        
-        if (snapshot.empty) {
-          console.log('No RSVP downloads found for token:', cleanToken);
-          return { downloaded: false };
-        }
+        // Check registrations collection for event data
+        console.log('Checking registrations collection...');
+        const regQuery = query(collection(db, 'registrations'), limit(5));
+        const regSnap = await getDocs(regQuery);
 
-        // Get the most recent download
-        let latestDownload = null;
-        snapshot.forEach(doc => {
+        regSnap.forEach(doc => {
           const data = doc.data();
-          console.log('RSVP download data:', data);
-          if (!latestDownload || (data.downloadedAt && data.downloadedAt.toDate() > latestDownload.downloadedAt.toDate())) {
-            latestDownload = data;
-          }
-        });
-
-        if (latestDownload) {
-          const downloadType = latestDownload.downloadType === 'user_download' ? 'User' : 'Admin';
-          const downloadTime = latestDownload.downloadedAt?.toDate?.()?.toLocaleDateString() || 'Unknown';
-          
-          console.log('Latest RSVP download found:', {
-            downloaded: true,
-            downloadType: downloadType,
-            downloadTime: downloadTime
+          console.log(`Registration ${doc.id}:`, {
+            username: data.username,
+            shortId: data.shortId,
+            eventSelections: data.eventSelections,
+            events: data.events,
+            selectedEvents: data.selectedEvents
           });
-          
-          return {
-            downloaded: true,
-            downloadType: downloadType,
-            downloadTime: downloadTime,
-            downloadData: latestDownload
-          };
-        }
-
-        return { downloaded: false };
-      } catch (error) {
-        console.error('Error checking RSVP status for token', tokenNo, ':', error);
-        console.error('Error details:', error.message, error.stack);
-        throw error;
-      }
-    }
-
-    // Test function for debugging specific token
-    window.testRsvpStatus = async function(tokenNo) {
-      console.log('=== Testing RSVP Status for Token:', tokenNo, '===');
-      try {
-        const result = await checkRsvpDownloadStatus(tokenNo);
-        console.log('Test result:', result);
-        return result;
-      } catch (error) {
-        console.error('Test error:', error);
-        return { error: error.message };
-      }
-    };
-
-    // Test function specifically for token 286
-    window.testToken286 = async function() {
-      console.log('=== Testing Token 286 Specifically ===');
-      try {
-        // First, let's check if we can query the collection at all
-        console.log('Testing basic collection access...');
-        const allDownloads = await getDocs(collection(db, 'rsvpDownloads'));
-        console.log('Total RSVP downloads in collection:', allDownloads.size);
-        
-        allDownloads.forEach(doc => {
-          const data = doc.data();
-          console.log('Download record:', data);
-          if (data.tokenNo === '286') {
-            console.log('Found token 286 record:', data);
-          }
         });
-        
-        // Now test the specific query
-        const result = await checkRsvpDownloadStatus('286');
-        console.log('Token 286 result:', result);
-        return result;
+
+        // Check eventSelections collection
+        console.log('Checking eventSelections collection...');
+        const esQuery = query(collection(db, 'eventSelections'), limit(10));
+        const esSnap = await getDocs(esQuery);
+
+        console.log(`Found ${esSnap.size} event selection documents`);
+        esSnap.forEach(doc => {
+          const data = doc.data();
+          console.log(`Event Selection ${doc.id}:`, data);
+        });
+
+        // Check current cache
+        console.log('Current event selections cache:', __eventSelectionsByToken);
+
+        return {
+          registrationsChecked: regSnap.size,
+          eventSelectionsFound: esSnap.size,
+          cacheSize: __eventSelectionsByToken.size
+        };
       } catch (error) {
-        console.error('Token 286 test error:', error);
+        console.error('Debug event selections error:', error);
         return { error: error.message };
       }
     };

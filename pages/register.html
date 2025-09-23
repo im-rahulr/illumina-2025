@@ -24,6 +24,137 @@
     /* As a fallback, hide any element scrollbars */
     * { scrollbar-width: none; }
     *::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+
+    /* Black Glass Background Effect */
+    .glass-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('../assets/images/backgrounds/Copy of ilumina 25 rules.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+
+    .glass-background::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    /* Black Glass Form Effect */
+    .form-card {
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Enhanced Text Visibility Against Glass Background */
+    .event-breadcrumb {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .event-breadcrumb a {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      color: #7bbf44;
+      font-weight: 700;
+    }
+
+    .event-breadcrumb span {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+
+    .helper {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .login-link {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+
+    /* Form labels and inputs - ensure visibility */
+    .form-group label {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .form-group .input {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .form-group .input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+      font-style: italic;
+    }
+
+    .form-group .input:focus {
+      background: rgba(0, 0, 0, 0.8);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(123, 191, 68, 0.3);
+      color: rgba(255, 255, 255, 1);
+      outline: none;
+    }
+
+    .form-group .input:hover {
+      background: rgba(0, 0, 0, 0.75);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-group select.input {
+      background: rgba(0, 0, 0, 0.7);
+      color: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .form-group select.input:focus {
+      background: rgba(0, 0, 0, 0.8);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(123, 191, 68, 0.3);
+      color: rgba(255, 255, 255, 1);
+      outline: none;
+    }
+
+    .form-group select.input:hover {
+      background: rgba(0, 0, 0, 0.75);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-group select.input option {
+      background: rgba(0, 0, 0, 0.9);
+      color: rgba(255, 255, 255, 0.95);
+      padding: 8px;
+    }
   </style>
   
   <!-- Google tag (gtag.js) --> 
@@ -64,6 +195,8 @@
 </head>
 <body>
 
+  <!-- Black Glass Background -->
+  <div class="glass-background"></div>
 
   <main class="container" role="main">
     <header class="event-header">
@@ -134,7 +267,7 @@
   </div>
 
   <script type="module">
-    import { db } from './firebase-config.js';
+    import { db } from '../assets/js/firebase-config.js';
     import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs, query, where, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     // Audio: prepare lightweight success chime without any permission prompts
