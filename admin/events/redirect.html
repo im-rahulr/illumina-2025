@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redirecting…</title>
+  <meta http-equiv="refresh" content="0; url=./index.html">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; height:100vh; margin:0; background:#0b0b0b; color:#ddd; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .card { padding:24px 28px; border:1px solid #2a2a2a; border-radius:12px; background:#141414; box-shadow: 0 10px 30px rgba(0,0,0,.5); text-align:center; }
+    a { color:#7bbf44; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size:28px; margin-bottom:8px;">🏆</div>
+    <div>Redirecting to Event Admin dashboard…</div>
+    <div style="margin-top:8px"><a href="./index.html">Click here if you are not redirected</a></div>
+  </div>
+  <script>
+    // JS fallback
+    setTimeout(() => { try { window.location.replace('./index.html'); } catch(_) { window.location.href = './index.html'; } }, 50);
+  </script>
+</body>
+</html>

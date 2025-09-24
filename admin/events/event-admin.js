@@ -360,6 +360,10 @@ class EventAdminPage {
                 
                 if (!userSnapshot.empty) {
                   const userData = userSnapshot.docs[0].data();
+                  // Skip soft-deleted users
+                  if (userData && (userData.deleted === true || userData.isDeleted === true)) {
+                    continue;
+                  }
                   eventParticipants.push({
                     ...userData,
                     eventSelectionId: doc.id,
@@ -554,3 +558,80 @@ export function getEventIdFromUrl() {
 
 // Export the class
 export { EventAdminPage, EVENTS_DATA };
+
+// --- Enhance simple login forms to the new lock UI (runs on module import) ---
+(() => {
+  try {
+    const container = document.getElementById('loginContainer');
+    // Only proceed if a login container exists and it's not already enhanced
+    if (container && !container.querySelector('#togglePassword')) {
+      container.style.maxWidth = '480px';
+      container.style.margin = '80px auto 120px';
+      container.style.padding = '0 20px';
+      container.innerHTML = `
+        <div class="form-card" style="background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #90d15b); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 20px rgba(123, 191, 68, 0.3);">
+              <span style="font-size: 32px;">💻</span>
+            </div>
+            <h1 class="title" style="margin: 0; font-size: 28px; background: linear-gradient(135deg, #fff, #f0f0f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Event Admin Access</h1>
+            <p style="color: rgba(255, 255, 255, 0.7); margin: 8px 0 0; font-size: 16px;">Secure access to event management</p>
+          </div>
+
+          <form id="loginForm" style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="form-group" style="position: relative;">
+              <label for="password" style="display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 14px;">
+                🔐 Access Password
+              </label>
+              <div style="position: relative;">
+                <input id="password" class="input" type="password" placeholder="Enter password" required style="width: 100%; padding: 16px 50px 16px 20px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: rgba(255, 255, 255, 0.95); font-size: 16px; transition: all 0.3s ease; box-sizing: border-box;" oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')">
+                <button id="togglePassword" class="btn-icon password-toggle" type="button" aria-label="Show password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255, 255, 255, 0.6); font-size: 18px; cursor: pointer; padding: 8px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">👁️</button>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-block login-btn" type="submit" style="padding: 16px 24px; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, var(--primary), #90d15b); border: none; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden;">
+              <span class="btn-text">Access Event Admin</span>
+              <span class="btn-loading" style="display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              </span>
+            </button>
+          </form>
+
+          <div id="loginError" class="error-message" style="margin-top: 20px; padding: 12px; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; color: #ff6b6b; font-size: 14px; display: none; text-align: center;">
+            <span style="font-size: 16px; margin-right: 8px;">⚠️</span>
+            Invalid password. Please try again.
+          </div>
+
+          <div style="margin-top: 24px; text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+            <p>🔒 Secure login required for event management</p>
+            <p style="margin: 4px 0;">Contact admin if you need access assistance</p>
+          </div>
+        </div>
+      `;
+
+      // Inject small style helpers (spin + focus)
+      const style = document.createElement('style');
+      style.textContent = `
+        .password-toggle:hover { background: rgba(255, 255, 255, 0.1) !important; color: rgba(255, 255, 255, 0.9) !important; transform: translateY(-50%) scale(1.1) !important; }
+        .form-group .input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(123, 191, 68, 0.2) !important; background: rgba(255, 255, 255, 0.15) !important; transform: translateY(-1px); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      `;
+      document.head.appendChild(style);
+
+      // Wire simple visibility toggle for eye icon to avoid errors in pages that don't handle it
+      const toggle = container.querySelector('#togglePassword');
+      const pwd = container.querySelector('#password');
+      if (toggle && pwd) {
+        toggle.addEventListener('click', () => {
+          const isPwd = pwd.type === 'password';
+          pwd.type = isPwd ? 'text' : 'password';
+          toggle.textContent = isPwd ? '🙈' : '👁️';
+          toggle.setAttribute('aria-label', isPwd ? 'Hide password' : 'Show password');
+        });
+      }
+    }
+  } catch (e) {
+    // Non-fatal; keep page working even if enhancement fails
+    console.warn('Login UI enhancement failed:', e);
+  }
+})();
