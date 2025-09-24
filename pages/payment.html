@@ -381,7 +381,7 @@
         <div style="text-align: center;">
           <div
             style="background: #fff; border-radius: 12px; padding: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <img src="images/qrcode.png" alt="Payment QR Code" style="width: 200px; height: 200px; display: block;" />
+            <img src="../assets/images/qrcode.png" alt="Payment QR Code" style="width: 200px; height: 200px; display: block;" />
           </div>
           <div class="helper" style="margin: 12px 0 0; font-weight: 500; text-align: center;">
             <div style="margin-top: 12px; font-size: 15px; font-weight: 600; color: #fff;">Name: MADHAVI</div>
@@ -390,9 +390,9 @@
         </div>
 
         <div style="display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;">
-          <img src="images/gpay.png" alt="Google Pay" style="width: 40px; height: 40px; border-radius: 8px;" />
-          <img src="images/phonepe.png" alt="PhonePe" style="width: 40px; height: 40px; border-radius: 8px;" />
-          <img src="images/upi.png" alt="UPI" style="width: 40px; height: 40px; border-radius: 8px;" />
+          <img src="../assets/images/gpay.png" alt="Google Pay" style="width: 40px; height: 40px; border-radius: 8px;" />
+          <img src="../assets/images/phonepe.png" alt="PhonePe" style="width: 40px; height: 40px; border-radius: 8px;" />
+          <img src="../assets/images/upi.png" alt="UPI" style="width: 40px; height: 40px; border-radius: 8px;" />
         </div>
 
         <div style="text-align: center; width: 100%;">
@@ -625,6 +625,34 @@
       }
     }
 
+    // Fast, resilient IP fetcher with multiple providers and timeout
+    async function getIpFast(timeoutMs = 3000){
+      try {
+        const timeout = new Promise((resolve) => setTimeout(() => resolve('unknown'), timeoutMs));
+        const ipServices = [
+          'https://api.ipify.org?format=json',
+          'https://api64.ipify.org?format=json',
+          'https://ipapi.co/json/'
+        ];
+        const req = Promise.any(ipServices.map(async (url) => {
+          try {
+            const response = await fetch(url, { cache: 'no-store', mode: 'cors', headers: { 'Accept': 'application/json' } });
+            if (!response.ok) throw new Error('Response not ok');
+            const data = await response.json();
+            const ip = data.ip || data.query || data.address;
+            if (typeof ip === 'string' && ip.length <= 45) return ip;
+            throw new Error('Invalid IP format');
+          } catch (e) {
+            throw new Error(`Service ${url} failed: ${e.message}`);
+          }
+        }));
+        return await Promise.race([req, timeout]);
+      } catch (error) {
+        console.warn('IP detection failed:', error.message);
+        return 'unknown';
+      }
+    }
+
     // Show the Registration Details box on the payment page (without college)
     function displayUserInfoPayment() {
       try {
@@ -676,12 +704,16 @@ Please confirm my payment status.`;
     // Track payment events for analytics
     function trackPaymentEvent(eventName, data = {}) {
       try {
+        const clientIp = (function(){
+          try { return sessionStorage.getItem('client_ip') || 'unknown'; } catch { return 'unknown'; }
+        })();
+        const payload = { ...data, clientIp };
         // Send to analytics if available
         if (typeof gtag !== 'undefined') {
           gtag('event', eventName, {
             event_category: 'payment',
             event_label: 'upi_payment',
-            custom_parameter: JSON.stringify(data)
+            custom_parameter: JSON.stringify(payload)
           });
         }
 
@@ -689,11 +721,11 @@ Please confirm my payment status.`;
         if (typeof posthog !== 'undefined') {
           posthog.capture(eventName, {
             category: 'payment',
-            ...data
+            ...payload
           });
         }
 
-        console.log('Payment event tracked:', eventName, data);
+        console.log('Payment event tracked:', eventName, payload);
       } catch (e) {
         console.warn('Failed to track payment event:', e);
       }
@@ -977,6 +1009,18 @@ Please confirm my payment status.`;
         window.location.href = 'register.html';
         return;
       }
+
+      // Non-blocking IP fetch and store for analytics/support
+      (async () => {
+        try {
+          const ip = await getIpFast(3000);
+          if (ip) {
+            sessionStorage.setItem('client_ip', ip);
+          }
+        } catch (e) {
+          console.warn('IP fetch skipped:', e);
+        }
+      })();
     }
 
     // Show payment status message
