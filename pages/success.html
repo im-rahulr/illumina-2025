@@ -9,7 +9,84 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/main.css?v=20240916">
   <style>
-    /* WhatsApp Widget Styles */
+    /* Black Glass Background Effect */
+    .glass-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('../assets/images/backgrounds/Copy of ilumina 25 rules.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+
+    .glass-background::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Enhanced Text Visibility Against Glass Background */
+    .event-breadcrumb {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .event-breadcrumb a {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      color: #7bbf44;
+      font-weight: 700;
+    }
+
+    .event-breadcrumb span {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+
+    .event-title {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .event-subtitle {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .helper {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .login-link {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+
+    /* Footer styles for glass background */
+    .footer small {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .footer .login-link {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
     .whatsapp-widget {
       position: fixed;
       bottom: 20px;
@@ -344,10 +421,12 @@
   <meta name="twitter:image" content="https://lac-chess.netlify.app/images/og-image.jpg">
 </head>
 <body>
+  <!-- Black Glass Background -->
+  <div class="glass-background"></div>
   <main class="container" role="main">
     <header class="event-header">
       <div class="event-logo">
-        <a href="../index.html"><img src="images/lowrylogo.png" alt="ILLUMINA Logo"></a>
+        <a href="../index.html"><img src="../assets/images/lowrylogo.png" alt="ILLUMINA Logo"></a>
       </div>
       <div class="event-info">
         <div class="event-breadcrumb">

@@ -7,14 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20240917">
+  <link rel="stylesheet" href="../assets/css/main.css?v=20240917">
   <style>
     .events-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 8px;
       margin: 16px 0;
-      padding-bottom: 200px; /* Increased space for fixed summary */
+      padding-bottom: 32px; /* Default spacing; extra space only when summary is visible */
     }
     
     @media (min-width: 768px) {
@@ -226,6 +226,11 @@
       }
     }
 
+    /* Add space for the fixed summary only when it's visible */
+    body.has-summary .events-grid {
+      padding-bottom: 220px;
+    }
+
     /* Wider container for desktop to fit 3-4 columns nicely */
     @media (min-width: 1024px) {
       .container {
@@ -239,7 +244,7 @@
     <header class="event-header">
       <div class="event-info">
         <div class="event-breadcrumb">
-          <a href="index.html">ILLUMINA</a> <span>/</span> <span>Select Events</span>
+          <a href="../index.html">ILLUMINA</a> <span>/</span> <span>Select Events</span>
         </div>
         <h1 class="event-title">Choose Your Events</h1>
         <p class="event-subtitle">Select the events you want to participate in (Registration fee: ₹250)</p>
@@ -514,6 +519,7 @@
       
       if (hasSelections) {
         selectionSummary.classList.add('show');
+        document.body.classList.add('has-summary');
         
         let summaryHTML = '';
         
@@ -531,6 +537,7 @@
         summaryItems.innerHTML = summaryHTML;
       } else {
         selectionSummary.classList.remove('show');
+        document.body.classList.remove('has-summary');
       }
     }
 
