@@ -122,24 +122,12 @@
           </div>
         </div>
         <div class="modal-actions">
-          <button class="btn btn-secondary" id="closeSupportModal2">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script type="module">
     import { EventAdminPage } from './event-admin.js';
 
-    const PASSWORD = 'iloveu';
+    const PASSWORD = '';
     const loginContainer = document.getElementById('loginContainer');
     const mainContainer = document.getElementById('mainContainer');
-    const loginForm = document.getElementById('loginForm');
-    const passwordInput = document.getElementById('password');
-    const loginError = document.getElementById('loginError');
-    const pageLoader = document.getElementById('pageLoader');
-    const pageLoaderText = document.getElementById('pageLoaderText');
-    
     const showPageLoader = (text = 'Loading...') => {
       if (pageLoader) {
         if (pageLoaderText) pageLoaderText.textContent = text;

@@ -33,17 +33,16 @@
     <div class="participants-section">
       <div id="loading" class="loading-overlay"><div class="spinner"></div><p>Loading participants...</p></div>
       <div id="emptyState" class="empty-state"><div class="empty-state-icon">👔</div><h3>No participants yet</h3><p>No one has registered for Best Manager yet.</p></div>
-      <table id="participantsTable" class="participants-table" style="display: none;">
-        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>College</th><th>Course</th><th>Payment</th><th>Token</th><th>Registered</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   </main>
   <script type="module">
     import { EventAdminPage } from './event-admin.js';
-    const PASSWORD = 'iloveu';
+    const PASSWORD = '';
     const pageLoader = document.getElementById('pageLoader');
-    const showPageLoader = (text) => { if (pageLoader) { document.getElementById('pageLoaderText').textContent = text; pageLoader.classList.add('show'); } };
+    const pageLoaderText = document.getElementById('pageLoaderText');
+    const showPageLoader = (text) => { if (pageLoader) { if (pageLoaderText && text) pageLoaderText.textContent = text; pageLoader.classList.add('show'); } };
     const hidePageLoader = () => { if (pageLoader) pageLoader.classList.remove('show'); };
     async function initPage() {
       try {
@@ -53,9 +52,11 @@
         window.eventAdminPage = eventAdminPage;
       } catch (error) {
         console.error('Error:', error);
-        document.getElementById('errorMessage').textContent = `Failed to load: ${error.message}`;
-        document.getElementById('errorMessage').classList.add('show');
-      } finally { hidePageLoader(); }
+        const errEl = document.getElementById('errorMessage');
+        if (errEl) { errEl.textContent = `Failed to load: ${error.message}`; errEl.classList.add('show'); }
+      } finally {
+        hidePageLoader();
+      }
     }
     window.addEventListener('beforeunload', () => { if (window.eventAdminPage) window.eventAdminPage.destroy(); });
     initPage();

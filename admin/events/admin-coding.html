@@ -20,14 +20,13 @@
   </script>
 </head>
 
-<body>
   <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="true">
     <div class="spinner-standalone" aria-hidden="true"></div>
     <div id="pageLoaderText" class="loader-text">Loading participants...</div>
   </div>
 
   <!-- Enhanced Login Form -->
-  <div id="loginContainer" class="login-container" style="display: block; max-width: 480px; margin: 80px auto 120px; padding: 0 20px;">
+  <div id="loginContainer" class="login-container" style="display: none; max-width: 480px; margin: 80px auto 120px; padding: 0 20px;">
     <div class="form-card" style="background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);">
       <div style="text-align: center; margin-bottom: 32px;">
         <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #90d15b); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 20px rgba(123, 191, 68, 0.3);">
@@ -144,7 +143,7 @@
     }
   </style>
 
-  <main id="mainContainer" class="container event-admin-container" role="main" style="display: none;">
+  <main id="mainContainer" class="container event-admin-container" role="main" style="display: block;">
     <!-- Header Section -->
     <header class="event-admin-header">
       <nav class="breadcrumb">
@@ -246,25 +245,15 @@
         </div>
         <div class="modal-actions">
           <button class="btn btn-secondary" id="closeSupportModal2">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Page initialization script -->
-  <script type="module">
-    import { EventAdminPage } from './event-admin.js';
-
-    const PASSWORD = 'iloveu';
-    
-    // DOM elements
-    const loginContainer = document.getElementById('loginContainer');
     const mainContainer = document.getElementById('mainContainer');
     const loginForm = document.getElementById('loginForm');
     const passwordInput = document.getElementById('password');
     const loginError = document.getElementById('loginError');
     const pageLoader = document.getElementById('pageLoader');
     const pageLoaderText = document.getElementById('pageLoaderText');
+
+    // Removed plaintext password; keep empty to disable hardcoded login
+    const PASSWORD = '';
 
     // Enhanced login functionality
     const togglePassword = document.getElementById('togglePassword');
@@ -368,12 +357,8 @@
 
     // Authentication functions
     function checkAuth() {
-      const isLoggedIn = sessionStorage.getItem('eventAdminAuth') === 'true';
-      if (isLoggedIn) {
-        showMainContent();
-      } else {
-        showLogin();
-      }
+      // Always show main content; disable login gate
+      showMainContent();
     }
 
     function showLogin() {
@@ -482,5 +467,88 @@
       });
     })();
   </script>
-</body>
-</html>
+  <script type="module">
+    import { db } from '../../assets/js/firebase-config.js';
+    import { collection, getDocs, onSnapshot, query, where } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+ 
+    // Fallback loader: if after 2s there are still 0 participants, try a broader fetch
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+    (async () => {
+      try {
+        await delay(2000);
+        const countEl = document.getElementById('participantCount');
+        const table = document.getElementById('participantsTable');
+        const tbody = table ? table.querySelector('tbody') : null;
+        const emptyState = document.getElementById('emptyState');
+        if (!countEl || !table || !tbody) return;
+
+        const currentCount = parseInt(countEl.textContent || '0', 10);
+        if (currentCount > 0) return; // shared module already populated
+
+        const eventId = 'coding';
+        const eventSelectionsRef = collection(db, 'eventSelections');
+        onSnapshot(eventSelectionsRef, async (snapshot) => {
+          const rows = [];
+          for (const d of snapshot.docs) {
+            const data = d.data() || {};
+            const selections = Array.isArray(data.selections) ? data.selections : [];
+            const eventsArray = Array.isArray(data.events) ? data.events : [];
+            const hasEvent = (
+              selections.some(s => (s?.eventId === eventId || s === eventId)) ||
+              eventsArray.includes(eventId) ||
+              data.eventId === eventId ||
+              data[eventId] === true
+            );
+            if (!hasEvent) continue;
+
+            const token = data.userToken || data.token || data.shortId || data.userShortId;
+            if (!token) continue;
+
+            try {
+              const registrationsRef = collection(db, 'registrations');
+              let snap = await getDocs(query(registrationsRef, where('shortId', '==', token)));
+              if (snap.empty) snap = await getDocs(query(registrationsRef, where('token', '==', token)));
+              if (snap.empty) continue;
+              const user = snap.docs[0].data() || {};
+              if (user.deleted === true || user.isDeleted === true) continue;
+              rows.push({
+                name: user.name || user.username || 'N/A',
+                phone: user.phone || 'N/A',
+                college: user.college || 'N/A',
+                course: user.course || 'N/A',
+                shortId: user.shortId || user.token || 'N/A',
+                createdAt: user.createdAt || user.registrationDate || data.createdAt || null,
+              });
+            } catch (e) {
+              console.warn('Fallback fetch error:', e);
+            }
+          }
+
+          // Render fallback rows
+          if (rows.length === 0) {
+            table.style.display = 'none';
+            emptyState && (emptyState.style.display = 'block');
+            countEl.textContent = '0';
+            return;
+          }
+          table.style.display = 'table';
+          emptyState && (emptyState.style.display = 'none');
+          tbody.innerHTML = rows.map((p, i) => `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${p.name}</td>
+              <td>${p.phone}</td>
+              <td>${p.college}</td>
+              <td>${p.course}</td>
+              <td></td>
+              <td>${p.shortId}</td>
+              <td>${(function(ts){ try{ const d = (ts && typeof ts.toDate === 'function') ? ts.toDate() : new Date(ts); return d.toLocaleDateString()+ ' ' + d.toLocaleTimeString(); }catch(_){ return 'N/A'; } }) (p.createdAt)}</td>
+            </tr>
+          `).join('');
+          countEl.textContent = String(rows.length);
+        });
+      } catch (err) {
+        console.warn('Fallback loader failed:', err);
+      }
+    })();
+  </script>

@@ -49,7 +49,6 @@
     <div class="participants-section">
       <div id="loading" class="loading-overlay"><div class="spinner"></div><p>Loading participants...</p></div>
       <div id="emptyState" class="empty-state"><div class="empty-state-icon">🕺</div><h3>No participants yet</h3><p>No one has registered for Group Dance yet.</p></div>
-      <table id="participantsTable" class="participants-table" style="display: none;">
         <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>College</th><th>Course</th><th>Payment</th><th>Token</th><th>Registered</th></tr></thead>
         <tbody></tbody>
       </table>
@@ -57,14 +56,14 @@
   </main>
   <script type="module">
     import { EventAdminPage } from './event-admin.js';
-    const PASSWORD = 'iloveu';
+    const PASSWORD = '';
     const loginContainer = document.getElementById('loginContainer');
     const mainContainer = document.getElementById('mainContainer');
     const loginForm = document.getElementById('loginForm');
     const passwordInput = document.getElementById('password');
     const loginError = document.getElementById('loginError');
     const pageLoader = document.getElementById('pageLoader');
-    const showPageLoader = (text) => { if (pageLoader) { document.getElementById('pageLoaderText').textContent = text; pageLoader.classList.add('show'); } };
+{{ ... }}
     const hidePageLoader = () => { if (pageLoader) pageLoader.classList.remove('show'); };
     function checkAuth() {
       const isLoggedIn = sessionStorage.getItem('eventAdminAuth') === 'true';

@@ -320,7 +320,8 @@
           <option>Degree / UG</option>
           <option>PG</option>
         </select>
-
+        <label class="helper">Events</label>
+        <input id="filterEvents" class="input" placeholder="Filter by event name…" />
       </div>
       <div class="charts">
         <div class="chart-card"><canvas id="byDay"></canvas></div>
@@ -413,6 +414,13 @@
         el.setAttribute('aria-modal','true');
         el.setAttribute('aria-labelledby','quickSearchTitle');
         el.style.display = 'none';
+        // Center the modal as a full-screen overlay
+        el.style.position = 'fixed';
+        el.style.inset = '0';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.zIndex = '2000';
+        el.style.background = 'rgba(0,0,0,0.6)';
         el.innerHTML = `
           <div class="modal-card">
             <div id="quickSearchTitle" class="modal-title">Quick Search</div>
@@ -428,7 +436,7 @@
     const quickInput = () => document.getElementById('quickSearchInput');
     const searchBox = () => document.getElementById('searchBox');
     function openQuickSearch() {
-      quickModal.style.display = 'block';
+      quickModal.style.display = 'flex';
       const qi = quickInput();
       if (qi) { qi.value = ''; qi.focus(); }
     }
@@ -945,6 +953,7 @@
         const fc = document.getElementById('filterCourse')?.value || '';
         const fy = '';
         const q = document.getElementById('searchBox')?.value?.trim().toLowerCase() || '';
+        const fe = document.getElementById('filterEvents')?.value?.trim().toLowerCase() || '';
 
         const filtered = ordered.filter(r => {
           try {
@@ -959,7 +968,28 @@
             const okCourse = fc ? course === fc : true;
             const okYear = fy ? yearStr === fy : true;
             const okQuery = q ? (username.includes(q) || token.includes(q) || ip.includes(q)) : true;
-            return okCourse && okYear && okQuery;
+
+            // Build events text for event filter
+            let eventsText = '';
+            try {
+              let eventsArray = [];
+              if (r.eventSelections && Array.isArray(r.eventSelections) && r.eventSelections.length > 0) {
+                eventsArray = r.eventSelections;
+              } else if (r.shortId && __eventSelectionsByToken && __eventSelectionsByToken.has(String(r.shortId))) {
+                const es = __eventSelectionsByToken.get(String(r.shortId));
+                if (es && Array.isArray(es.selections)) eventsArray = es.selections;
+              } else if (r.events && Array.isArray(r.events)) {
+                eventsArray = r.events;
+              } else if (r.selectedEvents && Array.isArray(r.selectedEvents)) {
+                eventsArray = r.selectedEvents;
+              }
+              if (eventsArray.length > 0) {
+                eventsText = eventsArray.map(ev => (ev?.eventTitle || ev?.eventId || ev?.name || ev?.title || String(ev))).join(', ').toLowerCase();
+              }
+            } catch(_) {}
+            const okEvents = fe ? eventsText.includes(fe) : true;
+
+            return okCourse && okYear && okQuery && okEvents;
           } catch (filterError) {
             // Use optional chaining and avoid throwing inside logger
             const idSafe = (r && (r.id || r.shortId)) ? String(r.id || r.shortId) : 'unknown';
@@ -975,6 +1005,8 @@
         let idx = 1;
         const byCourse = { 'PUC / 12th / ISC / CBSE': 0, 'Degree / UG': 0, 'PG': 0 };
         const byCollege = {};
+        // Track events for events chart (replaces college chart)
+        const byEvent = {};
 
         filtered.forEach(d => {
           try {
@@ -1023,7 +1055,16 @@
                     return 'Invalid Event';
                   }
                 }).join(', ');
-                eventsDisplay = `<div title="${eventsList} (Source: ${eventSource})" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${eventsList}</div>`;
+                // Increment event counts for chart
+                try {
+                  eventsArray.forEach(ev => {
+                    const name = (ev && (ev.eventTitle || ev.eventId || ev.name || ev.title)) ? (ev.eventTitle || ev.eventId || ev.name || ev.title) : String(ev);
+                    const key = String(name).trim() || 'Unknown';
+                    byEvent[key] = (byEvent[key] || 0) + (ev && ev.quantity ? Number(ev.quantity) || 1 : 1);
+                  });
+                } catch (_) {}
+                // Make events fully visible by allowing wrapping
+                eventsDisplay = `<div title="${eventsList} (Source: ${eventSource})" style="max-width: 420px; white-space: normal; overflow-wrap: anywhere;">${eventsList}</div>`;
               } else if (d.shortId) {
                 // Show that we're looking for events but haven't found any
                 eventsDisplay = `<div title="No events found for token ${d.shortId}" style="color: var(--muted); font-style: italic;">No events</div>`;
@@ -1044,7 +1085,7 @@
             } else {
               byCourse['Other'] = (byCourse['Other'] || 0) + 1;
             }
-            // Track colleges for chart
+            // Track colleges (legacy; not used for chart anymore)
             const college = d.college || 'Unknown';
             byCollege[college] = (byCollege[college] || 0) + 1;
           } catch (rowError) {
@@ -1053,7 +1094,8 @@
         });
 
         try {
-          renderCharts(byCourse, byCollege);
+          // Pass events map to charts in place of college map
+          renderCharts(byCourse, byEvent);
         } catch (chartError) {
           errorLog.addError('CHART_ERROR', 'Failed to render charts', chartError);
         }
@@ -1105,10 +1147,13 @@
     document.getElementById('searchBox').addEventListener('input', () => {
       if (window.__lastAllRows) renderWithFilters(window.__lastAllRows);
     });
+    document.getElementById('filterEvents').addEventListener('input', () => {
+      if (window.__lastAllRows) renderWithFilters(window.__lastAllRows);
+    });
 
     let __courseChart = null, __yearChart = null, __coursePctChart = null;
     let __byDayChart = null;
-    async function renderCharts(byCourse, byCollege) {
+    async function renderCharts(byCourse, byEvents) {
       const { Chart } = await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.3/auto/+esm');
       const bd = document.getElementById('byDay');
       const cc = document.getElementById('byCourse');
@@ -1186,33 +1231,40 @@
       cc.parentElement.style.height = '320px';
       __courseChart = new Chart(cc, courseConfig);
 
-      const collegeLabels = Object.keys(byCollege).slice(0, 10); // Show top 10 colleges
-      const collegeColors = ['#4dabf7', '#ffa94d', '#e64980', '#495057', '#74c0fc', '#69db7c', '#ffd43b', '#ff8cc8', '#91a7ff', '#ffc9c9'];
+      // Build Events chart (replacing the old college chart)
+      const eventEntries = Object.entries(byEvents || {}).sort((a,b) => b[1]-a[1]).slice(0, 12);
+      const eventLabels = eventEntries.map(e => e[0]);
+      const eventValues = eventEntries.map(e => e[1]);
+      const eventColors = ['#4dabf7', '#ffa94d', '#e64980', '#495057', '#74c0fc', '#69db7c', '#ffd43b', '#ff8cc8', '#91a7ff', '#ffc9c9', '#38d9a9', '#fcc419'];
 
-      const yearConfig = {
-        type: 'doughnut',
+      const eventsConfig = {
+        type: 'bar',
         data: {
-          labels: collegeLabels,
+          labels: eventLabels,
           datasets: [{
-            label: 'By College',
-            data: collegeLabels.map(label => byCollege[label]),
-            backgroundColor: collegeColors.slice(0, collegeLabels.length),
-            borderColor: '#1f1f1f',
-            borderWidth: 2
+            label: 'By Event',
+            data: eventValues,
+            backgroundColor: eventColors.slice(0, eventLabels.length),
+            borderColor: eventColors.slice(0, eventLabels.length),
+            borderWidth: 1
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '58%',
           plugins: {
-            legend: { display: true, position: 'bottom', labels: { color: '#fff', usePointStyle: true, padding: 14 } }
+            legend: { display: true, position: 'bottom', labels: { color: '#fff', usePointStyle: true, padding: 14 } },
+            tooltip: { intersect: false, mode: 'index' }
+          },
+          scales: {
+            x: { ticks: { color: '#B3B3B3' }, grid: { color: '#31302F', drawBorder: false } },
+            y: { ticks: { color: '#B3B3B3', precision: 0 }, grid: { color: '#31302F', drawBorder: false }, beginAtZero: true }
           }
         }
       };
       if (__yearChart) __yearChart.destroy();
       cy.parentElement.style.height = '320px';
-      __yearChart = new Chart(cy, yearConfig);
+      __yearChart = new Chart(cy, eventsConfig);
 
       // Percentage by course
       const totalCount = (byCourse['PUC / 12th / ISC / CBSE'] || 0) + (byCourse['Degree / UG'] || 0) + (byCourse['PG'] || 0);

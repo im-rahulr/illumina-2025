@@ -58,44 +58,6 @@
             <button class="btn btn-whatsapp contact-btn" data-support-name="Rahul" data-support-role="Site Admin & Developer" data-phone="919739904620">💬 WhatsApp</button>
           </div>
           <div class="contact-card">
-            <h4 class="contact-title">Vishal</h4>
-            <div class="contact-role">Registration & Site Designer</div>
-            <button class="btn btn-whatsapp contact-btn" data-support-name="Vishal" data-support-role="Registration & Site Designer" data-phone="917349321463">💬 WhatsApp</button>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button class="btn btn-secondary" id="closeSupportModal2">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script type="module">
-    import { EventAdminPage } from './event-admin.js';
-    const PASSWORD = 'iloveu';
-    const pageLoader = document.getElementById('pageLoader');
-    const showPageLoader = (text) => { if (pageLoader) { document.getElementById('pageLoaderText').textContent = text; pageLoader.classList.add('show'); } };
-    const hidePageLoader = () => { if (pageLoader) pageLoader.classList.remove('show'); };
-    async function initPage() {
-      try {
-        showPageLoader('Loading face painting event data...');
-        const eventAdminPage = new EventAdminPage('face-painting');
-        await eventAdminPage.init();
-        window.eventAdminPage = eventAdminPage;
-      } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('errorMessage').textContent = `Failed to load: ${error.message}`;
-        document.getElementById('errorMessage').classList.add('show');
-      } finally { hidePageLoader(); }
-    }
-    window.addEventListener('beforeunload', () => { if (window.eventAdminPage) window.eventAdminPage.destroy(); });
-    initPage();
-  </script>
-  <script>
-    (function() {
-      const supportBtn = document.getElementById('supportBtn');
-      const modal = document.getElementById('supportModal');
-      const closeBtns = [
-        document.getElementById('closeSupportModal'),
         document.getElementById('closeSupportModal2')
       ].filter(Boolean);
       const eventTitleEl = document.getElementById('eventTitle');
