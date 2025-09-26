@@ -9,13 +9,115 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/main.css?v=20240917">
   <style>
-    /* WhatsApp Widget Styles */
-    .whatsapp-widget {
+    /* Event Completion Popup Styles */
+    .event-completion-popup {
       position: fixed;
-      bottom: 20px;
-      left: 20px;
-      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 11, 11, 0.9);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
     }
+
+    .event-completion-popup.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-content {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      color: var(--text);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      transform: translateY(50px) scale(0.9);
+      transition: all 0.3s ease;
+    }
+
+    .event-completion-popup.show .popup-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .popup-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .popup-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 15px;
+      color: #fff;
+      font-family: 'Poppins', system-ui, sans-serif;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .popup-message {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      color: var(--text);
+    }
+
+    .popup-thanks {
+      font-size: 16px;
+      margin-bottom: 30px;
+      color: var(--muted);
+    }
+
+    .popup-admin {
+      font-size: 14px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .popup-close {
+      background: var(--primary);
+      border: 1px solid var(--primary-dark);
+      color: #10210a;
+      padding: 12px 30px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .popup-close:hover {
+      background: #82c24d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(123, 191, 68, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .popup-content {
+        padding: 30px 20px;
+        margin: 20px;
+      }
+
+      .popup-title {
+        font-size: 24px;
+      }
+
+      .popup-message {
+        font-size: 16px;
+      }
+    }
+
+    /* WhatsApp Widget Styles */
 
     .whatsapp-button {
       width: 60px;
@@ -210,9 +312,20 @@
   <meta name="twitter:image" content="https://lac-chess.netlify.app/assets/images/og-image.jpg">
 </head>
 <body class="home-page">
+  <!-- Event Completion Popup -->
+  <div id="eventCompletionPopup" class="event-completion-popup">
+    <div class="popup-content">
+      <div class="popup-icon">🎉</div>
+      <div class="popup-title">ILLUMINA 2025</div>
+      <div class="popup-message">has ended</div>
+      <div class="popup-thanks">Thank you for being a part of our event!</div>
+      <div class="popup-admin">By Site Admin: Rahul, Vishal & Chirag</div>
+      <button class="popup-close" onclick="closeEventPopup()">Got it!</button>
+    </div>
+  </div>
+
   <div id="siteBanner" class="site-banner" role="region" aria-label="Announcement" style="display:none">
-    <span><strong>Check ILLUMINA brochure</strong> — download now</span>
-    <a href="https://app.getfiledrop.com/share/ea5b9aeb-c638-4dc2-a17a-25f5480206f5/download" target="_blank" rel="noopener" download>Download PDF</a>
+    <span><strong>ILLUMINA 2025 has ended</strong> — thank you for your participation</span>
     <button id="closeBanner" class="banner-close" aria-label="Close announcement">×</button>
   </div>
   
@@ -223,16 +336,9 @@
     <h1 class="title">ILUMINA 2025</h1>
     <p class="subtitle">At Lowry Adventist College</p>
 
-    <div class="countdown" aria-live="polite">
-      <div class="count-box"><div id="dd" class="count-num">0</div><div class="count-label">Days</div></div>
-      <div class="count-box"><div id="hh" class="count-num">0</div><div class="count-label">Hours</div></div>
-      <div class="count-box"><div id="mm" class="count-num">0</div><div class="count-label">Minutes</div></div>
-      <div class="count-box"><div id="ss" class="count-num">0</div><div class="count-label">Seconds</div></div>
-    </div>
-
     <p class="meta">Event on 25 Sep 2025 • Entry Fee: ₹250 • Limited seats</p>
 
-    <a id="registerBtn" class="btn btn-primary" href="pages/register.html" role="button">Register Now</a>
+    <a id="registerBtn" class="btn btn-danger" href="#" role="button" onclick="return false;">Registration Closed</a>
 
     <div class="social-cta"><a href="https://www.google.com/maps/place/Lowry+Adventist+College/@12.9995672,77.6758179,808m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3bae111664e6ea83:0x9e648c3a0ca0c194!8m2!3d12.999562!4d77.6783928!16s%2Fg%2F1tdp3h08?hl=en&entry=ttu&g_ep=EgoyMDI1MDkxMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">College Address</a></div>
     <a class="btn btn-secondary" href="pages/rules-new.html" style="margin-top: 10px;">View Rules & Coordinators</a>
@@ -439,6 +545,29 @@
 
   <script>
     (function(){
+      // Event Completion Popup Logic
+      function showEventPopup() {
+        const popup = document.getElementById('eventCompletionPopup');
+        if (popup) {
+          setTimeout(() => {
+            popup.classList.add('show');
+          }, 1000); // Show after 1 second
+        }
+      }
+
+      function closeEventPopup() {
+        const popup = document.getElementById('eventCompletionPopup');
+        if (popup) {
+          popup.classList.remove('show');
+        }
+      }
+
+      // Show popup when page loads
+      window.addEventListener('load', showEventPopup);
+
+      // Make close function globally available
+      window.closeEventPopup = closeEventPopup;
+
       // Error handling for deployment debugging
       window.addEventListener('error', function(e) {
         console.error('Global error:', e.error);
@@ -462,33 +591,6 @@
         console.warn('Banner error:', e);
       }
 
-      // Set target to September 25, 2025, 12:00 PM IST (07:30 UTC)
-      var target = new Date('2025-09-25T07:30:00Z');
-      function update(){
-        try {
-          var now = new Date();
-          var diff = Math.max(0, target - now);
-          var s = Math.floor(diff / 1000);
-          var d = Math.floor(s / 86400); s -= d * 86400;
-          var h = Math.floor(s / 3600); s -= h * 3600;
-          var m = Math.floor(s / 60); s -= m * 60;
-          
-          var ddEl = document.getElementById('dd');
-          var hhEl = document.getElementById('hh');
-          var mmEl = document.getElementById('mm');
-          var ssEl = document.getElementById('ss');
-          
-          if (ddEl) ddEl.textContent = d;
-          if (hhEl) hhEl.textContent = String(h).padStart(2,'0');
-          if (mmEl) mmEl.textContent = String(m).padStart(2,'0');
-          if (ssEl) ssEl.textContent = String(s).padStart(2,'0');
-        } catch (e) {
-          console.error('Countdown error:', e);
-        }
-      }
-      update();
-      setInterval(update, 1000);
-      
       // Registration button now directly links to register.html
     })();
 
