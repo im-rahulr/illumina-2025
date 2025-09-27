@@ -734,7 +734,7 @@ body.home-page .event-card {
 .event-product-launch { background-image: url("../images/events/Product-launch.jpg"); }
 .event-best-manager { background-image: url("../images/events/Best-manager.jpg"); }
 .event-debugging { background-image: url("../images/events/Debugging.jpg"); }
-.event-coding { background-image: url("../images/events/Debugging.jpg"); }
+.event-coding { background-image: url("../images/events/Coding.jpg"); }
 .event-solo-dance { background-image: url("../images/events/solo-dance.jpg"); }
 .event-generic { background-image: url("../images/ui/og-image.jpg"); }
 
@@ -2042,5 +2042,22 @@ table td:last-child {
 
   .star::after {
     height: 6px;
+  }
+}
+
+/* Additional performance optimizations for hosting */
+@media (prefers-reduced-motion: reduce) {
+  .star,
+  .star::before,
+  .star::after {
+    animation: none !important;
+  }
+
+  .btn.is-loading .spinner {
+    animation: none !important;
+  }
+
+  .modal-card {
+    animation: none !important;
   }
 }
